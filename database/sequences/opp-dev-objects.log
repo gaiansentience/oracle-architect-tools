@@ -1,0 +1,26 @@
+
+Creating sequence APP#LOG_SEQ_ID
+================================
+
+
+create sequence APP#LOG_SEQ_ID
+minvalue 1
+maxvalue 999999999999
+start with 533
+increment by 1
+nocache
+
+ORA-00955: name is already used by an existing object
+
+Creating sequence TEST_PIPELINE_SEQ
+===================================
+
+
+create sequence TEST_PIPELINE_SEQ
+minvalue 1
+maxvalue 9999
+start with 21
+increment by 1
+cache 20
+
+ORA-00955: name is already used by an existing object

@@ -1,0 +1,11 @@
+create table TEST_PIPELINE
+(
+  ID          NUMBER not null,
+  NAME        VARCHAR2(100),
+  DESCRIPTION VARCHAR2(100),
+  TITLE       VARCHAR2(100)
+)
+;
+alter table TEST_PIPELINE
+  add constraint TEST_PIPELINE_PK primary key (ID);
+
