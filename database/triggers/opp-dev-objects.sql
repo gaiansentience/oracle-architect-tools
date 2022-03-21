@@ -5,11 +5,12 @@
 
 spool opp-dev-objects.log
 
-prompt
 prompt Creating trigger APP#LOGS_BR_DIU
 prompt ================================
-prompt
-@@app#logs_br_diu.trg
+@@app_logs_br_diu.trg
+prompt Creating trigger APP#ENVIRONMENT_BR_DIU
+prompt ================================
+@@app_environment_br_diu.trg
 prompt
 prompt Creating trigger TEST_PIPELINE_BRI
 prompt ==================================

@@ -9,72 +9,72 @@ prompt
 prompt Creating type body APP#ATTRIB
 prompt =============================
 prompt
-@@app#attrib.tpb
+@@app_attrib.tpb
 prompt
 prompt Creating type body APP#ATTRIBS_SET
 prompt ==================================
 prompt
-@@app#attribs_set.tpb
+@@app_attribs_set.tpb
 prompt
 prompt Creating type body APP#BOOL
 prompt ===========================
 prompt
-@@app#bool.tpb
+@@app_bool.tpb
 prompt
 prompt Creating type body APP#EXCEL_BOOK
 prompt =================================
 prompt
-@@app#excel_book.tpb
+@@app_excel_book.tpb
 prompt
 prompt Creating type body APP#EXCEL_CELL
 prompt =================================
 prompt
-@@app#excel_cell.tpb
+@@app_excel_cell.tpb
 prompt
 prompt Creating type body APP#EXCEL_ROW
 prompt ================================
 prompt
-@@app#excel_row.tpb
+@@app_excel_row.tpb
 prompt
 prompt Creating type body APP#EXCEL_STYLE
 prompt ==================================
 prompt
-@@app#excel_style.tpb
+@@app_excel_style.tpb
 prompt
 prompt Creating type body APP#EXCEL_STYLES_SET
 prompt =======================================
 prompt
-@@app#excel_styles_set.tpb
+@@app_excel_styles_set.tpb
 prompt
 prompt Creating type body APP#EXCEL_TABLE
 prompt ==================================
 prompt
-@@app#excel_table.tpb
+@@app_excel_table.tpb
 prompt
 prompt Creating type body APP#FMT
 prompt ==========================
 prompt
-@@app#fmt.tpb
+@@app_fmt.tpb
 prompt
 prompt Creating type body APP#FORMAT
 prompt =============================
 prompt
-@@app#format.tpb
+@@app_format.tpb
 prompt
 prompt Creating type body APP#HTML
 prompt ===========================
 prompt
-@@app#html.tpb
+@@app_html.tpb
 prompt
 prompt Creating type body APP#LOG
 prompt ==========================
 prompt
-@@app#log.tpb
+@@app_log.tpb
 prompt
 prompt Creating type body APP#ML
 prompt =========================
 prompt
-@@app#ml.tpb
+@@app_ml.tpb
 prompt
 prompt Creating type body TYPE_TEST_PIPELINE
 prompt =====================================

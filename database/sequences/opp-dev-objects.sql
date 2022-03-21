@@ -9,7 +9,9 @@ prompt
 prompt Creating sequence APP#LOG_SEQ_ID
 prompt ================================
 prompt
-@@app#log_seq_id.seq
+@@app_log_seq_id.seq
+prompt
+@@app_environment_seq_id.seq
 prompt
 prompt Creating sequence TEST_PIPELINE_SEQ
 prompt ===================================

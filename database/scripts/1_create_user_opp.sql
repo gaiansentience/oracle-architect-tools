@@ -1,9 +1,16 @@
 -- Create the user 
 create user OPP
-  identified by "tsunam1"
+  identified by "xe"
   default tablespace USERS
   temporary tablespace TEMP
   profile DEFAULT;
+-- Grant basic database privileges
+grant create session to OPP;
+-- Grant object creation privileges
+grant create table to OPP;
+grant create view to OPP;
+grant create procedure to OPP;
+grant create type to OPP;
 -- Grant/Revoke object privileges 
 grant select on SYS.V_$OPEN_CURSOR to OPP;
 grant select on SYS.V_$SESSION to OPP;

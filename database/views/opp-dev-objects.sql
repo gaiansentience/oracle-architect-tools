@@ -9,11 +9,11 @@ prompt
 prompt Creating view APP#LOGS_DAILY
 prompt ============================
 prompt
-@@app#logs_daily.vw
+@@app_logs_daily.vw
 prompt
 prompt Creating view APP#LOGS_HOURLY
 prompt =============================
 prompt
-@@app#logs_hourly.vw
+@@app_logs_hourly.vw
 
 spool off
