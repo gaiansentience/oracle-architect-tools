@@ -56,21 +56,22 @@ create or replace type body app#excel_cell is
   end initialize_cell;
 
   member procedure to_xml is
-    v_cell varchar2(100) := 'Cell';
-    v_data varchar2(100) := 'Data';
+    c_tag varchar2(100) := 'Cell';
+    d_tag varchar2(100) := 'Data';
+    v_cell_attrib varchar2(100);
+    v_data_attrib varchar2(100);
   begin
   
     --<Cell ss:StyleID="s24"><Data ss:Type="String">
     /*
-    TODO: owner="Uncle Anthony" created="12/20/2009"
+    TODO: owner=" Anthony" created="12/20/2009"
     text="add cell attributes (for style) and data attributes (for datatype)"
     */
-    self.tag_element(v_cell,
-                     null);
-    self.add_element(v_data,
-                     self.cell_value,
-                     self.attributes.attributes_formatted);
-    self.close_element(v_cell);
+    self.open(c_tag, v_cell_attrib);
+    self.element(p_value => self.cell_value,
+                     p_tag => d_tag,
+                     p_attributes => self.attributes.attributes_formatted);
+    self.close(c_tag);
   
     self.xml_cell := self.data;
   

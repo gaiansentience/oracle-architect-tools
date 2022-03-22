@@ -3,7 +3,7 @@ create or replace type body app#html is
 
 -- Author  : Anthony Harper
 -- Created : 12/20/2009
--- Reviewed: 03/21/2022
+-- Revised : 03/22/2022
 
   --constructor function
   constructor function app#html return self as result is
@@ -11,453 +11,507 @@ create or replace type body app#html is
 
     self.initialize;
     return;
+
   end app#html;
 
   --member methods
-  --these write to self.data.data
+  --these write to self.data
+
   --html comment <--VALUE-->
-  member procedure comment_html(p_value in varchar2) is
+  member procedure comment_html
+  (
+    self         in out nocopy app#html,  
+    p_value      in varchar2
+  ) 
+  is
+    c varchar2(32000);
   begin
-    app#fmt.append(self.data,
-                   app#fmt.lt || app#fmt.exclaim || '--' || p_value || '--' || app#fmt.gt);
+  
+    c := app#fmt.lt || app#fmt.exclaim || '--' || p_value || '--' || app#fmt.gt;
+    self.append_markup(c);
+
   end comment_html;
+  
   --line break <br/>
-  member procedure break(p_lines in number default 1) is
-    v_tag varchar(10) := 'br';
+  member procedure break
+  (
+    self         in out nocopy app#html,    
+    p_lines      in number default 1
+  ) 
+  is
   begin
 
     for i in 1 .. p_lines loop
-      self.open_element(p_tag => v_tag,
-                        p_attributes => null,
-                        p_is_closed => true);
+      self.empty(p_tag => 'br');
     end loop;
+
   end break;
+  
   --hard return <hr/>
-  member procedure hr is
-    v_tag varchar(10) := 'hr';
+  member procedure hr
+  (
+    self         in out nocopy app#html  
+  )
+  is
   begin
-    self.open_element(p_tag => v_tag,
-                      p_attributes => null,
-                      p_is_closed => true);
+
+    self.empty(p_tag => 'hr');
+
   end hr;
+  
   --html doc <html></html>
-  member procedure html(p_is_open in boolean default true) is
-    v_tag varchar2(10) := 'html';
+  member procedure html
+  (
+    self         in out nocopy app#html,    
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(p_value => null,
-                     p_tag => v_tag,
-                     p_attributes => null,
-                     p_is_open => p_is_open);
+  
+    self.simple(p_tag => 'html', p_open => p_open);
+    
   end html;
+  
   --html head <head></head>
-  member procedure head_html(p_is_open in boolean default true) is
-    v_tag varchar2(10) := 'head';
+  member procedure head
+  (
+    self         in out nocopy app#html,    
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(v_tag,
-                     null,
-                     null,
-                     p_is_open);
-  end head_html;
+
+    self.simple(p_tag => 'head', p_open => p_open);
+
+  end head;
+  
   --html body <body></body>
-  member procedure body_html(p_is_open in boolean default true) is
-    v_tag varchar2(10) := 'body';
+  member procedure body
+  (
+    self         in out nocopy app#html,  
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(v_tag,
-                     null,
-                     null,
-                     p_is_open);
-  end body_html;
+
+    self.simple(p_tag => 'body', p_open => p_open);
+  
+  end body;
+  
   --image  <img src="p_src" width="p_width" height="p_height"/>
   member procedure img
   (
-    p_src    in varchar2,
-    p_width  in number default 0,
-    p_height in number default 0
-  ) is
-    v_tag        varchar2(10) := 'img';
-    v_attributes app#attribs_set;
+    self         in out nocopy app#html,    
+    p_src        in varchar2,
+    p_width      in number default 0,
+    p_height     in number default 0
+  ) 
+  is
+    v_attribs app#attribs_set := new app#attribs_set;
   begin
-    v_attributes := new app#attribs_set('src',
-                                        p_src);
+    
+    v_attribs.add_attribute('src', p_src);
+    v_attribs.add_attribute('width', p_width);
+    v_attribs.add_attribute('height', p_height);
+    self.empty(p_tag => 'img', p_attributes => v_attribs.attributes_formatted);
 
-    v_attributes.add_attribute('width',
-                               p_width);
-    v_attributes.add_attribute('height',
-                               p_height);
-    self.open_element(v_tag,
-                      v_attributes.attributes_formatted,
-                      true);
   end img;
+  
   --bold <b></b>
-  member procedure bold(p_is_open in boolean default true) is
-    v_tag varchar2(10) := 'b';
+  member procedure bold
+  (
+    self         in out nocopy app#html,    
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(v_tag,
-                     null,
-                     null,
-                     p_is_open);
+  
+    self.simple(p_tag => 'b',p_open => p_open);
+  
   end bold;
+  
   --font <font></font>
   member procedure font
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'font';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'font', p_attributes => p_attributes, p_open => p_open);
+ 
   end font;
+  
   --division <div></div>
   member procedure div
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'div';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'div', p_attributes => p_attributes, p_open => p_open);
+
   end div;
+  
   --table <table></table>
   member procedure table_html
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'table';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'table', p_attributes => p_attributes, p_open => p_open);
+                     
   end table_html;
+  
   --table row <tr></tr>
   member procedure tr
   (
+    self         in out nocopy app#html,  
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'tr';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'tr', p_attributes => p_attributes, p_open => p_open);
+
   end tr;
+  
   --table header <th></th>
   member procedure th
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'th';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'th',p_attributes => p_attributes, p_open => p_open);
+                       
   end th;
+
+  --table heading <th>VALUE</th>
+  member procedure table_heading
+  (
+    self         in out nocopy app#html,    
+    p_value      in varchar2,
+    p_attributes in varchar2 default null
+  ) 
+  is
+  begin
+    
+    self.th(p_attributes => p_attributes, p_open => true);
+    self.append_value(p_value);    
+    self.th(p_open => false);
+    
+  end table_heading;
+  
   --table data <td></td>
   member procedure td
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'td';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'td', p_attributes => p_attributes, p_open => p_open);
+
   end td;
+  
   --table data <td>VALUE</td>
   member procedure table_data
   (
+    self         in out nocopy app#html,    
     p_value      in varchar2,
     p_attributes in varchar2 default null
-  ) is
-    v_tag varchar2(10) := 'td';
+  ) 
+  is
   begin
-    self.tag_element(v_tag,
-                     p_attributes);
-    app#fmt.append(self.data,
-                   p_value);
-    self.close_element(v_tag);
+    
+    self.td(p_attributes => p_attributes, p_open => true);
+    self.append_value(p_value);    
+    self.td(p_open => false);
+    
   end table_data;
+  
   --ordered list <ol></ol>
   member procedure ol
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'ol';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'ol', p_attributes => p_attributes, p_open => p_open);
+  
   end ol;
+  
   --unordered list <ul></ul>
   member procedure ul
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'ul';
+    p_open       in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+
+    self.simple(p_tag => 'ul', p_attributes => p_attributes, p_open => p_open);
+
   end ul;
+  
   --list item <lt></li>
   member procedure li
   (
+    self         in out nocopy app#html,    
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) is
-    v_tag varchar2(10) := 'li';
+    p_open    in boolean default true
+  ) 
+  is
   begin
-    self.tag_element(null,
-                     v_tag,
-                     p_attributes,
-                     p_is_open);
+  
+    self.simple(p_tag => 'li', p_attributes => p_attributes, p_open => p_open);
+  
   end li;
+  
   --list item <lt>VALUE</li>
   member procedure list_item
   (
+    self         in out nocopy app#html,    
     p_value      in varchar2,
     p_attributes in varchar2 default null
-  ) is
-    v_tag varchar2(10) := 'li';
+  ) 
+  is
   begin
-    self.tag_element(v_tag,
-                     p_attributes);
-    app#fmt.append(self.data,
-                   p_value);
-    self.close_element(v_tag);
+
+    self.li(p_attributes => p_attributes, p_open => true);
+    self.append_value(p_value);
+    self.li(p_open => false);
+    
   end list_item;
 
-  --static methods returning varchar
-  static function open_element
-
-  (
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null,
-    p_is_closed  in boolean default false
-  ) return varchar2 is
-    d app#format := new app#format;
-  begin
-
-    d.append_varchar('<' || p_tag || ' ' || p_attributes);
-    if p_is_closed = true then
-      d.append_varchar('/');
-    end if;
-    d.append_varchar('>',
-                     true);
-    return d.data_varchar;
-
-  end open_element;
-
-  static function close_element(p_tag in varchar2) return varchar2 is
-  begin
-    return '</' || p_tag || '>';
-  end close_element;
-
-  static function tag_element
-  (
-    p_tag        in varchar2,
-    p_attributes in varchar2,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-  begin
-    if p_is_open = true then
-      return open_element(p_tag,
-                          p_attributes);
-    else
-      return close_element(p_tag);
-    end if;
-
-  end tag_element;
 
   --static methods returning varchar
+
   --html comment <--VALUE-->
-  static function comment_html(p_value in varchar2) return varchar2 is
+  static function comment_html
+  (
+    p_value      in varchar2
+  ) return varchar2 
+  is
   begin
+
     return '<!--' || p_value || '-->';
+
   end comment_html;
+
   --line break <br/>
-  static function break(p_lines in number default 1) return varchar2 is
-    v_tag     varchar2(10) := 'br';
+  static function break
+  (
+    p_lines      in number default 1
+  ) return varchar2 
+  is
     v_element varchar2(1000);
   begin
 
     for i in 1 .. p_lines loop
-      v_element := open_element(v_tag,
-                                null,
-                                true);
+      v_element := v_element || app#ml.empty('br');
     end loop;
 
     return v_element;
 
   end break;
+  
   --hard return <hr/>
-  static function hr return varchar2 is
-    v_tag varchar2(10) := 'hr';
+  static function hr return varchar2 
+  is
   begin
-    return open_element(v_tag,
-                        null,
-                        true);
+
+    return app#ml.empty('hr');
+
   end hr;
+  
   --html doc <html></html>
-  static function html(p_is_open in boolean default true) return varchar2 is
-    v_tag varchar2(10) := 'html';
+  static function html
+  (
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       null,
-                       p_is_open);
+
+    return app#ml.simple(p_tag => 'html', p_open => p_open);
+
   end html;
+  
   --html head <head></head>
-  static function head_html(p_is_open in boolean default true) return varchar2 is
-    v_tag varchar2(10) := 'head';
+  static function head(
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       null,
-                       p_is_open);
-  end head_html;
+
+    return app#ml.simple(p_tag => 'head', p_open => p_open);
+
+  end head;
+  
   --html body <body></body>
-  static function body_html(p_is_open in boolean default true) return varchar2 is
-    v_tag varchar2(10) := 'body';
+  static function body
+  (
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       null,
-                       p_is_open);
-  end body_html;
+
+    return app#ml.simple(p_tag => 'body', p_open => p_open);
+
+  end body;
 
   --image  <img src="p_src" width="p_width" height="p_height"/>
   static function img
   (
-    p_src    in varchar2,
-    p_width  in number default 0,
-    p_height in number default 0
-  ) return varchar2 is
-    v_tag        varchar2(10) := 'img';
-    v_attributes app#attribs_set;
+    p_src        in varchar2,
+    p_width      in number default 0,
+    p_height     in number default 0
+  ) return varchar2 
+  is
+    a_set app#attribs_set := new app#attribs_set;
   begin
-    v_attributes := new app#attribs_set('src',
-                                        p_src);
-
-    v_attributes.add_attribute('width',
-                               p_width);
-    v_attributes.add_attribute('height',
-                               p_height);
-    return open_element(v_tag,
-                        v_attributes.attributes_formatted,
-                        true);
+  
+    a_set.add_attribute('src', p_src);
+    a_set.add_attribute('width', p_width);
+    a_set.add_attribute('height', p_height);
+    return app#ml.empty(p_tag => 'img', p_attributes => a_set.attributes_formatted);
+    
   end img;
 
   --bold <b></b>
-  static function bold(p_is_open in boolean default true) return varchar2 is
-    v_tag varchar2(10) := 'b';
+  static function bold
+  (
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return open_element(v_tag,
-                        null,
-                        p_is_open);
+    return app#ml.simple(p_tag => 'b', p_open => p_open);
   end bold;
+  
   --font <font></font>
   static function font
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'font';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+  
+    return app#ml.simple('font', p_attributes, p_open);
+
   end font;
+  
   --division <div></div>
   static function div
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'div';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+  
+    return app#ml.simple('div', p_attributes, p_open);
+
   end div;
 
   --table <table></table>
   static function table_html
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'table';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+
+    return app#ml.simple('table', p_attributes, p_open);
+
   end table_html;
+  
   --table row <tr></tr>
   static function tr
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'tr';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+    return app#ml.simple('tr', p_attributes, p_open);
   end tr;
+  
   --table header <th></th>
   static function th
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'th';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+    return app#ml.simple('th', p_attributes, p_open);
   end th;
+  
+  static function table_heading
+  (
+    p_value      in varchar2,
+    p_attributes in varchar2 default null
+  ) return varchar2 
+  is
+    d varchar2(32000);
+  begin
+
+    d := th(p_attributes, true);
+    d := d || p_value;
+    d := d || th(p_open => false);
+    return d;
+
+  end table_heading;
+  
   --table data <td></td>
   static function td
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'td';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+
+    return app#ml.simple('td', p_attributes, p_open);
+
   end td;
 
   static function table_data
   (
     p_value      in varchar2,
     p_attributes in varchar2 default null
-  ) return varchar2 is
-    d app#format := new app#format;
+  ) return varchar2 
+  is
+    d varchar2(32000);
+--    d app#format_vc := new app#format_vc;
   begin
 
-    d.append_varchar(td(p_attributes),
-                     true);
-    d.append_varchar(p_value);
-    d.append_varchar(td(null,
-                        false),
-                     true);
-    return d.data_varchar;
+    d := td(p_attributes, true);
+    d := d || p_value;
+    d := d || td(p_open => false);
+    return d;
 
   end table_data;
 
@@ -465,57 +519,54 @@ create or replace type body app#html is
   static function ol
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'ol';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+
+    return app#ml.simple('ol', p_attributes, p_open);
+
   end ol;
 
   --unordered list <ul></ul>
   static function ul
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'ul';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+
+    return app#ml.simple('ul', p_attributes, p_open);
+
   end ul;
 
   --list item <lt></li>
   static function li
   (
     p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2 is
-    v_tag varchar2(10) := 'li';
+    p_open       in boolean default true
+  ) return varchar2 
+  is
   begin
-    return tag_element(v_tag,
-                       p_attributes,
-                       p_is_open);
+
+    return app#ml.simple('li', p_attributes, p_open);
+
   end li;
 
   static function list_item
   (
     p_value      in varchar2,
     p_attributes in varchar2 default null
-  ) return varchar2 is
-    v_tag varchar2(10) := 'li';
-    d     app#format := new app#format;
+  ) return varchar2 
+  is
+    d varchar2(32000);
   begin
 
-    d.append_varchar(tag_element(v_tag,
-                                 p_attributes));
-    d.append_varchar(p_value);
-    d.append_varchar(tag_element(v_tag,
-                                 null,
-                                 false));
-    return d.data_varchar;
+    d := li(p_attributes,true);
+    d := d || p_value;
+    d := d || li(p_open => false);
+    return d;
 
   end list_item;
 

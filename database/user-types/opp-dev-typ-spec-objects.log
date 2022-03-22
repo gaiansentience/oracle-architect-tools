@@ -1,547 +1,76 @@
-
-Creating type APP#ATTRIB
-========================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_attrib.tps
-In command -
-create or replace type app#attrib as object
-(
--- Author  : Anthony Harper
--- Created : 12/19/2009
--- Reviewed: 03/21/2022
--- Purpose : attribute type to support markup languages
-
--- Attributes
-  name      varchar2(4000),
-  value     varchar2(4000),
-  attribute varchar2(4000),
-
-  constructor function app#attrib return self as result,
-
-  constructor function app#attrib(p_formatted_attribute in varchar2) return self as result,
-
-  constructor function app#attrib
-  (
-    p_name  in varchar2,
-    p_value in varchar2
-  ) return self as result,
-
-  member procedure initialize,
-
-  member procedure build,
-
-  member procedure parse(p_attribute in varchar2)
-
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#ATTRIBS
-=========================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_attribs.tps
-In command -
-create or replace type app#attribs is table of app#attrib;
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#ATTRIBS_SET
-=============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_attribs_set.tps
-In command -
-create or replace type app#attribs_set as object
-(
--- Author  : Anthony Harper
--- Created : 12/19/2009
--- Reviewed: 03/21/2022
--- Purpose : manage collections of attributes for markup utilities
-
--- Attributes
-  attributes           app#attribs,
-  attributes_formatted varchar2(4000),
-
--- Member functions and procedures
-  constructor function app#attribs_set return self as result,
-
-  constructor function app#attribs_set(p_formatted_attribute_set in varchar2) return self as result,
-
-  constructor function app#attribs_set
-  (
-    p_name  in varchar2,
-    p_value in varchar2
-  ) return self as result,
-
-  member procedure initialize,
-
-  member procedure add_attribute(p_attribute in app#attrib),
-
-  member procedure add_attribute
-  (
-    p_name  in varchar2,
-    p_value in varchar2
-  ),
-
-  member procedure add_formatted_attribute(p_formatted_attribute in varchar2),
-
-  member procedure format_all,
-
-  member procedure parse_all
-
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#BOOL
-======================
-
+creating app#log types
 
 Type APP#BOOL compiled
 
 
-Creating type APP#ML
-====================
 
+Type APP#LOG compiled
 
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_ml.tps
-In command -
-create or replace type app#ml as object
-(
-
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
--- Purpose : encapsulate functionality for markup languages like xml and html
-
--- Attributes
-  data clob,
-
---constructor and internal methods
-  constructor function app#ml return self as result,
-
-  member procedure initialize,
-
---member methods
---these all write internally using self.data.append
---access final document values via self.data.data
-  member procedure open_element
-
-  (
-    self         in out nocopy app#ml,
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null,
-    p_is_closed  in boolean default false
-  ),
-
-  member procedure close_element(p_tag in varchar2),
-
-  member procedure tag_element
-  (
-    p_value      in varchar2,
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ),
-
-  member procedure xml_comment(p_value in varchar2),
-
-  member procedure xml_declaration(p_xml_version in varchar2 default '1.0'),
-
-  member procedure add_element
-  (
-    p_value      in varchar2,
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null
-  ),
-
---static methods
---functions all return values as varchar
-  static function open_element
-  (
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null,
-    p_is_closed  in boolean default false
-  ) return varchar2,
-
-  static function close_element(p_tag in varchar2) return varchar2,
-
-  static function tag_element
-  (
-    p_value      in varchar2,
-    p_tag        in varchar2,
-    p_attributes in varchar2 default null,
-    p_is_open    in boolean default true
-  ) return varchar2,
-
-  static function xml_comment(p_value in varchar2) return varchar2,
-
-  static function xml_declaration(p_xml_version in varchar2 default '1.0') return varchar2,
-
-  static procedure add_element
-
-  (
-    p_xml        in out nocopy clob,
-    p_tag        in varchar2,
-    p_value      in varchar2,
-    p_attributes in varchar2 default null
-  )
-
-)
-not final
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_CELL
 ============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_cell.tps
-In command -
-create or replace type app#excel_cell under app#ml
-(
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
--- Purpose : excel data cell
-
--- Attributes
-  cell_value varchar2(32000),
-  attributes app#attribs_set,
-  xml_cell   varchar2(32000),
-
-  constructor function app#excel_cell return self as result,
-
-  constructor function app#excel_cell(p_cell_value in varchar2) return self as result,
-
-  constructor function app#excel_cell
-  (
-    p_cell_value in varchar2,
-    p_attributes in app#attribs_set
-  ) return self as result,
-
-  constructor function app#excel_cell
-  (
-    p_cell_value           in varchar2,
-    p_formatted_attributes in varchar2
-  ) return self as result,
-
-  member procedure initialize_cell,
-
-  member procedure to_xml
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_CELLS
-=============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_cells.tps
-In command -
-create or replace type app#excel_cells is table of app#excel_cell;
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_ROW
-===========================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_row.tps
-In command -
-create or replace type app#excel_row under app#ml
-(
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
--- Purpose : Formatting object representing an exel row
-
-  row_cells app#excel_cells,
-  row_xml   clob,
-
-  constructor function app#excel_row return self as result,
-
-  member procedure initialize_row,
-
-  member procedure add_data_cell(p_data_cell in app#excel_cell),
-
-  member procedure add_data_cell
-  (
-    p_cell_value           in varchar2,
-    p_formatted_attributes in varchar2
-  ),
-
-  member procedure to_xml
-
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_ROWS
-============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_rows.tps
-In command -
-create or replace type app#excel_rows is table of app#excel_row;
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_STYLE
-=============================
-
-
-Type APP#EXCEL_STYLE compiled
-
-
-Creating type APP#EXCEL_STYLES
-==============================
-
-
-Type APP#EXCEL_STYLES created.
-
-
-Creating type APP#EXCEL_STYLES_SET
-==================================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_styles_set.tps
-In command -
-create or replace force type app#excel_styles_set under app#ml
-(
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
--- Purpose : manage collections of excel workbook styles
-
--- Attributes
-  styles     app#excel_styles,
-  styles_xml clob,
-
--- Member functions and procedures
-  constructor function app#excel_styles_set return self as result,
-
-  member procedure initialize_styles,
-
-  member procedure add_style(p_style in app#excel_style),
-
-  member procedure to_xml
-
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_TABLE
-=============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_table.tps
-In command -
-create or replace type app#excel_table under app#ml
-(
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
--- Purpose : excel data table
-
--- Attributes
-  table_rows    app#excel_rows,
-  table_heading app#excel_row,
-  table_title   varchar2(100),
-  table_xml     clob,
-
-  constructor function app#excel_table return self as result,
-
-  constructor function app#excel_table(p_title in varchar2) return self as result,
-
-  member procedure add_heading(p_heading in app#excel_row),
-
-  member procedure add_row(p_table_row in app#excel_row),
-
-  member procedure initialize_table,
-
-  member procedure to_xml
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_TABLES
-==============================
-
-
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\app_excel_tables.tps
-In command -
-create or replace type app#excel_tables is table of app#excel_table;
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
-
-Creating type APP#EXCEL_BOOK
-============================
-
-
-Type APP#EXCEL_BOOK created.
-
-
-Creating type APP#FMT
-=====================
-
+creating formatting type specifications
 
 Type APP#FMT compiled
-
-
-Creating type APP#FORMAT
-========================
 
 
 Type APP#FORMAT compiled
 
 
-Creating type APP#HTML
-======================
+Type APP#FORMAT_VC compiled
+
+
+Type APP#ATTRIB compiled
+
+
+Type APP#ATTRIBS compiled
+
+
+Type APP#ATTRIBS_SET compiled
+
+
+Type APP#ML compiled
 
 
 Type APP#HTML compiled
 
+created formatting type specifications
+============================
+creating app#excel type specifications
 
-Creating type APP#LOG
-=====================
-
-
-Type APP#LOG compiled
-
-
-Creating type TYPE_TEST_PIPELINE
-================================
+Type APP#EXCEL_CELL compiled
 
 
-Error starting at line : 1 File @ C:\SourceControl\git\ora-architect\database\user-types\type_test_pipeline.tps
-In command -
-create or replace type type_test_pipeline as object
-(
--- Author  : UNCLE ANTHONY
--- Created : 12/31/2009 12:39:22 AM
--- Purpose : record type for testing pipelined functions
+Type APP#EXCEL_CELLS compiled
 
--- Attributes
-  id          number,
-  name        varchar2(100),
-  description varchar2(100),
-  title       varchar2(100),
 
--- functions and procedures
-  static procedure append
-  (
-    p_target     in out nocopy varchar2,
-    p_value      in varchar2,
-    p_newline    in boolean default true,
-    p_enclose_sq in boolean default false
-  ),
+Type APP#EXCEL_ROW compiled
 
-  static function get_to_type_cols(p_prefix in varchar2) return varchar2
-)
-Error report -
-ORA-02303: cannot drop or replace a type with type or table dependents
-02303. 00000 -  "cannot drop or replace a type with type or table dependents"
-*Cause:    An attempt was made to drop or replace a type that has
-           type or table dependents.
-*Action:   For DROP TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or use the FORCE option.
-           For CREATE TYPE, drop all type(s) and table(s) depending on the
-           type and then retry the operation, or drop all table(s) depending
-           on the type and retry with the FORCE option.
 
-Creating type TYPE_TEST_PIPELINE_TABLE
-======================================
+Type APP#EXCEL_ROWS compiled
+
+
+Type APP#EXCEL_TABLE compiled
+
+
+Type APP#EXCEL_TABLES compiled
+
+
+Type APP#EXCEL_STYLE compiled
+
+
+Type APP#EXCEL_STYLES created.
+
+
+Type APP#EXCEL_STYLES_SET created.
+
+
+Type APP#EXCEL_BOOK created.
+
+app#excel type specifications created
+============================
+miscellaneous types
+
+Type TYPE_TEST_PIPELINE compiled
+
 
 
 Type TYPE_TEST_PIPELINE_TABLE compiled

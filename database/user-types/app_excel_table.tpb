@@ -65,28 +65,25 @@ create or replace type body app#excel_table is
   end initialize_table;
 
   member procedure to_xml is
-    v_worksheet varchar2(100) := 'Worksheet';
-    v_table     varchar2(100) := 'Table';
-    v_attribute app#attrib;
+    w_tag varchar2(100) := 'Worksheet';
+    t_tag     varchar2(100) := 'Table';
+    wa app#attrib;
   begin
     --<Worksheet ss:Name="first sheet">  <Table>
-    v_attribute := new app#attrib('ss:Name',
-                                  self.table_title);
+    wa := new app#attrib('ss:Name', self.table_title);
   
-    self.open_element(v_worksheet,
-                      v_attribute.attribute);
-    self.open_element(v_table);
+    self.open(p_tag => w_tag, p_attributes => wa.attribute);
+    self.open(p_tag => t_tag);
   
     for i in 1 .. self.table_rows.count loop
       self.table_rows(i) .to_xml;
-      app#fmt.append(self.data,
-                     self.table_rows(i).row_xml);
+      app#fmt.append(self.data, self.table_rows(i).row_xml);
     
     end loop;
   
-    self.close_element(v_table);
+    self.close(p_tag => t_tag);
   
-    self.close_element(v_worksheet);
+    self.close(p_tag => w_tag);
   
     self.table_xml := self.data;
   

@@ -77,15 +77,16 @@ create or replace type body app#excel_style is
   </Styles>*/
 
   member procedure to_xml is
-    v_style     varchar2(10) := 'Style';
+    s_tag     varchar2(10) := 'Style';
     v_inner_xml varchar2(32000);
   begin
   
-    self.open_element(v_style);
-    --add inner style data
-  
-    self.tag_element(v_style,
-                     v_inner_xml);
+    self.open(s_tag);
+    
+    --build and add inner style data  
+    app#fmt.append(self.data, v_inner_xml);
+
+    self.close(s_tag);
   
     self.style_xml := self.data;
   

@@ -105,51 +105,45 @@ create or replace type body app#excel_book is
 
   member procedure document_properties is
     v_attribute           app#attrib;
-    v_document_properties varchar2(100) := 'DocumentProperties';
-    v_author              varchar2(100) := 'Author';
-    v_last_author         varchar2(100) := 'LastAuthor';
-    v_created             varchar2(100) := 'Created';
-    v_company             varchar2(100) := 'Company';
-    v_version             varchar2(100) := 'Version';
+    dp_tag varchar2(100) := 'DocumentProperties';
+    a_tag              varchar2(100) := 'Author';
+    la_tag         varchar2(100) := 'LastAuthor';
+    c_tag             varchar2(100) := 'Created';
+    co_tag             varchar2(100) := 'Company';
+    v_tag             varchar2(100) := 'Version';
     v_fmt_date            varchar2(100) := 'YYYY-MM-DD';
     v_fmt_timetz          varchar2(100) := 'HH24:MI:SS:ff TZH:TZM';
-    v_ts_formatted        varchar2(1000);
+    ts        varchar2(1000);
   begin
     v_attribute := new app#attrib('xmlns',
                                   'urn:schemas-microsoft-com:office:office');
   
-    self.open_element(v_document_properties,
-                      v_attribute.attribute);
-    self.add_element(v_author,
-                     self.author);
-    self.add_element(v_last_author,
-                     self.author);
+    self.open(p_tag => dp_tag, p_attributes => v_attribute.attribute);
+    
+    self.element(p_value => self.author, p_tag => a_tag);
+    
+    self.element(p_value => self.author, p_tag => la_tag);
   
-    v_ts_formatted := to_char(self.created,
-                              v_fmt_date) || 'T';
-    v_ts_formatted := v_ts_formatted || to_char(self.created,
-                                                v_fmt_timetz);
+    ts := to_char(self.created, v_fmt_date) || 'T';
+    ts := ts || to_char(self.created, v_fmt_timetz);
+    self.element(p_value => ts, p_tag => c_tag);
+    
+    self.element(p_value => self.company, p_tag => co_tag);
+    
+    self.element(p_value => self.version, p_tag => v_tag);
   
-    self.add_element(v_created,
-                     v_ts_formatted);
-    self.add_element(v_company,
-                     self.company);
-    self.add_element(v_version,
-                     self.version);
-  
-    self.close_element(v_document_properties);
+    self.close(dp_tag);
   
   end document_properties;
 
   member procedure to_xml is
-    v_workbook varchar2(100) := 'workbook';
+    w_tag varchar2(100) := 'workbook';
   begin
   
     self.xml_declaration;
   
     self.set_workbook_attributes;
-    self.open_element(v_workbook,
-                      self.attributes.attributes_formatted);
+    self.open(p_tag => w_tag, p_attributes => self.attributes.attributes_formatted);
   
     self.document_properties;
     self.document_styles;
@@ -161,7 +155,7 @@ create or replace type body app#excel_book is
     
     end loop;
   
-    self.close_element(v_workbook);
+    self.close(p_tag => w_tag);
   
     self.book_xml := self.data;
   

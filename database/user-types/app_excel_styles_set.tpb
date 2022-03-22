@@ -43,17 +43,20 @@ create or replace type body app#excel_styles_set is
   end add_style;
 
   member procedure to_xml is
-    v_styles varchar2(100) := 'Styles';
+    s_tag varchar2(100) := 'Styles';
   begin
   
-    self.open_element(v_styles);
+    self.open(s_tag);
+    
     for i in 1 .. self.styles.count loop
+    
       self.styles(i) .to_xml;
+      
       app#fmt.append(self.data,
                      self.styles(i).style_xml,
                      true);
     end loop;
-    self.close_element(v_styles);
+    self.close(s_tag);
   
     self.styles_xml := self.data;
   

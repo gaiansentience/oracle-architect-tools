@@ -37,5 +37,5 @@ create or replace type app#attribs_set as object
   member procedure parse_all
 
 )
-/
+
 

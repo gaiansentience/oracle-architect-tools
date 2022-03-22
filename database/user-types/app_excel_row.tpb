@@ -57,10 +57,10 @@ create or replace type body app#excel_row is
   end add_data_cell;
 
   member procedure to_xml is
-    v_row varchar2(10) := 'Row';
+    r_tag varchar2(10) := 'Row';
   begin
   
-    self.open_element(v_row);
+    self.open(r_tag);
   
     for i in 1 .. self.row_cells.count loop
       self.row_cells(i) .to_xml;
@@ -69,7 +69,7 @@ create or replace type body app#excel_row is
     
     end loop;
   
-    self.close_element(v_row);
+    self.close(r_tag);
   
     self.row_xml := self.data;
   

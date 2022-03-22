@@ -1,105 +1,57 @@
-
-Creating type body APP#ATTRIB
-=============================
-
-
-Type Body APP#ATTRIB compiled
-
-
-Creating type body APP#ATTRIBS_SET
-==================================
-
-
-Type Body APP#ATTRIBS_SET compiled
-
-
-Creating type body APP#BOOL
-===========================
-
+creating app#log types
 
 Type Body APP#BOOL compiled
 
 
-Creating type body APP#EXCEL_BOOK
-=================================
+Type Body APP#LOG compiled
 
-
-Type Body APP#EXCEL_BOOK compiled
-
-
-Creating type body APP#EXCEL_CELL
-=================================
-
-
-Type Body APP#EXCEL_CELL compiled
-
-
-Creating type body APP#EXCEL_ROW
-================================
-
-
-Type Body APP#EXCEL_ROW compiled
-
-
-Creating type body APP#EXCEL_STYLE
-==================================
-
-
-Type Body APP#EXCEL_STYLE compiled
-
-
-Creating type body APP#EXCEL_STYLES_SET
-=======================================
-
-
-Type Body APP#EXCEL_STYLES_SET compiled
-
-
-Creating type body APP#EXCEL_TABLE
-==================================
-
-
-Type Body APP#EXCEL_TABLE compiled
-
-
-Creating type body APP#FMT
-==========================
-
+============================
+creating formatting type bodies
 
 Type Body APP#FMT compiled
-
-
-Creating type body APP#FORMAT
-=============================
 
 
 Type Body APP#FORMAT compiled
 
 
-Creating type body APP#HTML
-===========================
+Type Body APP#FORMAT_VC compiled
 
 
-Type Body APP#HTML compiled
+Type Body APP#ATTRIB compiled
 
 
-Creating type body APP#LOG
-==========================
-
-
-Type Body APP#LOG compiled
-
-
-Creating type body APP#ML
-=========================
+Type Body APP#ATTRIBS_SET compiled
 
 
 Type Body APP#ML compiled
 
 
-Creating type body TYPE_TEST_PIPELINE
-=====================================
+Type Body APP#HTML compiled
 
+created formatting type bodies
+============================
+creating app#excel type bodies
+
+Type Body APP#EXCEL_CELL compiled
+
+
+Type Body APP#EXCEL_ROW compiled
+
+
+Type Body APP#EXCEL_TABLE compiled
+
+
+Type Body APP#EXCEL_STYLE compiled
+
+
+Type Body APP#EXCEL_STYLES_SET compiled
+
+
+Type Body APP#EXCEL_BOOK compiled
+
+app#excel type bodies created
+============================
+Miscellaneous types
 
 Type Body TYPE_TEST_PIPELINE compiled
 
