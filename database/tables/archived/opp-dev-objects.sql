@@ -9,12 +9,12 @@ prompt
 prompt Creating table APP#ENVIRONMENT
 prompt ==============================
 prompt
-@@app_environment.tab
+@@app#environment.tab
 prompt
 prompt Creating table APP#LOGS
 prompt =======================
 prompt
-@@app_logs.tab
+@@app#logs.tab
 prompt
 prompt Creating table TEST_PIPELINE
 prompt ============================

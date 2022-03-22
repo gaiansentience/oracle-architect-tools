@@ -1,4 +1,4 @@
--- Create the user 
+-- Create the user for the logging demonstration
 create user OPP
   identified by "xe"
   default tablespace USERS

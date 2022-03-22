@@ -38,6 +38,36 @@ create or replace type app#log as object
     p_enable_timers     out boolean
   ),
 
+  --use dbms output to print current environment settings
+  member procedure print_settings
+  (
+    p_show_environment in boolean default false
+  ),
+  
+  --toggle methods are for local package testing
+  --they only change object state
+  --state is not persisted to environment table
+  member procedure toggle_trace
+  (
+    p_enabled in boolean default true
+  ),
+
+  member procedure toggle_exceptions
+  (
+    p_enabled in boolean default true
+  ),
+
+  member procedure toggle_audits
+  (
+    p_enabled in boolean default true
+  ),
+
+  member procedure toggle_timing
+  (
+    p_enabled in boolean default true
+  ),
+
+
 --expose init method to look up environment settings
   member procedure init,
 

@@ -13,6 +13,9 @@ create or replace type body app#log is
     self.enable_exceptions := 0;
     self.enable_traces     := 0;
     self.enable_audits     := 0;
+    self.enable_timers     := 0;
+    self.start_time        := null;
+    self.stop_time         := null;
   
     return;
   
@@ -49,7 +52,100 @@ create or replace type body app#log is
                                          p_enable_audits,
                                          p_enable_timers);
   end get_env;
+  
+  member procedure print_settings
+  (
+    p_show_environment in boolean default false
+  )  
+  is
+    v_errors boolean := true;
+    v_traces boolean := true;
+    v_audits boolean := true;
+    v_timing boolean := true;
+    v_msg    varchar2(1000);
+  
+    procedure print_enabled(p_type in varchar2, p_enabled in boolean)
+    is
+      v_state varchar2(4000):= ' is disabled (will not write to logs)';
+    begin
+      if p_enabled = true then 
+        v_state := ' is enabled (will write to logs)';
+      end if;
+      dbms_output.put_line(p_type || v_state);
+    end print_enabled;
+  begin
+    --show the actual state of the logging object
+    v_errors := app#bool.flag_to_switch(self.enable_exceptions);
+    v_traces := app#bool.flag_to_switch(self.enable_traces);
+    v_audits := app#bool.flag_to_switch(self.enable_audits);
+    v_timing := app#bool.flag_to_switch(self.enable_timers);
+    v_msg := 'Actual logging state for ' || self.object_name || ' is:';
+    dbms_output.put_line(v_msg);
+    print_enabled('ERRORS' , v_errors);
+    print_enabled('TRACES' , v_traces);
+    print_enabled('AUDITS' , v_audits);
+    print_enabled('TIMING' , v_timing);
 
+    --show the state set in the environment table for this object
+    if p_show_environment then
+      self.get_env(v_errors, v_traces,v_audits, v_timing);
+      v_msg := 'Environment table logging state for ' || self.object_name || ' is:';
+      dbms_output.put_line(v_msg);
+      print_enabled('ERRORS' , v_errors);
+      print_enabled('TRACES' , v_traces);
+      print_enabled('AUDITS' , v_audits);
+      print_enabled('TIMING' , v_timing);
+    end if;
+  
+  end print_settings;
+  
+  --toggle methods are for local package testing
+  --these methods only change object state
+  --state is not persisted to environment table
+  member procedure toggle_trace
+  (
+    p_enabled in boolean default true
+  )
+  is
+  begin
+  
+    self.enable_traces := app#bool.switch_to_flag(p_enabled);
+  
+  end toggle_trace;
+
+  member procedure toggle_exceptions
+  (
+    p_enabled in boolean default true
+  )
+  is
+  begin
+  
+    self.enable_exceptions := app#bool.switch_to_flag(p_enabled);
+  
+  end toggle_exceptions;
+  
+  member procedure toggle_audits
+  (
+    p_enabled in boolean default true
+  )
+  is
+  begin
+  
+    self.enable_audits := app#bool.switch_to_flag(p_enabled);
+  
+  end toggle_audits;
+  
+  member procedure toggle_timing
+  (
+    p_enabled in boolean default true
+  )
+  is
+  begin
+  
+    self.enable_timers := app#bool.switch_to_flag(p_enabled);
+  
+  end toggle_timing;
+  
   member procedure init is
     v_errors boolean := false;
     v_traces boolean := false;
