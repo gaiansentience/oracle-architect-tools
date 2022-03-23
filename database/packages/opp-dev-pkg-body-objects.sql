@@ -11,30 +11,11 @@ prompt =================================
 prompt
 @@app_aq_util.bdy
 prompt
-prompt Creating package body APP#CVT_UOM_UTIL
-prompt ======================================
-prompt
-@@app_cvt_uom_util.bdy
 prompt
 prompt Creating package body APP#ENV_UTIL
 prompt ==================================
 prompt
 @@app_env_util.bdy
-prompt
-prompt Creating package body APP#EXCEL_UTIL
-prompt ====================================
-prompt
-@@app_excel_util.bdy
-prompt
-prompt Creating package body APP#FMT_UTIL
-prompt ==================================
-prompt
-@@app_fmt_util.bdy
-prompt
-prompt Creating package body APP#GLOBALIZE
-prompt ===================================
-prompt
-@@app_globalize.bdy
 prompt
 prompt Creating package body APP#LOG_UTIL
 prompt ==================================
@@ -46,20 +27,12 @@ prompt ==================================
 prompt
 @@app_tcp_util.bdy
 prompt
-prompt Creating package body APP#TIME_UTIL
-prompt ===================================
-prompt
-@@app_time_util.bdy
 prompt
 prompt Creating package body APP#TYPES
 prompt ===============================
 prompt
 @@app_types.bdy
 prompt
-prompt Creating package body APP#XML_UTIL
-prompt ==================================
-prompt
-@@app_xml_util.bdy
 prompt
 prompt Creating package body LOG#COMPILED_CONTROL
 prompt ==========================================

@@ -11,10 +11,6 @@ prompt ============================
 prompt
 @@app_aq_util.spc
 prompt
-prompt Creating package APP#CVT_UOM_UTIL
-prompt =================================
-prompt
-@@app_cvt_uom_util.spc
 prompt
 prompt Creating package APP#TYPES
 prompt ==========================
@@ -26,25 +22,6 @@ prompt =============================
 prompt
 @@app_env_util.spc
 prompt
-prompt Creating package APP#XML_UTIL
-prompt =============================
-prompt
-@@app_xml_util.spc
-prompt
-prompt Creating package APP#EXCEL_UTIL
-prompt ===============================
-prompt
-@@app_excel_util.spc
-prompt
-prompt Creating package APP#FMT_UTIL
-prompt =============================
-prompt
-@@app_fmt_util.spc
-prompt
-prompt Creating package APP#GLOBALIZE
-prompt ==============================
-prompt
-@@app_globalize.spc
 prompt
 prompt Creating package APP#LOG_UTIL
 prompt =============================
@@ -56,10 +33,6 @@ prompt =============================
 prompt
 @@app_tcp_util.spc
 prompt
-prompt Creating package APP#TIME_UTIL
-prompt ==============================
-prompt
-@@app_time_util.spc
 prompt
 prompt Creating package LOG#COMPILED_CONTROL
 prompt =====================================
