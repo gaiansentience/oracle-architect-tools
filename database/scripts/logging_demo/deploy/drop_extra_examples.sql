@@ -10,6 +10,6 @@ DROP PACKAGE my_package;
 DROP PACKAGE test#interface; 
 DROP PACKAGE test#test_interface; 
 DROP PACKAGE test#your_interface;
-Prompt Finished Deploying Examples
+Prompt Finished dropping Example packages
 Prompt use deploy_extra_examples.sql to recreate
 prompt Thank You, Anthony Harper, Senior Technical Architect
