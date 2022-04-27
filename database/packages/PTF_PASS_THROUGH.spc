@@ -1,4 +1,6 @@
-create or replace package ptf_pass_through AS 
+create or replace package ptf_pass_through 
+authid current_user
+AS 
 
 /*
 create or replace FUNCTION pass_through

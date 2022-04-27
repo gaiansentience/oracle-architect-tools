@@ -1,4 +1,6 @@
-create or replace PACKAGE PTF_ROW_AS_JSON AS 
+create or replace PACKAGE PTF_ROW_AS_JSON 
+authid current_user
+AS 
 /*
 create or replace FUNCTION ROW_AS_JSON 
 (

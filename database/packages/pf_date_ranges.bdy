@@ -1,4 +1,4 @@
-create or replace PACKAGE BODY DATE_RANGE_PKG AS
+create or replace PACKAGE BODY PF_DATE_RANGES AS
 
 function get_dates(p_from_date in date, p_to_date in date) return t_dates_t pipelined 
 AS
@@ -272,4 +272,4 @@ begin
 end get_century_dates;
 
 
-END DATE_RANGE_PKG;
+END PF_DATE_RANGES;

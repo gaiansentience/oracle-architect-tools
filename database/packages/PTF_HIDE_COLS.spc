@@ -1,4 +1,6 @@
-create or replace PACKAGE PTF_hide_cols AS 
+create or replace PACKAGE PTF_hide_cols 
+authid current_user
+AS 
 /*
 create or replace FUNCTION hide_cols
 (
