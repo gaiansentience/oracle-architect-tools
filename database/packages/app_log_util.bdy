@@ -348,7 +348,7 @@ create or replace package body app#log_util is
     p_stop_time in timestamp)
     return number
   is
-    v_difference interval day to second(9);
+    v_difference dsinterval_unconstrained;
     v_hours number;
     v_minutes number;
     v_seconds number;
@@ -360,8 +360,8 @@ create or replace package body app#log_util is
       v_difference := p_stop_time - p_start_time;
       v_hours := extract(hour from v_difference);
       v_minutes := extract(minute from v_difference);
-      v_minutes := v_hours * 60 + v_minutes;
       v_seconds := extract(second from v_difference);
+      v_minutes := v_hours * 60 + v_minutes;
       v_seconds := v_minutes * 60 + v_seconds;
     end if;
     return v_seconds;
