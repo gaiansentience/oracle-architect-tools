@@ -281,6 +281,9 @@ create or replace package body app#log_util is
     r_entry.reference_id  := nvl(p_ref_id, -999);
     r_entry.message       := cut(p_message, c_max_table_varchar);
     r_entry.created_by    := app#env_util.osuser;
+    r_entry.os_user_name := app#env_util.os_user;
+    r_entry.db_user_name := app#env_util.db_user;
+    r_entry.db_session_id := app#env_util.db_sid;
     r_entry.created_date  := sysdate;
 
   end set_values;

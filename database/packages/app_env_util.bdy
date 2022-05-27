@@ -5,13 +5,19 @@ create or replace package body app#env_util is
   -- Purpose : Manage application environment settings
 
   v_osuser app#types.osuser;
+    g_db_user varchar2(30);
+    g_os_user varchar2(100);
+    g_db_sid number;
 
   procedure initialize is
   begin
     --get the logged in user from oracle
     --some system sessions, like dbms_job, report null osuser
-    v_osuser := sys_context('USERENV',
-                            'OS_USER');
+    v_osuser := sys_context('USERENV', 'OS_USER');
+    
+        g_db_user := user;
+        g_os_user := sys_context('userenv', 'os_user');
+        g_db_sid := sys_context('userenv','sid');
   
   end initialize;
 
@@ -37,6 +43,36 @@ create or replace package body app#env_util is
     return v_osuser;
   
   end osuser;
+
+    procedure set_os_user(p_os_user in varchar2)
+    is
+    begin
+        g_os_user := p_os_user;
+    end set_os_user;
+  
+    function db_user return varchar2
+    is
+    begin
+        return g_db_user;
+    end db_user;
+    
+    function db_sid return number
+    is
+    begin
+        return g_db_sid;
+    end db_sid;
+    
+    function os_user
+    (
+        p_override_user in varchar2 default null
+    ) return varchar2  
+    is
+    begin
+        if p_override_user is not null then
+            set_os_user(p_override_user);
+        end if;
+        return g_os_user;
+    end os_user;
 
   --verifies that a variable has been defined in environment
   function value_exists(p_key in app#types.key) return boolean is

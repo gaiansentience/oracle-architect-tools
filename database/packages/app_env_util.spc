@@ -10,6 +10,17 @@ create or replace package app#env_util is
 
   --get the osuser, if override is used forces a call to set_osuser
   function osuser(p_override in app#types.osuser default null) return app#types.osuser;
+  
+    procedure set_os_user(p_os_user in varchar2);
+  
+    function db_user return varchar2;
+    
+    function db_sid return number;
+    
+    function os_user
+    (
+        p_override_user in varchar2 default null
+    ) return varchar2;  
 
   --verifies that a variable has been defined in environment
   function value_exists(p_key in app#types.key) return boolean;

@@ -1,14 +1,15 @@
-create table APP#LOGS
-(
-  LOG_ID            NUMBER,
-  LOG_TYPE          VARCHAR2(20),
-  OBJECT_NAME       VARCHAR2(35),
-  OBJECT_METHOD     VARCHAR2(35),
-  REFERENCE_ID      NUMBER default -999,
-  MESSAGE           VARCHAR2(4000),
-  PRESERVE_ON_PURGE NUMBER default 0,
-  CREATED_BY        VARCHAR2(35),
-  CREATED_DATE      DATE default SYSDATE
-)
-;
-
+create table app#logs
+    (
+    log_id            number,
+    log_type          varchar2(20),
+    object_name       varchar2(35),
+    object_method     varchar2(35),
+    reference_id      number default -999,
+    message           varchar2(4000),
+    preserve_on_purge number default 0,
+    os_user_name varchar2(100),
+    db_user_name varchar2(30),
+    db_session_id number,  
+    created_by        varchar2(35),
+    created_date      date default sysdate
+    );
