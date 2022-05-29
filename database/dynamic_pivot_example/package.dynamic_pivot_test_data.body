@@ -1,0 +1,399 @@
+create or replace package body dynamic_pivot_test_data
+as
+
+pi constant number := 3.1415;
+
+type r_item_value_pair is record(value_id number, value_name varchar2(100), value_type varchar2(100), value_data varchar2(100));
+type t_item_value_pairs is table of r_item_value_pair;
+type r_item is record(item_id number, item_name varchar2(100), item_type varchar2(100), item_values t_item_value_pairs);
+type t_items is table of r_item;
+
+
+    function get_shape_json
+    (
+        p_item in r_item
+    ) return json_object_t
+    is
+        o_doc json_object_t := new json_object_t();
+        a_o json_array_t := new json_array_t();
+        ae_o json_object_t := new json_object_t();
+    begin
+    
+        o_doc.put('itemId',p_item.item_id);
+        o_doc.put('itemName', p_item.item_name);
+        o_doc.put('itemType', p_item.item_type);
+        o_doc.put('itemValuePairs', a_o);
+        a_o := o_doc.get_array('itemValuePairs');
+        for i in p_item.item_values.first..p_item.item_values.last loop
+            ae_o := new json_object_t();
+            ae_o.put('valueId', p_item.item_values(i).value_id);
+            ae_o.put('valueName', p_item.item_values(i).value_name);
+            ae_o.put('valueType', p_item.item_values(i).value_type);
+            ae_o.put('valueData', p_item.item_values(i).value_data);
+            a_o.append(ae_o);
+        end loop;
+        o_doc.put('itemValuePairsAdded', a_o.get_size());
+    
+        return o_doc;
+    
+    end get_shape_json;
+    
+    function get_all_shapes_json
+    (
+        p_items in out nocopy t_items
+    ) return json_object_t
+    is
+        o_doc json_object_t := new json_object_t();
+        a_o json_array_t := new json_array_t();
+        ae_o json_object_t := new json_object_t();
+    begin
+    
+        o_doc.put('itemAssortment', 'shapes');
+        o_doc.put('items', a_o);
+        a_o := o_doc.get_array('items');
+        for i in p_items.first..p_items.last loop
+            ae_o := get_shape_json(p_items(i));
+            a_o.append(ae_o);
+        end loop;
+        o_doc.put('itemsAdded', a_o.get_size());
+        
+        return o_doc;
+    
+    end get_all_shapes_json;
+
+    function define_item
+    (
+        p_item_id in number, 
+        p_item_name in varchar2, 
+        p_item_type in varchar2
+    ) return r_item
+    is
+        l_item r_item;
+    begin
+        l_item.item_id := p_item_id;
+        l_item.item_name := p_item_name || '-' || p_item_id;
+        l_item.item_type := p_item_type;
+        l_item.item_values := new t_item_value_pairs();
+        return l_item;
+    end define_item;
+        
+    function define_value_pair
+    (
+        p_value_id in number, 
+        p_value_name in varchar2, 
+        p_value_type varchar2, 
+        p_value_data in varchar2
+    ) return r_item_value_pair
+    is
+        l_vp r_item_value_pair;
+    begin
+        l_vp.value_id := p_value_id;
+        l_vp.value_name := p_value_name;
+        l_vp.value_type := p_value_type;
+        l_vp.value_data := p_value_data;
+        return l_vp;
+    end define_value_pair;
+    
+    procedure append_value_pair
+    (
+        p_item in out nocopy r_item, 
+        p_value_id in number, 
+        p_value_name in varchar2, 
+        p_value_type varchar2, 
+        p_value_data in varchar2
+    )
+    is
+        l_vp r_item_value_pair;
+    begin
+        l_vp := define_value_pair(p_value_id, p_value_name, p_value_type, p_value_data);
+        p_item.item_values.extend();
+        p_item.item_values(p_item.item_values.last) := l_vp;
+    end append_value_pair;
+
+    procedure append_shape
+    (
+        p_items in out nocopy t_items, 
+        p_shape in r_item
+    )
+    is
+    begin
+        p_items.extend;
+        p_items(p_items.last) := p_shape;
+    end append_shape;
+    
+    function get_triangle
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_a_degrees in number,
+        p_b_degrees in number,
+        p_a_side in number,
+        p_b_side in number
+    ) return r_item
+    is
+        l_item r_item;
+        l_c_degrees number := 180 - (p_a_degrees + p_b_degrees);
+        --pretend its a right triangle for side and area
+        l_c_side number := round( power( power(p_a_side,2) + power(p_b_side,2) , 0.5) , 4);
+        l_area number := 0.5 * p_a_side * p_b_side;
+    begin
+        l_item := define_item(p_id, p_name, 'triangle'); 
+        append_value_pair(l_item, p_id + 0.1, 'a_degrees', 'number', p_a_degrees);
+        append_value_pair(l_item, p_id + 0.2, 'b_degrees', 'number', p_b_degrees);
+        append_value_pair(l_item, p_id + 0.3, 'c_degrees', 'number', l_c_degrees);
+        append_value_pair(l_item, p_id + 0.4, 'a_side', 'number', p_a_side);
+        append_value_pair(l_item, p_id + 0.5, 'b_side', 'number', p_b_side);
+        append_value_pair(l_item, p_id + 0.6, 'c_side', 'number', l_c_side);
+        append_value_pair(l_item, p_id + 0.7, 'area', 'number', l_area);
+        return l_item;
+    end get_triangle;
+    
+    function get_square
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_side in number
+    ) return r_item
+    is
+        l_item r_item;
+        l_area number := power(p_side, 2);
+    begin
+        l_item := define_item(p_id, p_name, 'square'); 
+        append_value_pair(l_item, p_id + 0.1, 'side', 'number', p_side);
+        append_value_pair(l_item, p_id + 0.2, 'area', 'number', l_area);
+        return l_item;
+    end get_square;
+
+    function get_rectangle
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_length in number,
+        p_width in number,
+        p_color in varchar2
+    ) return r_item
+    is
+        l_item r_item;
+        l_area number := p_length * p_width;
+    begin
+        l_item := define_item(p_id, p_name, 'rectangle'); 
+        append_value_pair(l_item, p_id + 0.1, 'length', 'number', p_length);
+        append_value_pair(l_item, p_id + 0.2, 'width', 'number', p_width);
+        append_value_pair(l_item, p_id + 0.3, 'area', 'number', l_area);
+        append_value_pair(l_item, p_id + 0.4, 'color', 'varchar2', p_color);
+        return l_item;
+    end get_rectangle;
+    
+    function circle_circumference
+    (
+        p_radius in number
+    ) return number
+    is
+        l_circumference number;
+    begin
+        l_circumference := 2 * pi * p_radius;
+        l_circumference := round(l_circumference, 4);
+        return l_circumference;
+    end circle_circumference;
+    
+    function circle_area
+    (
+        p_radius in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := pi * power(p_radius,2);
+        l_area := round(l_area,4);
+        return l_area;
+    end circle_area;
+
+    function get_circle
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_radius in number,
+        p_color in varchar2
+    ) return r_item
+    is
+        l_item r_item;
+        l_area number := circle_area(p_radius);
+        l_circumference number := circle_circumference(p_radius);
+    begin
+        l_item := define_item(p_id, p_name, 'circle'); 
+        append_value_pair(l_item, p_id + 0.1, 'radius', 'number', p_radius);
+        append_value_pair(l_item, p_id + 0.1, 'circumference', 'number', l_circumference);
+        append_value_pair(l_item, p_id + 0.2, 'area', 'number', l_area );
+        append_value_pair(l_item, p_id + 0.2, 'color', 'varchar2', p_color);
+        return l_item;
+    end get_circle;
+    
+    function polygon_interior_angle
+    (
+        p_sides in number
+    ) return number
+    is
+        l_angle number;
+    begin
+        l_angle := 180 * (p_sides - 2) / p_sides;
+        l_angle := round(l_angle,4);
+        return l_angle;
+    exception
+        when zero_divide then
+            return 0;
+    end polygon_interior_angle;
+    
+    function polygon_area
+    (
+        p_sides in number,
+        p_length in number
+    ) return number
+    is
+        l_area number;
+    begin
+--        l_area := p_sides * power(p_length,2) * (cos(180/p_sides)/sin(180/p_sides))/4;
+        l_area := p_sides * power(p_length,2) * (cos(pi/p_sides)/sin(pi/p_sides))/4;
+        l_area := round(l_area, 4);
+        return l_area;
+    end polygon_area;
+    
+    function get_polygon
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_sides in number,
+        p_side_length in number,
+        p_shading in varchar2
+    ) return r_item
+    is
+        l_item r_item;
+        l_interior_angles number := polygon_interior_angle(p_sides);
+        
+        l_sum_angles number := l_interior_angles * p_sides;
+        l_area number := polygon_area(p_sides, p_side_length);
+    begin
+        l_item := define_item(p_id, p_name, 'regular polygon'); 
+        append_value_pair(l_item, p_id + 0.1, 'sides', 'number', p_sides);
+        append_value_pair(l_item, p_id + 0.2, 'sideLength', 'number', p_side_length);
+        append_value_pair(l_item, p_id + 0.3, 'interiorAngles', 'number', l_interior_angles);
+        append_value_pair(l_item, p_id + 0.4, 'sumInteriorAngles', 'number', l_sum_angles);
+        append_value_pair(l_item, p_id + 0.5, 'area', 'number', l_area);
+        append_value_pair(l_item, p_id + 0.6, 'shading', 'varchar2', p_shading);
+        return l_item;    
+    
+    end get_polygon;
+
+    function get_line
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_slope in number,
+        p_y_intercept in number
+    ) return r_item
+    is
+        l_item r_item;
+    begin
+        l_item := define_item(p_id, p_name, 'line'); 
+        append_value_pair(l_item, p_id + 0.1, 'y_intercept', 'number', p_y_intercept);
+        append_value_pair(l_item, p_id + 0.1, 'slope', 'number', p_slope);
+        append_value_pair(l_item, p_id + 0.1, 'equation', 'varchar2', 'y=mx + b');
+        return l_item;    
+    
+    end get_line;
+
+    procedure get_lines(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_line(p_items.count + 1, 'line 1', 3/4, 3));
+        append_shape(p_items, get_line(p_items.count + 1, 'line 2', 2/5, -2));    
+    
+    end get_lines;
+
+    procedure get_polygons(p_items in out nocopy t_items)
+    is
+    begin
+        append_shape(p_items, get_polygon(p_items.count + 1, 'triangle', 3, 2, 'teal'));
+        append_shape(p_items, get_polygon(p_items.count + 1, 'square', 4, 2, 'blue'));
+        append_shape(p_items, get_polygon(p_items.count + 1, 'pentagon', 5, 4, 'yellow'));
+        append_shape(p_items, get_polygon(p_items.count + 1, 'hexagon', 6, 3, 'red'));
+        append_shape(p_items, get_polygon(p_items.count + 1, 'nonagon', 9, 2.5, 'purple'));
+        append_shape(p_items, get_polygon(p_items.count + 1, 'undecagon', 11, 4, 'pink'));
+    end get_polygons;
+
+
+    procedure get_circles(p_items in out nocopy t_items)
+    is
+    begin
+        append_shape(p_items, get_circle(p_items.count + 1, 'first circle', 1,'blue'));
+        append_shape(p_items, get_circle(p_items.count + 1, 'second circle', 5,'green'));
+    end get_circles;
+    
+    procedure get_rectangles(p_items in out nocopy t_items)
+    is
+    begin
+        append_shape(p_items, get_rectangle(p_items.count + 1, 'first rectangle', 8, 2.5, 'coral'));
+        append_shape(p_items, get_rectangle(p_items.count + 1, 'second rectangle', 5, 7, 'turquoise'));
+    end get_rectangles;
+
+    
+    procedure get_squares(p_items in out nocopy t_items)
+    is
+    begin
+        append_shape(p_items, get_square(p_items.count + 1, 'first square', 4));
+        append_shape(p_items, get_square(p_items.count + 1, 'second square', 3));
+    end get_squares;
+
+    procedure get_triangles(p_items in out nocopy t_items)
+    is
+    begin
+        append_shape(p_items, get_triangle(p_items.count + 1, 'first triangle', 30,60, 2,4));
+        append_shape(p_items, get_triangle(p_items.count + 1, 'second triangle', 45,45, 3,6));
+        append_shape(p_items, get_triangle(p_items.count + 1, 'third triangle', 40,60, 5,7));
+
+    end get_triangles;
+    
+    function get_shapes
+    (
+        p_iterations in number default 1
+    ) return t_items
+    is
+        l_items t_items := new t_items();
+    begin
+
+        for i in 1..p_iterations loop
+            get_triangles(l_items);
+            get_squares(l_items);
+            get_rectangles(l_items);
+            get_circles(l_items);
+            get_polygons(l_items);
+            get_lines(l_items);
+        end loop;
+        
+        return l_items;
+        
+    end get_shapes;
+
+    function get_json_data
+    (
+        p_iterations in number default 1
+    )
+    return clob
+    is
+        l_clob clob;
+        l_pretty clob;
+        l_doc json_object_t;
+        l_items t_items;
+    begin
+        l_items := get_shapes(p_iterations);
+        l_doc := get_all_shapes_json(l_items);
+        l_clob := l_doc.to_clob;
+        
+        select json_serialize(l_clob returning clob pretty) into l_pretty from dual;
+        
+        return l_pretty;
+    end get_json_data;
+
+begin
+    null;
+end dynamic_pivot_test_data;

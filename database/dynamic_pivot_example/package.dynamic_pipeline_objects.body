@@ -1,0 +1,138 @@
+create or replace package body dynamic_pipeline_objects
+as
+
+    g_bulk_limit number := 5;
+
+    function get_shapes(
+        p_dynamic_items_rc in t_dynamic_items_rc
+    ) return dynamic_geometry_table pipelined
+    parallel_enable (partition p_dynamic_items_rc by hash(item_id))
+    is
+        type t_items is table of dynamic_item_object_v%rowtype;
+        l_items t_items;
+        l_geometry dynamic_geometry;
+        --common variables
+        l_area number := -1;
+        l_color varchar2(100) := 'black';
+        l_shading varchar2(100) := 'grey';
+        --variables unique to square
+        l_side number := -1.1;
+        --variables unique to circle
+        l_radius number := -2.1;
+        l_circumference number := -2.2;
+        --variables unique to polygon
+        l_sides number := -3.1;
+        l_side_length number := -3.2;
+        l_interior_angles number := -3.3;
+        l_sum_interior_angles number := -3.4;
+        --variable unique to line
+        l_y_intercept number := -4.1;
+        l_slope number := -4.2;
+        l_equation varchar2(100) := 'y=x2';
+        --variables unique to triangle
+        l_a_degrees number := -5.1;
+        l_b_degrees number := -5.2;
+        l_c_degrees number := -5.3;
+        l_a_side number := -5.4;
+        l_b_side number := -5.5;
+        l_c_side number := -5.6;
+        procedure reset_variables
+        is
+        begin
+        --common variables
+        l_area := null;
+        l_color := null;
+        l_shading := null;
+        --variables unique to square
+        l_side := null;
+        --variables unique to circle
+        l_radius := null;
+        l_circumference := null;
+        --variables unique to polygon
+        l_sides := null;
+        l_side_length := null;
+        l_interior_angles := null;
+        l_sum_interior_angles := null;
+        --variable unique to line
+        l_y_intercept := null;
+        l_slope := null;
+        l_equation := null;
+        --variables unique to triangle
+        l_a_degrees := null;
+        l_b_degrees := null;
+        l_c_degrees := null;
+        l_a_side := null;
+        l_b_side := null;
+        l_c_side := null;
+        
+        end reset_variables;
+    begin
+
+        loop
+        
+            fetch p_dynamic_items_rc bulk collect into l_items limit g_bulk_limit;
+            exit when l_items.count = 0;
+    
+            for i in 1..l_items.count loop
+                reset_variables;
+                case 
+                when l_items(i).o_item.item_type = 'triangle' then
+                    --find a_degrees, b_degrees, c_degrees, a_side, b_side, c_side, area
+                    l_a_degrees := l_items(i).o_item.get_pair_value('a_degrees');
+                    l_b_degrees := l_items(i).o_item.get_pair_value('b_degrees');
+                    l_c_degrees := l_items(i).o_item.get_pair_value('c_degrees');
+                    l_a_side    := l_items(i).o_item.get_pair_value('a_side');
+                    l_b_side    := l_items(i).o_item.get_pair_value('b_side');
+                    l_c_side    := l_items(i).o_item.get_pair_value('c_side');
+                    l_area      := l_items(i).o_item.get_pair_value('area');
+                    l_geometry := new dynamic_geometry_triangle(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_a_degrees,l_b_degrees,l_c_degrees,l_a_side,l_b_side,l_c_side,l_area);
+                when l_items(i).o_item.item_type = 'square' then
+                    --find side and area in the item value pairs collection
+                    l_side := l_items(i).o_item.get_pair_value('side');
+                    l_area := l_items(i).o_item.get_pair_value('area');
+                    l_geometry := new dynamic_geometry_square(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_side,l_area);
+                when l_items(i).o_item.item_type = 'regular polygon' then
+                    --find sides, side_length, interior_angles, sum_interior_angles, area and shading in the item value pairs collection
+                    l_sides := l_items(i).o_item.get_pair_value('sides');
+                    l_side_length := l_items(i).o_item.get_pair_value('sideLength');
+                    l_interior_angles := l_items(i).o_item.get_pair_value('interiorAngles');
+                    l_sum_interior_angles := l_items(i).o_item.get_pair_value('sumInteriorAngles');
+                    l_area := l_items(i).o_item.get_pair_value('area');
+                    l_shading := l_items(i).o_item.get_pair_value('shading');
+                    l_geometry := new dynamic_geometry_polygon(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_sides,l_side_length,l_interior_angles,l_sum_interior_angles,l_area,l_shading);
+                when l_items(i).o_item.item_type = 'circle' then
+                    --find radius, circumference, area and color in the item value pairs collection
+                    l_radius        := l_items(i).o_item.get_pair_value('radius');
+                    l_circumference := l_items(i).o_item.get_pair_value('circumference');
+                    l_area          := l_items(i).o_item.get_pair_value('area');
+                    l_color         := l_items(i).o_item.get_pair_value('color');
+                    l_geometry := new dynamic_geometry_circle(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_radius,l_circumference,l_area,l_color);
+                when l_items(i).o_item.item_type = 'line' then
+                    --find y_intercept, slope, equation in the item value pairs collection
+                    l_y_intercept := l_items(i).o_item.get_pair_value('y_intercept');
+                    l_slope       := l_items(i).o_item.get_pair_value('slope');
+                    l_equation    := l_items(i).o_item.get_pair_value('equation');
+                    l_geometry := new dynamic_geometry_line(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_y_intercept,l_slope,l_equation);
+                else 
+                    l_geometry := new dynamic_geometry(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json());
+                end case;
+                pipe row(l_geometry);
+            end loop;
+    
+        end loop;
+
+        close p_dynamic_items_rc;
+        
+        return;
+    
+    exception
+        when no_data_needed then
+            raise;
+        when others then
+            dbms_output.put_line(sqlerrm);
+            raise;
+    end get_shapes;
+
+begin
+    null;
+end dynamic_pipeline_objects;
