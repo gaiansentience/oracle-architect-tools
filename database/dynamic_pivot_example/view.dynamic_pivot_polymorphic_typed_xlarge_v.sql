@@ -1,4 +1,4 @@
-create or replace view dynamic_pivot_polymorphic_typed_large_v as
+create or replace view dynamic_pivot_polymorphic_typed_xlarge_v as
 with base as
 (
     select 
@@ -13,7 +13,7 @@ with base as
         --dynamic_pivot_data_to_json_large_v j
         --the item_object views format o_jdoc with plsql methods
         --dynamic_item_object_v j
-        dynamic_item_object_large_v j
+        dynamic_item_object_xlarge_v j
 )
 select * 
 from

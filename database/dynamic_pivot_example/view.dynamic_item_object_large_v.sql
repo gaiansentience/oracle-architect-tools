@@ -23,5 +23,8 @@ o.item_id
 ,o.item_type
 ,o.o_item
 ,o.o_item.get_json() as o_jdoc
-,json_serialize(json_object(o.o_item) returning clob pretty) as object_to_json
+,o.o_item.get_json_flat() as o_jdoc_flat
+--,json_serialize(o.o_item.get_json() returning clob pretty) as o_jdoc_pretty
+--,json_serialize(o.o_item.get_json_flat() returning clob pretty) as o_jdoc_flat_pretty
+--,json_serialize(json_object(o.o_item) returning clob pretty) as object_to_json
 from object_base o

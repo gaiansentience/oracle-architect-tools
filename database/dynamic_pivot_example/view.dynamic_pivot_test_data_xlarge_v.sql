@@ -1,8 +1,8 @@
-create or replace view dynamic_pivot_test_data_v as
+create or replace view dynamic_pivot_test_data_xlarge_v as
 with base as
 (
     select
-        dynamic_pivot_test_data.get_json_data() as jdoc
+        dynamic_pivot_test_data.get_json_data(1000) as jdoc
     from dual
 )
 select
@@ -35,4 +35,4 @@ from
                 )
             )
        )
-    ) j;
+    ) j

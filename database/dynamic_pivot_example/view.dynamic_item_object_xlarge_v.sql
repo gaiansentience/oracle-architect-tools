@@ -1,4 +1,4 @@
-create or replace view dynamic_item_object_v as
+create or replace view dynamic_item_object_xlarge_v as
 --use collect or multiset to cast as t_dynamic_item(item_id, item_name, item_type, collect(value_id, value_name, value_type, value_data) as dynamic_item_value_pairs_table)
 with object_base as
 (
@@ -13,7 +13,7 @@ select
             )
         as t_dynamic_item_value_pair_table)
    ) as o_item
-from dynamic_pivot_test_data_v t
+from dynamic_pivot_test_data_xlarge_v t
 group by
     t.item_id
 )

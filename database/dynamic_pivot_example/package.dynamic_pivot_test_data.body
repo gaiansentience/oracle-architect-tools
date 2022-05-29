@@ -1,12 +1,60 @@
 create or replace package body dynamic_pivot_test_data
 as
 
-pi constant number := 3.1415;
+    pi constant number := 3.1415;
 
-type r_item_value_pair is record(value_id number, value_name varchar2(100), value_type varchar2(100), value_data varchar2(100));
-type t_item_value_pairs is table of r_item_value_pair;
-type r_item is record(item_id number, item_name varchar2(100), item_type varchar2(100), item_values t_item_value_pairs);
-type t_items is table of r_item;
+    type r_item_value_pair is record
+        (
+        value_id number, 
+        value_name varchar2(100), 
+        value_type varchar2(100), 
+        value_data varchar2(4000)
+        );
+    
+    type t_item_value_pairs is table of r_item_value_pair;
+
+    type r_item is record
+        (
+        item_id number, 
+        item_name varchar2(200), 
+        item_type varchar2(100), 
+        item_values t_item_value_pairs
+        );
+    
+    type t_items is table of r_item;
+    
+    
+    g_start timestamp;
+    
+    procedure start_timing
+    is
+    begin
+        g_start := localtimestamp;
+    end start_timing;
+    
+    function stop_timing return varchar2
+    is
+        l_interval dsinterval_unconstrained;
+        m number;
+        s number;
+        l_timing varchar2(100);
+    begin
+        l_interval := localtimestamp - g_start;
+        m := extract(minute from l_interval);
+        s := extract(second from l_interval);
+        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
+
+        return l_timing;
+    end stop_timing;
+    
+    
+    
+    procedure log_err(p_msg in varchar2, p_locale in varchar2)
+    is
+    begin
+        dbms_output.put_line('EXCEPTION IN ' || p_locale || ': ' || p_msg);
+    end log_err;
+
 
 
     function get_shape_json
@@ -35,7 +83,11 @@ type t_items is table of r_item;
         o_doc.put('itemValuePairsAdded', a_o.get_size());
     
         return o_doc;
-    
+
+    exception
+        when others then
+            log_err(sqlerrm,'get_shape_json');
+            raise;
     end get_shape_json;
     
     function get_all_shapes_json
@@ -58,7 +110,11 @@ type t_items is table of r_item;
         o_doc.put('itemsAdded', a_o.get_size());
         
         return o_doc;
-    
+
+    exception
+        when others then
+            log_err(sqlerrm,'get_all_shapes_json');
+            raise;    
     end get_all_shapes_json;
 
     function define_item
@@ -75,6 +131,11 @@ type t_items is table of r_item;
         l_item.item_type := p_item_type;
         l_item.item_values := new t_item_value_pairs();
         return l_item;
+        
+    exception
+        when others then
+            log_err(sqlerrm,'define_item');
+            raise;
     end define_item;
         
     function define_value_pair
@@ -92,6 +153,11 @@ type t_items is table of r_item;
         l_vp.value_type := p_value_type;
         l_vp.value_data := p_value_data;
         return l_vp;
+        
+    exception
+        when others then
+            log_err(sqlerrm,'define_value_pair');
+            raise;
     end define_value_pair;
     
     procedure append_value_pair
@@ -108,6 +174,11 @@ type t_items is table of r_item;
         l_vp := define_value_pair(p_value_id, p_value_name, p_value_type, p_value_data);
         p_item.item_values.extend();
         p_item.item_values(p_item.item_values.last) := l_vp;
+        
+    exception
+        when others then
+            log_err(sqlerrm,'append_value_pair');
+            raise;
     end append_value_pair;
 
     procedure append_shape
@@ -119,6 +190,11 @@ type t_items is table of r_item;
     begin
         p_items.extend;
         p_items(p_items.last) := p_shape;
+        
+    exception
+        when others then
+            log_err(sqlerrm,'append_shape');
+            raise;
     end append_shape;
     
     function get_triangle
@@ -292,11 +368,12 @@ type t_items is table of r_item;
     ) return r_item
     is
         l_item r_item;
+        l_equation varchar2(100) := 'y = ' || p_slope || 'x + ' || p_y_intercept;
     begin
         l_item := define_item(p_id, p_name, 'line'); 
         append_value_pair(l_item, p_id + 0.1, 'y_intercept', 'number', p_y_intercept);
-        append_value_pair(l_item, p_id + 0.1, 'slope', 'number', p_slope);
-        append_value_pair(l_item, p_id + 0.1, 'equation', 'varchar2', 'y=mx + b');
+        append_value_pair(l_item, p_id + 0.2, 'slope', 'number', p_slope);
+        append_value_pair(l_item, p_id + 0.3, 'equation', 'varchar2', l_equation);
         return l_item;    
     
     end get_line;
@@ -308,6 +385,10 @@ type t_items is table of r_item;
         append_shape(p_items, get_line(p_items.count + 1, 'line 1', 3/4, 3));
         append_shape(p_items, get_line(p_items.count + 1, 'line 2', 2/5, -2));    
     
+    exception
+        when others then
+            log_err(sqlerrm,'get_lines');
+            raise;
     end get_lines;
 
     procedure get_polygons(p_items in out nocopy t_items)
@@ -319,6 +400,11 @@ type t_items is table of r_item;
         append_shape(p_items, get_polygon(p_items.count + 1, 'hexagon', 6, 3, 'red'));
         append_shape(p_items, get_polygon(p_items.count + 1, 'nonagon', 9, 2.5, 'purple'));
         append_shape(p_items, get_polygon(p_items.count + 1, 'undecagon', 11, 4, 'pink'));
+        
+    exception
+        when others then
+            log_err(sqlerrm,'get_polygons');
+            raise;
     end get_polygons;
 
 
@@ -327,6 +413,11 @@ type t_items is table of r_item;
     begin
         append_shape(p_items, get_circle(p_items.count + 1, 'first circle', 1,'blue'));
         append_shape(p_items, get_circle(p_items.count + 1, 'second circle', 5,'green'));
+        
+    exception
+        when others then
+            log_err(sqlerrm,'get_circles');
+            raise;        
     end get_circles;
     
     procedure get_rectangles(p_items in out nocopy t_items)
@@ -334,6 +425,11 @@ type t_items is table of r_item;
     begin
         append_shape(p_items, get_rectangle(p_items.count + 1, 'first rectangle', 8, 2.5, 'coral'));
         append_shape(p_items, get_rectangle(p_items.count + 1, 'second rectangle', 5, 7, 'turquoise'));
+        
+    exception
+        when others then
+            log_err(sqlerrm,'get_rectangles');
+            raise;        
     end get_rectangles;
 
     
@@ -342,6 +438,11 @@ type t_items is table of r_item;
     begin
         append_shape(p_items, get_square(p_items.count + 1, 'first square', 4));
         append_shape(p_items, get_square(p_items.count + 1, 'second square', 3));
+        
+    exception
+        when others then
+            log_err(sqlerrm,'get_squares');
+            raise;
     end get_squares;
 
     procedure get_triangles(p_items in out nocopy t_items)
@@ -351,6 +452,10 @@ type t_items is table of r_item;
         append_shape(p_items, get_triangle(p_items.count + 1, 'second triangle', 45,45, 3,6));
         append_shape(p_items, get_triangle(p_items.count + 1, 'third triangle', 40,60, 5,7));
 
+    exception
+        when others then
+            log_err(sqlerrm,'get_triangles');
+            raise;
     end get_triangles;
     
     function get_shapes
@@ -372,6 +477,10 @@ type t_items is table of r_item;
         
         return l_items;
         
+    exception
+        when others then
+            log_err(sqlerrm,'get_shapes');
+            raise;
     end get_shapes;
 
     function get_json_data
@@ -392,6 +501,11 @@ type t_items is table of r_item;
         select json_serialize(l_clob returning clob pretty) into l_pretty from dual;
         
         return l_pretty;
+
+    exception
+        when others then
+            log_err(sqlerrm,'get_json_data');
+            raise;
     end get_json_data;
 
 begin

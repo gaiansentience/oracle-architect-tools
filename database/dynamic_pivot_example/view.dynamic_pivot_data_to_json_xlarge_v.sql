@@ -1,4 +1,4 @@
-create or replace view dynamic_pivot_data_to_json_v as
+create or replace view dynamic_pivot_data_to_json_xlarge_v as
 with base as
 (
 select
@@ -21,10 +21,10 @@ select
                                 )
                     )
                 returning clob) 
-            from dynamic_pivot_test_data_v x 
+            from dynamic_pivot_test_data_xlarge_v x 
             where x.item_id = i.item_id) 
     returning clob) as jdoc
-from dynamic_pivot_test_data_v i
+from dynamic_pivot_test_data_xlarge_v i
 group by 
     i.item_id
 )

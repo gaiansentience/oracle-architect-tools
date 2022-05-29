@@ -2,7 +2,7 @@ create or replace view dynamic_pivot_test_data_large_v as
 with base as
 (
     select
-        dynamic_pivot_test_data.get_json_data(25) as jdoc
+        dynamic_pivot_test_data.get_json_data(100) as jdoc
     from dual
 )
 select
@@ -22,15 +22,15 @@ from
             nested path '$.items[*]'
             columns
             (
-                item_id number path '$.itemId',
+                item_id   number        path '$.itemId',
                 item_name varchar2(100) path '$.itemName',
                 item_type varchar2(100) path '$.itemType',
-                nested path '$.itemValuePairs[*]'
+                nested                  path '$.itemValuePairs[*]'
                 columns
                 (
-                    value_id number path '$.valueId',
-                    value_name varchar2(100) path '$.valueName',
-                    value_type varchar2(100) path '$.valueType',
+                    value_id   number         path '$.valueId',
+                    value_name varchar2(100)  path '$.valueName',
+                    value_type varchar2(100)  path '$.valueType',
                     value_data varchar2(4000) path '$.valueData'
                 )
             )

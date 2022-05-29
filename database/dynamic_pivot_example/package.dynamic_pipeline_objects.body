@@ -3,6 +3,13 @@ as
 
     g_bulk_limit number := 5;
 
+    procedure log_err(p_msg in varchar2, p_locale in varchar2)
+    is
+    begin
+        dbms_output.put_line('EXCEPTION IN ' || p_locale || ': ' || p_msg);
+    end log_err;
+
+
     function get_shapes(
         p_dynamic_items_rc in t_dynamic_items_rc
     ) return dynamic_geometry_table pipelined
@@ -93,12 +100,12 @@ as
                     l_geometry := new dynamic_geometry_square(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_side,l_area);
                 when l_items(i).o_item.item_type = 'regular polygon' then
                     --find sides, side_length, interior_angles, sum_interior_angles, area and shading in the item value pairs collection
-                    l_sides := l_items(i).o_item.get_pair_value('sides');
-                    l_side_length := l_items(i).o_item.get_pair_value('sideLength');
-                    l_interior_angles := l_items(i).o_item.get_pair_value('interiorAngles');
+                    l_sides               := l_items(i).o_item.get_pair_value('sides');
+                    l_side_length         := l_items(i).o_item.get_pair_value('sideLength');
+                    l_interior_angles     := l_items(i).o_item.get_pair_value('interiorAngles');
                     l_sum_interior_angles := l_items(i).o_item.get_pair_value('sumInteriorAngles');
-                    l_area := l_items(i).o_item.get_pair_value('area');
-                    l_shading := l_items(i).o_item.get_pair_value('shading');
+                    l_area                := l_items(i).o_item.get_pair_value('area');
+                    l_shading             := l_items(i).o_item.get_pair_value('shading');
                     l_geometry := new dynamic_geometry_polygon(l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, l_items(i).o_item.get_json(), l_sides,l_side_length,l_interior_angles,l_sum_interior_angles,l_area,l_shading);
                 when l_items(i).o_item.item_type = 'circle' then
                     --find radius, circumference, area and color in the item value pairs collection
@@ -129,7 +136,7 @@ as
         when no_data_needed then
             raise;
         when others then
-            dbms_output.put_line(sqlerrm);
+            log_err(sqlerrm,'get_shapes');
             raise;
     end get_shapes;
 

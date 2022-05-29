@@ -7,6 +7,7 @@ with base as
         ,j.jdoc
     from 
         dynamic_pivot_data_to_json_v j
+        --dynamic_pivot_data_to_json_large_v j
 )
 select * 
 from
