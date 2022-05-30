@@ -23,32 +23,7 @@ as
     
     type t_items is table of r_item;
     
-    
-    g_start timestamp;
-    
-    procedure start_timing
-    is
-    begin
-        g_start := localtimestamp;
-    end start_timing;
-    
-    function stop_timing return varchar2
-    is
-        l_interval dsinterval_unconstrained;
-        m number;
-        s number;
-        l_timing varchar2(100);
-    begin
-        l_interval := localtimestamp - g_start;
-        m := extract(minute from l_interval);
-        s := extract(second from l_interval);
-        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
-
-        return l_timing;
-    end stop_timing;
-    
-    
-    
+        
     procedure log_err(p_msg in varchar2, p_locale in varchar2)
     is
     begin

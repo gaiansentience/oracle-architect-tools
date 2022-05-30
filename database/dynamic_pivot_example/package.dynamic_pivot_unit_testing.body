@@ -1,0 +1,175 @@
+create or replace package body dynamic_pivot_unit_testing
+as
+
+    g_start timestamp;
+    
+    procedure testing_banner
+    (
+        p_start in boolean default true, 
+        p_heading in varchar2 default 'UNIT TESTING'
+    )
+    is
+    begin
+        if p_start then
+            dbms_output.put_line('/*****     *****     ' || p_heading || '     *****     *****');
+            dbms_output.put_line('START TESTING ON ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME: ' || current_timestamp);
+        else
+            dbms_output.put_line('FINISHED TESTING ON ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME: ' || current_timestamp);
+            dbms_output.put_line('/*****     *****     ' || p_heading || '*****     *****/');
+        end if;
+    end testing_banner;
+    
+    procedure start_timing
+    is
+    begin
+        g_start := localtimestamp;
+    end start_timing;
+    
+    function stop_timing return varchar2
+    is
+        l_interval dsinterval_unconstrained;
+        m number;
+        s number;
+        l_timing varchar2(100);
+    begin
+        l_interval := localtimestamp - g_start;
+        m := extract(minute from l_interval);
+        s := extract(second from l_interval);
+        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
+
+        return l_timing;
+    end stop_timing;
+
+    procedure test_option_with_rowcount_timing
+    (
+        p_source in varchar2, 
+        p_comment in varchar2
+    )
+    is
+    i number;
+    l_result varchar2(1000);
+    begin
+        start_timing;
+        execute immediate 'select count(*) from ' || p_source into i;
+        l_result := to_char(i,'fm09,999') || ' records in ' || stop_timing();
+        l_result := l_result || ' from ' || p_source;
+        l_result := l_result || ' [' || p_comment || ']';
+        dbms_output.put_line(l_result);
+    end test_option_with_rowcount_timing;
+
+    procedure test_initial_data_generation
+    is
+        l_test_set varchar2(100) := 'GENERATE TEST DATA: NAME|VALUE PAIRS';
+        l_test_comment varchar2(500);
+    begin
+    
+        testing_banner(p_start => true, p_heading => l_test_set);
+        
+        dbms_output.put_line('*****generating test data as name|value rows and converting to single rows with multiple values (as json or as nested table)');
+        dbms_output.put_line('*****generate name|value rows using json source document created in plsql');
+        l_test_comment := 'generate name|value pair test data with many name/value rows per item';
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_test_data_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_test_data_large_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_test_data_xlarge_v',l_test_comment);
+    
+        dbms_output.put_line('*****consolidate name|value pairs to row json using sql');
+        l_test_comment := 'formats item name|value pairs as json using sql';
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_data_to_json_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_data_to_json_large_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_pivot_data_to_json_xlarge_v',l_test_comment);
+    
+        dbms_output.put_line('*****consolidate name|value pairs to row json using plsql AND to nested tables using objects');
+        l_test_comment := 'formats item name|value pairs as json using plsql/ALSO/creates nested tables of name|value pairs using objects';
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_item_object_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_item_object_large_v',l_test_comment);
+        dynamic_pivot_unit_testing.test_option_with_rowcount_timing('dynamic_item_object_xlarge_v',l_test_comment);
+    
+        testing_banner(p_start => false, p_heading => l_test_set);    
+    
+    end test_initial_data_generation;
+
+    procedure test_pipelined
+    is
+        l_test_set varchar2(100) := 'ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES';
+        l_test_comment varchar2(500);
+    begin
+    
+        testing_banner(p_start => true, p_heading => l_test_set);
+    
+        dbms_output.put_line('ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY');
+        dbms_output.put_line('***** using pipelined function to pivot row name|value pairs from nested tables to object hierarchy');
+        l_test_comment := 'convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)';
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_large_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_xlarge_v',l_test_comment);
+
+        dbms_output.put_line('ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY');
+        dbms_output.put_line('***** using pipelined function to pivot row name|value pairs from flat json to object hierarchy');
+        l_test_comment := 'convert json name|value pairs to subtyped object hierarchy columns pipelined';
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_large_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_pipeline_objects_xlarge_v',l_test_comment);
+    
+        testing_banner(p_start => false, p_heading => l_test_set);
+    
+    end test_pipelined;
+
+    procedure test_polymorphic
+    is
+        l_test_set varchar2(100) := 'ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS';
+        l_test_comment varchar2(500);    
+    begin
+    
+        testing_banner(p_start => true, p_heading => l_test_set);
+    
+        dbms_output.put_line('*****using polymorphic function to pivot row name|value pairs from json using hierarchical json array for name|value pairs');
+        dbms_output.put_line('*****ROWSOURCE HIERARCHICAL JSON VARCHAR ONLY');
+        l_test_comment := 'convert hierarchical row json name|value pairs to varchar2 columns polymorphic (USES json_array_t)';
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_v', l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_large_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_xlarge_v',l_test_comment);
+        
+        dbms_output.put_line('*****ROWSOURCE HIERARCHICAL JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
+        l_test_comment := 'convert hierarchical row json name|value pairs to varchar2|number columns polymorphic (uses json_array_t)';
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_large_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_xlarge_v',l_test_comment);
+    
+        dbms_output.put_line('*****using polymorphic function to pivot row name|value pairs from json using flat json format for name|value pairs');
+        dbms_output.put_line('*****ROWSOURCE FLAT JSON VARCHAR ONLY');
+        l_test_comment := 'convert flat row json name|value pairs to varchar2 columns polymorphic (AVOIDS json_array_t)';
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_flat_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_large_flat_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_xlarge_flat_v',l_test_comment);
+        
+        dbms_output.put_line('*****ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
+        l_test_comment := 'convert flat row json name|value pairs to varchar2|number columns polymorphic (AVOIDS json_array_t)';
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_flat_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_large_flat_v',l_test_comment);
+        test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_xlarge_flat_v',l_test_comment);
+    
+        testing_banner(p_start => false, p_heading => l_test_set);
+
+    end test_polymorphic;
+
+    procedure run_all_tests
+    is
+        l_test_set varchar2(100) := 'DYNAMIC ROW TO COLUMN PIVOT COMPARISON: RUN ALL TESTS';
+    begin
+    
+        testing_banner(p_start => true, p_heading => l_test_set);
+        testing_banner(p_start => false);
+
+        test_initial_data_generation;
+
+        test_polymorphic;
+        test_pipelined;
+        
+        testing_banner(p_start => true);
+        testing_banner(p_start => false, p_heading => l_test_set);
+
+    end run_all_tests;
+
+begin
+    null;
+end dynamic_pivot_unit_testing;

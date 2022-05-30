@@ -6,5 +6,6 @@ drop type dynamic_geometry_triangle;
 drop type dynamic_geometry_square;
 drop type dynamic_geometry_polygon;
 drop type dynamic_geometry_line;
+drop type dynamic_geometry_rectangle;
 --drop the base type
 drop type dynamic_geometry;

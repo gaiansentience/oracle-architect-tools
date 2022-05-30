@@ -1,12 +1,12 @@
-create or replace view dynamic_pivot_pipeline_objects_xlarge_v as
+create or replace view dynamic_pivot_pipeline_objects_json_v as
 with pipelined_source as
 (
     select
         value(t) as record_object
     from
-        dynamic_pipeline_objects.get_shapes(
+        dynamic_pipeline_objects_json.get_shapes(
             cursor(
-                select o.* from dynamic_item_object_xlarge_v o
+                select o.* from dynamic_item_object_v o
                 )
         ) t
 ), object_treat_base as
