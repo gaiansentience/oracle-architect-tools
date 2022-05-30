@@ -15,7 +15,7 @@ as
             dbms_output.put_line('START TESTING ON ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME: ' || current_timestamp);
         else
             dbms_output.put_line('FINISHED TESTING ON ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME: ' || current_timestamp);
-            dbms_output.put_line('/*****     *****     ' || p_heading || '*****     *****/');
+            dbms_output.put_line('/*****     *****     ' || p_heading || '     *****     *****/');
         end if;
     end testing_banner;
     
