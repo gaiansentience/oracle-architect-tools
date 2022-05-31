@@ -1,3 +1,6 @@
+--create table for timing, tracing and logging
+--create package for timing, tracing and logging
+
 prompt creating test data generator objects
 @@package.dynamic_pivot_test_data.spec;
 @@package.dynamic_pivot_test_data.body;
@@ -64,7 +67,39 @@ prompt polymorphic function pivoting columns from flat json rowsource - data as 
 @@view.dynamic_pivot_polymorphic_typed_large_flat_v.sql;
 @@view.dynamic_pivot_polymorphic_typed_xlarge_flat_v.sql;
 
+prompt creating table based pair values data and rowsource consolidation view
+@@view.dynamic_pivot_pair_values_source_v.sql;
+prompt creating empty dynamic_pivot_pair_values table and backup table
+prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data and backup table
+@@table.dynamic_pivot_pair_values.sql;
+@@view.dynamic_pivot_value_types_v.sql;
+@@view.dynamic_pivot_item_rowsource_v.sql;
+--??create table dynamic_pivot_rowsource
+
+--packages and views to create dynamic tables (based on dynamic_pivot_pair_values table)
+@@package.dynamic_view_polymorphic.spec;
+@@package.dynamic_view_polymorphic.body;
+@@view.dynamic_view_polymorphic_source_v.sql;
+
+@@package.dynamic_view_pipelined.spec;
+@@package.dynamic_view_pipelined.body;
+@@view.dynamic_view_pipelined_source_v.sql;
+
+--dynamic tables with refreshable columns and backup tables
+@@table.dynamic_columns_polymorphic.sql;
+@@table.dynamic_columns_pipelined.sql;
+
+@@package.dynamic_pivot_etl.spec;
+@@package.dynamic_pivot_etl.body;
+
+prompt creating packages for test framework and unit testing
+@@package.dynamic_pivot_test_framework.spec;
+@@package.dynamic_pivot_test_framework.body;
+
 @@package.dynamic_pivot_unit_testing.spec;
 @@package.dynamic_pivot_unit_testing.body;
+
+@@package.dynamic_pivot_etl_unit_testing.spec;
+@@package.dynamic_pivot_etl_unit_testing.body;
 
 prompt example objects created

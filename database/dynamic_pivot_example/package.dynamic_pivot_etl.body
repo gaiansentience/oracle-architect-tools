@@ -1,0 +1,487 @@
+create or replace package body dynamic_pivot_etl
+as
+
+    procedure log_error
+    (
+        p_error_message in varchar2, 
+        p_locale in varchar2
+    )
+    is
+        l_os_user varchar2(100) := ' OS USER: ' || sys_context('env_util','os_user');
+        l_db_user varchar2(100) := ' DB USER: ' || user;
+        l_db_session  varchar2(100) := ' DB SESSION ID: ' || sys_context('env_util','sid');
+    begin
+        --change this to write to log table
+        dbms_output.put_line('EXCEPTION IN dynamic_pivot_etl.' || p_locale);
+        dbms_output.put_line(l_db_user || l_db_session || l_os_user);
+        dbms_output.put_line(p_error_message);
+    exception
+        when others then
+            --never raise an error from the log mechanism
+            dbms_output.put_line('FATAL ERROR IN LOG MECHANISM: ' || sqlerrm);
+    end log_error;
+
+    procedure run_sql
+    (
+        p_sql in varchar2,
+        p_run_now in boolean default false
+    )
+    is
+    begin
+        if p_run_now then
+            execute immediate p_sql;
+        else
+            dbms_output.put_line(p_sql);
+        end if;
+    exception
+        when others then
+            log_error(sqlerrm, 'run_sql');
+            log_error(p_sql, 'run_sql');
+            raise;
+    end run_sql;
+    
+    function get_ddl_table_options
+    (
+        p_set_tablespace in varchar2 default null,
+        p_use_logging in boolean default false,
+        p_use_compress in boolean default false    
+    ) return varchar2
+    is
+        l_options varchar2(100);
+    begin
+        if p_set_tablespace is not null then
+            l_options := l_options || ' tablespace ' || p_set_tablespace;
+        end if;
+        if not p_use_logging then
+            l_options := l_options || ' nologging';
+        else
+            l_options := l_options || ' logging';
+        end if;
+        if p_use_compress then
+            l_options := l_options || ' compress basic';
+        else
+            l_options := l_options || ' nocompress';
+        end if;
+        return l_options;
+    end get_ddl_table_options;
+        
+    function get_column_list
+    (
+        p_source in varchar2
+    ) return varchar2
+    is
+        cursor c_source_columns is
+            select c.column_name
+            from user_tab_cols c 
+            where c.table_name = upper(p_source) 
+            order by c.column_id;
+        l_columns varchar2(4000);
+    begin
+        for r_column in c_source_columns loop
+            l_columns := l_columns || ',' || r_column.column_name;
+        end loop;
+        l_columns := ltrim(l_columns, ',');
+        return l_columns;
+    end get_column_list;
+
+    function get_ddl_ctas_dynamic_columns
+    (
+        p_source in varchar2,
+        p_destination in varchar2,
+        p_tablespace in varchar2 default null,
+        p_logging in boolean default false,
+        p_compress in boolean default false,
+        p_create_empty in boolean default false
+    ) return varchar2
+    is
+    l_ddl varchar2(4000);
+    begin
+        l_ddl := 'create table ' || p_destination;
+        
+        l_ddl := l_ddl || get_ddl_table_options(
+                                p_set_tablespace => p_tablespace, 
+                                p_use_logging => 
+                                p_logging, 
+                                p_use_compress => p_compress);
+        
+        l_ddl := l_ddl || ' as select * from ' || p_source;
+        
+        if p_create_empty then
+            l_ddl := l_ddl || ' where 1 = 0';
+        end if;
+        
+        return l_ddl;
+    end get_ddl_ctas_dynamic_columns;
+
+    function get_ddl_ctas_static_columns
+    (
+        p_source in varchar2,
+        p_destination in varchar2,
+        p_tablespace in varchar2 default null,
+        p_logging in boolean default false,
+        p_compress in boolean default false,
+        p_create_empty in boolean default false
+    ) return varchar2
+    is
+    l_ddl varchar2(4000);
+    l_columns varchar2(4000);
+    begin
+        l_columns := get_column_list(p_source);
+
+        l_ddl := 'create table ' || p_destination;
+
+        l_ddl := l_ddl || get_ddl_table_options(
+                                p_set_tablespace => p_tablespace, 
+                                p_use_logging => p_logging, 
+                                p_use_compress => p_compress);
+        
+        l_ddl := l_ddl || ' as select ' || l_columns || ' from ' || p_source;
+
+        if p_create_empty then
+            l_ddl := l_ddl || ' where 1 = 0';
+        end if;
+        
+        return l_ddl;
+    end get_ddl_ctas_static_columns;
+    
+    function get_dml_insert_select
+    (
+        p_source in varchar2,
+        p_destination in varchar2
+    ) return varchar2
+    is
+        l_columns varchar2(4000);
+        l_dml varchar2(4000);
+    begin
+        l_columns := get_column_list(p_source);
+        
+        l_dml := 'insert /*+append*/ into ' || p_destination 
+                || '(' || l_columns 
+                || ') select ' || l_columns 
+                || ' from ' || p_source;  
+        return l_dml;
+    end get_dml_insert_select;
+
+    function table_exists
+    (
+        p_table_name in varchar2
+    ) return boolean
+    is
+        i number;
+        l_found boolean := false;
+    begin
+    
+        select count(*)
+        into i
+        from user_tables t
+        where t.table_name = upper(p_table_name);
+        
+        --it is tempting to discuss styles of return logic here
+        --moved discussion to future quizzes for devgym
+        if i = 1 then
+            l_found := true;
+        end if;
+        
+        return l_found;
+    end table_exists;
+    
+    procedure drop_table
+    (
+        p_table_name in varchar2, 
+        p_execute in boolean default false
+    )
+    is
+        l_ddl varchar2(1000);
+    begin    
+        if table_exists(p_table_name) then
+            l_ddl := 'drop table ' || p_table_name || ' purge';
+            run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        end if;
+    exception
+        when others then
+            log_error(sqlerrm, 'drop_table');
+            raise;
+    end drop_table;
+    
+    procedure truncate_table
+    (
+        p_table_name in varchar2, 
+        p_execute in boolean default false
+    )
+    is
+        l_ddl varchar2(1000);
+    begin
+        if table_exists(p_table_name) then
+            l_ddl := 'truncate table ' || p_table_name || ' drop storage';
+            run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        end if;        
+    exception
+        when others then
+            log_error(sqlerrm, 'truncate_table');
+            raise;        
+    end truncate_table;
+
+    procedure create_backup_table
+    (
+        p_table_name in varchar2, 
+        p_execute in boolean default false
+    )
+    is
+        l_ddl varchar2(1000);
+        l_backup_table_name varchar2(128) := p_table_name || '_backup';
+        l_backup_tablespace varchar2(128) := null;
+    begin
+        if not table_exists(p_table_name) then
+            raise_application_error(-20100, 'CANNOT BACKUP ' || p_table_name || ', TABLE DOES NOT EXIST');
+        end if;
+
+        --drop current backup table if it exists
+        drop_table(l_backup_table_name, p_execute);
+        
+        l_ddl := get_ddl_ctas_dynamic_columns(
+                        p_source => p_table_name, 
+                        p_destination => l_backup_table_name, 
+                        p_tablespace => l_backup_tablespace, 
+                        p_logging => false, 
+                        p_compress => true);
+        
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'create_backup_table');
+            raise;                
+    end create_backup_table;
+    
+    --procedure restore_table_from_backup p_table in varchar2, p_execute in boolean default false
+    
+    procedure create_table_pair_value_source
+    (
+        p_create_empty in boolean default false,
+        p_execute in boolean default false
+    )
+    is
+        l_ddl varchar2(1000);
+        l_source varchar2(128) := 'dynamic_pivot_pair_values_source_v';
+        l_table varchar2(128) := 'dynamic_pivot_pair_values';
+        l_tablespace varchar2(128) := 'users';
+    begin
+        --if the table already exists make a backup and drop it
+        if table_exists(l_table) then
+            create_backup_table(p_table_name => l_table, p_execute => p_execute);
+            drop_table(p_table_name => l_table, p_execute => p_execute);
+        end if;
+
+        l_ddl := get_ddl_ctas_static_columns(
+                        p_source => l_source, 
+                        p_destination => l_table, 
+                        p_tablespace => l_tablespace, 
+                        p_logging => false, 
+                        p_compress => true,
+                        p_create_empty => p_create_empty);
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+        l_ddl := 
+            'alter table ' || l_table
+            || ' add constraint ' || l_table || '_u_item_id_value_name' 
+            || ' unique (item_id, value_name)';
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+    
+    --should add a constraint that a value_name can only have one value_type
+
+    exception
+        when others then
+            log_error(sqlerrm, 'create_table_pair_value_source');
+            raise;
+    end create_table_pair_value_source;
+
+    --reload pair value source data from generator view
+    procedure reload_table_pair_value_source
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_dml varchar2(4000);
+        l_source varchar2(128) := 'dynamic_pivot_pair_values_source_v';
+        l_destination varchar2(128) := 'dynamic_pivot_pair_values';
+    begin
+        if not table_exists(l_destination) then
+            --if the table has not been created, create it        
+            create_table_pair_value_source(p_create_empty => true, p_execute => p_execute);
+        else
+            --if the table already exists make a backup before truncating
+            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
+        end if;
+        
+        --clear previous contents
+        truncate_table(p_table_name => l_destination, p_execute => p_execute);
+        
+        l_dml := get_dml_insert_select(l_source, l_destination);
+        run_sql(p_sql => l_dml, p_run_now => p_execute);
+        
+        commit;
+        
+    exception
+        when others then
+            rollback;
+            --table may be truncated, in this case restore from backup
+            log_error(sqlerrm, 'reload_table_pair_value_source');
+            raise;
+    end reload_table_pair_value_source;
+    
+    --recreate polymorphic view with current columns
+    procedure rebuild_view_polymorphic
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_view varchar2(128) := 'dynamic_view_polymorphic_source_v';
+        l_ddl varchar2(4000);
+    begin
+    
+    l_ddl := 
+q'[
+create or replace view dynamic_view_polymorphic_source_v as
+with base as
+(
+    select 
+        j.item_id
+        ,j.item_name
+        ,j.item_type
+        ,j.o_jdoc_flat as jdoc
+    from 
+        dynamic_pivot_item_rowsource_v j
+)
+select * 
+from
+    dynamic_view_polymorphic.f(
+        base, 
+        columns(item_id, item_name, item_type), 
+        columns(jdoc), 
+        'select distinct value_name, value_type from dynamic_pivot_value_types_v'
+        )
+]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_view_polymorphic');
+            raise;    
+    end rebuild_view_polymorphic;
+     
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_polymorphic
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_source varchar2(128) := 'dynamic_view_polymorphic_source_v';
+        l_destination varchar2(128) := 'dynamic_columns_polymorphic';
+        l_tablespace varchar2(128) := null;
+        l_ddl varchar2(4000);
+    begin
+        
+        if table_exists(p_table_name => l_destination) then
+            --if the table has been created, backup the current form and drop
+            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
+            drop_table(p_table_name => l_destination, p_execute => p_execute);
+        end if;
+
+        --rebuild the view to get current columns
+        rebuild_view_polymorphic(p_execute);
+                
+        --create the table as select * from the freshly built view
+        l_ddl := get_ddl_ctas_dynamic_columns(
+                        p_source => l_source, 
+                        p_destination => l_destination, 
+                        p_tablespace => l_tablespace, 
+                        p_logging => false, 
+                        p_compress => true);
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        
+        --add a primary key on item_id
+        l_ddl := 
+            'alter table ' || l_destination
+            || ' add constraint ' || l_destination || '_pk' 
+            || ' primary key (item_id)';
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_polymorphic');
+            raise;    
+    end rebuild_table_polymorphic;
+    
+    procedure rebuild_view_pipelined
+    (
+        p_execute in boolean default false
+    )
+    is
+    begin
+        --if pipelined function creates new subtypes dynamically, 
+        --recreate the view with columns for the current type family
+        null;
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_view_pipelined');
+            raise;        
+    end rebuild_view_pipelined;
+    
+    --recreate pipelined table from current pipelined view
+    procedure rebuild_table_pipelined
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_source varchar2(128) := 'dynamic_view_pipelined_source_v';
+        l_destination varchar2(128) := 'dynamic_columns_pipelined';
+        l_tablespace varchar2(128) := null;
+        l_ddl varchar2(4000);
+    begin
+
+        if table_exists(p_table_name => l_destination) then
+            --if the table has been created, backup the current form and drop
+            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
+            drop_table(p_table_name => l_destination, p_execute => p_execute);
+        end if;
+
+        --rebuild the view to get current columns
+        rebuild_view_pipelined(p_execute);
+
+        --create the table as select * from the source view
+        l_ddl := get_ddl_ctas_dynamic_columns(
+                        p_source => l_source, 
+                        p_destination => l_destination, 
+                        p_tablespace => l_tablespace, 
+                        p_logging => false, 
+                        p_compress => true);
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+        l_ddl := 
+            'alter table ' || l_destination
+            || ' add constraint ' || l_destination || '_pk' 
+            || ' primary key (item_id)';
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+    
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_pipelined');
+            raise;    
+    end rebuild_table_pipelined;
+
+    procedure test_rebuild_timing
+    (
+        p_execute in boolean default false
+    )
+    is
+    begin
+        null;
+    end test_rebuild_timing;
+
+begin
+    null;
+end dynamic_pivot_etl;

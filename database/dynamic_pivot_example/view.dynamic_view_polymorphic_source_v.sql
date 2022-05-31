@@ -1,4 +1,4 @@
-create or replace view dynamic_pivot_polymorphic_typed_flat_v as
+create or replace view dynamic_view_polymorphic_source_v as
 with base as
 (
     select 
@@ -7,13 +7,13 @@ with base as
         ,j.item_type
         ,j.o_jdoc_flat as jdoc
     from 
-        dynamic_item_object_v j
+        dynamic_pivot_item_rowsource_v j
 )
 select * 
 from
-    dynamic_pivot_polymorphic_typed_flat.f(
+    dynamic_view_polymorphic.f(
         base, 
         columns(item_id, item_name, item_type), 
         columns(jdoc), 
-        'select distinct value_name, value_type from dynamic_pivot_test_data_v'
+        'select distinct value_name, value_type from dynamic_pivot_value_types_v'
         );

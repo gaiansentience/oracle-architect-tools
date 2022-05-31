@@ -6,32 +6,47 @@ begin
     
 end;
 
-/*****     *****     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES     *****     *****
-START TESTING ON ORACLE VERSION 19  TESTING TIME: 29-MAY-22 07.09.35.644766000 PM AMERICA/DENVER
-ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY
-***** using pipelined function to pivot row name|value pairs from nested tables to object hierarchy
-00,017 records in  00.0323 seconds from dynamic_pivot_pipeline_objects_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
-01,700 records in  00.9424 seconds from dynamic_pivot_pipeline_objects_large_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
-17,000 records in  09.4511 seconds from dynamic_pivot_pipeline_objects_xlarge_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
-ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
-***** using pipelined function to pivot row name|value pairs from flat json to object hierarchy
-00,017 records in  00.0101 seconds from dynamic_pivot_pipeline_objects_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-01,700 records in  00.9338 seconds from dynamic_pivot_pipeline_objects_large_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-17,000 records in  09.4757 seconds from dynamic_pivot_pipeline_objects_xlarge_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-FINISHED TESTING ON ORACLE VERSION 19  TESTING TIME: 29-MAY-22 07.09.56.490349000 PM AMERICA/DENVER
-/*****     *****     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES*****     *****/
 
-/*****     *****     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES     *****     *****
-START TESTING ON ORACLE VERSION 21  TESTING TIME: 29-MAY-22 07.10.16.226000000 PM AMERICA/DENVER
-ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY
-***** using pipelined function to pivot row name|value pairs from nested tables to object hierarchy
-00,017 records in  00.0290 seconds from dynamic_pivot_pipeline_objects_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
-01,700 records in  00.9150 seconds from dynamic_pivot_pipeline_objects_large_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
-17,000 records in  09.1040 seconds from dynamic_pivot_pipeline_objects_xlarge_v [convert nested table name|value pairs to subtyped object hierarchy columns pipelined (AVOIDS json completely)]
+/*****
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 19  TESTING TIME 30-MAY-22 05.25.32.086954000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
+ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
+000,017 records in  00.0423 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.9671 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  09.7605 seconds from dynamic_pivot_pipeline_objects_xlarge_v
 ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
-***** using pipelined function to pivot row name|value pairs from flat json to object hierarchy
-00,017 records in  00.0100 seconds from dynamic_pivot_pipeline_objects_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-01,700 records in  00.9200 seconds from dynamic_pivot_pipeline_objects_large_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-17,000 records in  09.0930 seconds from dynamic_pivot_pipeline_objects_xlarge_v [convert json name|value pairs to subtyped object hierarchy columns pipelined]
-FINISHED TESTING ON ORACLE VERSION 21  TESTING TIME: 29-MAY-22 07.10.36.297000000 PM AMERICA/DENVER
-/*****     *****     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES*****     *****/
+000,017 records in  00.0277 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.9652 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  09.9192 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 19  TESTING TIME 30-MAY-22 05.25.53.769138000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+
+/*****
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 21  TESTING TIME 30-MAY-22 05.26.02.515000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
+ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
+000,017 records in  00.0360 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.9420 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  09.1970 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
+000,017 records in  00.0270 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.9270 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  09.1410 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 21  TESTING TIME 30-MAY-22 05.26.22.785000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
