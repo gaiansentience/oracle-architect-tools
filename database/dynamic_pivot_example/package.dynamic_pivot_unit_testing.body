@@ -64,11 +64,13 @@ as
         dynamic_pivot_test_framework.print_comment(p_comment => 'convert hierarchical row json name|value pairs to columns polymorphic (USES json_array_t)');
         
         dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE HIERARCHICAL JSON COLUMNS TYPED AS VARCHAR ONLY');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_large_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_xlarge_v');
         
         dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE HIERARCHICAL JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_large_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_xlarge_v');
@@ -77,15 +79,24 @@ as
         dynamic_pivot_test_framework.print_comment(p_comment => 'convert flat row json name|value pairs to columns polymorphic (AVOIDS json_array_t)');
         
         dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON TYPED AS VARCHAR ONLY');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_flat_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_large_flat_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_xlarge_flat_v');
         
         dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_flat_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_large_flat_v');
         dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_xlarge_flat_v');
     
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (only 1 json_object parse per row)');
+        dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_flat_rows_v');
+        dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_large_flat_rows_v');
+        dynamic_pivot_test_framework.test_option_with_rowcount_timing('dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v');
+
+
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
 
     end test_polymorphic;

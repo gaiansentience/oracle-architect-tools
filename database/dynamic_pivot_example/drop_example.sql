@@ -7,13 +7,17 @@ drop package dynamic_pivot_test_framework;
 drop package dynamic_pivot_etl;
 
 --dynamic tables with refreshable columns and backup tables
-drop table dynamic_columns_polymorphic_backup;
-drop table dynamic_columns_polymorphic;
---drop backup tables
+drop table dynamic_columns_polymorphic_backup purge;
+drop table dynamic_columns_polymorphic purge;
+drop table dynamic_columns_polymorphic_row_backup purge;
+drop table dynamic_columns_polymorphic_row purge;
 drop table dynamic_columns_pipelined_backup purge;
 drop table dynamic_columns_pipelined purge;
 
 --views to create dynamic tables (based on dynamic_pivot_pair_values table)
+drop view dynamic_view_polymorphic_row_source_v;
+drop package dynamic_view_polymorphic_row;
+
 drop view dynamic_view_polymorphic_source_v;
 drop package dynamic_view_polymorphic;
 
@@ -48,6 +52,13 @@ drop view dynamic_pivot_polymorphic_typed_flat_v;
 drop view dynamic_pivot_polymorphic_typed_large_flat_v;
 drop view dynamic_pivot_polymorphic_typed_xlarge_flat_v;
 drop package dynamic_pivot_polymorphic_typed_flat;
+
+drop view dynamic_pivot_polymorphic_typed_flat_rows_v;
+drop view dynamic_pivot_polymorphic_typed_large_flat_rows_v;
+drop view dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v;
+drop package dynamic_pivot_polymorphic_typed_flat_row;
+
+
 
 drop view dynamic_pivot_pipeline_objects_v;
 drop view dynamic_pivot_pipeline_objects_large_v;

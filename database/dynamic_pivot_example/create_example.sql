@@ -40,6 +40,7 @@ prompt creating pipeline package and views to return flat json name|value pairs 
 prompt creating dynamic pivot using polymorphic row functions
 
 prompt polymorphic function pivoting columns from hierarchical json rowsource - all data as varchar
+prompt polymorphic function sets each column for all rows and puts the column values...then sets the next column for all rows
 @@package.dynamic_pivot_polymorphic.spec;
 @@package.dynamic_pivot_polymorphic.body;
 @@view.dynamic_pivot_polymorphic_v.sql;
@@ -47,6 +48,7 @@ prompt polymorphic function pivoting columns from hierarchical json rowsource - 
 @@view.dynamic_pivot_polymorphic_xlarge_v.sql;
 
 prompt polymorphic function pivoting columns from hierarchical json rowsource - data as varchar or number
+prompt polymorphic function sets each column for all rows and puts the column values...then sets the next column for all rows
 @@package.dynamic_pivot_polymorphic_typed.spec;
 @@package.dynamic_pivot_polymorphic_typed.body;
 @@view.dynamic_pivot_polymorphic_typed_v.sql;
@@ -54,6 +56,7 @@ prompt polymorphic function pivoting columns from hierarchical json rowsource - 
 @@view.dynamic_pivot_polymorphic_typed_xlarge_v.sql;
 
 prompt polymorphic function pivoting columns from flat json rowsource - all data as varchar
+prompt polymorphic function sets each column for all rows and puts the column values...then sets the next column for all rows
 @@package.dynamic_pivot_polymorphic_flat.spec;
 @@package.dynamic_pivot_polymorphic_flat.body;
 @@view.dynamic_pivot_polymorphic_flat_v.sql;
@@ -61,11 +64,22 @@ prompt polymorphic function pivoting columns from flat json rowsource - all data
 @@view.dynamic_pivot_polymorphic_xlarge_flat_v.sql;
 
 prompt polymorphic function pivoting columns from flat json rowsource - data as varchar or number
+prompt polymorphic function sets each column for all rows and puts the column values...then sets the next column for all rows
 @@package.dynamic_pivot_polymorphic_typed_flat.spec;
 @@package.dynamic_pivot_polymorphic_typed_flat.body;
 @@view.dynamic_pivot_polymorphic_typed_flat_v.sql;
 @@view.dynamic_pivot_polymorphic_typed_large_flat_v.sql;
 @@view.dynamic_pivot_polymorphic_typed_xlarge_flat_v.sql;
+
+
+prompt polymorphic function pivoting columns from flat json rowsource - data as varchar or number
+prompt polymorphic functin sets all columns in each row and puts the entire rowset
+@@package.dynamic_pivot_polymorphic_typed_flat_row.spec;
+@@package.dynamic_pivot_polymorphic_typed_flat_row.body;
+@@view.dynamic_pivot_polymorphic_typed_flat_rows_v.sql;
+@@view.dynamic_pivot_polymorphic_typed_large_flat_rows_v.sql;
+@@view.dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v.sql;
+
 
 prompt creating table based pair values data and rowsource consolidation view
 @@view.dynamic_pivot_pair_values_source_v.sql;
@@ -81,11 +95,17 @@ prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data 
 @@package.dynamic_view_polymorphic.body;
 @@view.dynamic_view_polymorphic_source_v.sql;
 
+@@package.dynamic_view_polymorphic_row.spec;
+@@package.dynamic_view_polymorphic_row.body;
+@@view.dynamic_view_polymorphic_row_source_v.sql;
+
+
 @@package.dynamic_view_pipelined.spec;
 @@package.dynamic_view_pipelined.body;
 @@view.dynamic_view_pipelined_source_v.sql;
 
 --dynamic tables with refreshable columns and backup tables
+@@table.dynamic_columns_polymorphic_row.sql;
 @@table.dynamic_columns_polymorphic.sql;
 @@table.dynamic_columns_pipelined.sql;
 

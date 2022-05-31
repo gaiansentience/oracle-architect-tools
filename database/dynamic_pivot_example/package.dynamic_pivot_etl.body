@@ -415,6 +415,93 @@ from
             raise;    
     end rebuild_table_polymorphic;
     
+
+    --recreate polymorphic view with current columns
+    procedure rebuild_view_polymorphic_row
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_view varchar2(128) := 'dynamic_view_polymorphic_row_source_v';
+        l_ddl varchar2(4000);
+    begin
+    
+    l_ddl := 
+q'[
+create or replace view dynamic_view_polymorphic_row_source_v as
+with base as
+(
+    select 
+        j.item_id
+        ,j.item_name
+        ,j.item_type
+        ,j.o_jdoc_flat as jdoc
+    from 
+        dynamic_pivot_item_rowsource_v j
+)
+select * 
+from
+    dynamic_view_polymorphic_row.f(
+        base, 
+        columns(item_id, item_name, item_type), 
+        columns(jdoc), 
+        'select distinct value_name, value_type from dynamic_pivot_value_types_v'
+        )
+]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_view_polymorphic_row');
+            raise;    
+    end rebuild_view_polymorphic_row;
+     
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_polymorphic_row
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_source varchar2(128) := 'dynamic_view_polymorphic_row_source_v';
+        l_destination varchar2(128) := 'dynamic_columns_polymorphic_row';
+        l_tablespace varchar2(128) := null;
+        l_ddl varchar2(4000);
+    begin
+        
+        if table_exists(p_table_name => l_destination) then
+            --if the table has been created, backup the current form and drop
+            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
+            drop_table(p_table_name => l_destination, p_execute => p_execute);
+        end if;
+
+        --rebuild the view to get current columns
+        rebuild_view_polymorphic_row(p_execute);
+                
+        --create the table as select * from the freshly built view
+        l_ddl := get_ddl_ctas_dynamic_columns(
+                        p_source => l_source, 
+                        p_destination => l_destination, 
+                        p_tablespace => l_tablespace, 
+                        p_logging => false, 
+                        p_compress => true);
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        
+        --add a primary key on item_id
+        l_ddl := 
+            'alter table ' || l_destination
+            || ' add constraint ' || l_destination || '_pk' 
+            || ' primary key (item_id)';
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_polymorphic_row');
+            raise;    
+    end rebuild_table_polymorphic_row;
+
+
     procedure rebuild_view_pipelined
     (
         p_execute in boolean default false
@@ -472,15 +559,6 @@ from
             log_error(sqlerrm, 'rebuild_table_pipelined');
             raise;    
     end rebuild_table_pipelined;
-
-    procedure test_rebuild_timing
-    (
-        p_execute in boolean default false
-    )
-    is
-    begin
-        null;
-    end test_rebuild_timing;
 
 begin
     null;

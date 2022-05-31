@@ -26,13 +26,22 @@ as
         p_execute in boolean default false
     );
 
-    --recreate pipelined table from current pipelined view
-    procedure rebuild_table_pipelined
+    --recreate polymorphic view with current columns
+    procedure rebuild_view_polymorphic_row
     (
         p_execute in boolean default false
     );
 
-    procedure test_rebuild_timing
+
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_polymorphic_row
+    (
+        p_execute in boolean default false
+    );
+
+
+    --recreate pipelined table from current pipelined view
+    procedure rebuild_table_pipelined
     (
         p_execute in boolean default false
     );

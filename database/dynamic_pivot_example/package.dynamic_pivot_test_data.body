@@ -484,5 +484,5 @@ as
     end get_json_data;
 
 begin
-    null;
+    dbms_random.seed('Albert Einstein');
 end dynamic_pivot_test_data;
