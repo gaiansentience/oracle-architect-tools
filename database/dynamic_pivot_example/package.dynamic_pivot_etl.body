@@ -329,6 +329,48 @@ as
             log_error(sqlerrm, 'reload_table_pair_value_source');
             raise;
     end reload_table_pair_value_source;
+
+
+    procedure rebuild_table_dynamic_columns
+    (
+        p_source      in varchar2,
+        p_destination in varchar2,
+        p_execute     in boolean default false
+    )
+    is
+        l_tablespace varchar2(128) := null;
+        l_ddl varchar2(4000);
+    begin
+        
+        if table_exists(p_table_name => p_destination) then
+            --if the table has been created, backup the current form and drop
+            create_backup_table(p_table_name => p_destination, p_execute => p_execute);
+            drop_table(p_table_name => p_destination, p_execute => p_execute);
+        end if;
+                
+        --create the table as select * from the freshly built view
+        l_ddl := get_ddl_ctas_dynamic_columns(
+                        p_source => p_source, 
+                        p_destination => p_destination, 
+                        p_tablespace => l_tablespace, 
+                        p_logging => false, 
+                        p_compress => true);
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        
+        --add a primary key on item_id
+        l_ddl := 
+            'alter table ' || p_destination
+            || ' add constraint ' || p_destination || '_pk' 
+            || ' primary key (item_id)';
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_dynamic_columns');
+            raise;    
+    end rebuild_table_dynamic_columns;
+
     
     --recreate polymorphic view with current columns
     procedure rebuild_view_polymorphic
@@ -341,8 +383,7 @@ as
     begin
     
     l_ddl := 
-q'[
-create or replace view dynamic_view_polymorphic_source_v as
+q'[create or replace view dynamic_view_polymorphic_source_v as
 with base as
 (
     select 
@@ -360,8 +401,7 @@ from
         columns(item_id, item_name, item_type), 
         columns(jdoc), 
         'select distinct value_name, value_type from dynamic_pivot_value_types_v'
-        )
-]';
+        )]';
 
         run_sql(p_sql => l_ddl, p_run_now => p_execute);
 
@@ -382,33 +422,12 @@ from
         l_tablespace varchar2(128) := null;
         l_ddl varchar2(4000);
     begin
-        
-        if table_exists(p_table_name => l_destination) then
-            --if the table has been created, backup the current form and drop
-            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
-            drop_table(p_table_name => l_destination, p_execute => p_execute);
-        end if;
 
         --rebuild the view to get current columns
         rebuild_view_polymorphic(p_execute);
-                
-        --create the table as select * from the freshly built view
-        l_ddl := get_ddl_ctas_dynamic_columns(
-                        p_source => l_source, 
-                        p_destination => l_destination, 
-                        p_tablespace => l_tablespace, 
-                        p_logging => false, 
-                        p_compress => true);
 
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
         
-        --add a primary key on item_id
-        l_ddl := 
-            'alter table ' || l_destination
-            || ' add constraint ' || l_destination || '_pk' 
-            || ' primary key (item_id)';
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
-
     exception
         when others then
             log_error(sqlerrm, 'rebuild_table_polymorphic');
@@ -427,8 +446,7 @@ from
     begin
     
     l_ddl := 
-q'[
-create or replace view dynamic_view_polymorphic_row_source_v as
+q'[create or replace view dynamic_view_polymorphic_row_source_v as
 with base as
 (
     select 
@@ -446,8 +464,7 @@ from
         columns(item_id, item_name, item_type), 
         columns(jdoc), 
         'select distinct value_name, value_type from dynamic_pivot_value_types_v'
-        )
-]';
+        )]';
 
         run_sql(p_sql => l_ddl, p_run_now => p_execute);
 
@@ -468,38 +485,131 @@ from
         l_tablespace varchar2(128) := null;
         l_ddl varchar2(4000);
     begin
-        
-        if table_exists(p_table_name => l_destination) then
-            --if the table has been created, backup the current form and drop
-            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
-            drop_table(p_table_name => l_destination, p_execute => p_execute);
-        end if;
 
         --rebuild the view to get current columns
         rebuild_view_polymorphic_row(p_execute);
-                
-        --create the table as select * from the freshly built view
-        l_ddl := get_ddl_ctas_dynamic_columns(
-                        p_source => l_source, 
-                        p_destination => l_destination, 
-                        p_tablespace => l_tablespace, 
-                        p_logging => false, 
-                        p_compress => true);
-
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
         
-        --add a primary key on item_id
-        l_ddl := 
-            'alter table ' || l_destination
-            || ' add constraint ' || l_destination || '_pk' 
-            || ' primary key (item_id)';
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
 
     exception
         when others then
             log_error(sqlerrm, 'rebuild_table_polymorphic_row');
             raise;    
     end rebuild_table_polymorphic_row;
+
+
+    --recreate json_table view with current columns
+    procedure rebuild_view_json_table
+    (
+        p_execute in boolean default false
+    )
+    is
+        type r_columns is record(column_name varchar2(128), column_type varchar2(128));
+        type t_columns is table of r_columns index by pls_integer;
+        l_columns t_columns;
+        l_ddl varchar2(32000);
+        l_ddl_view_columns varchar2(4000);
+        l_ddl_json_table_columns varchar2(4000);
+    begin
+        --select distinct value_name, value_type from dynamic_pivot_value_types_v
+        --value type is number|varchar2
+        select distinct value_name, value_type 
+        bulk collect into l_columns
+        from dynamic_pivot_value_types_v 
+        order by value_name;
+        
+        l_ddl := 
+q'[create or replace view dynamic_view_json_table_source_v as
+select
+    rs.item_id
+    ,rs.item_name
+    ,rs.item_type
+]';
+        --build view columns
+        for c in 1..l_columns.count loop   --column_type  number|varchar2
+            l_ddl_view_columns := l_ddl_view_columns  || lpad(' ',4,' ') 
+                            || ',j.' || l_columns(c).column_name || ' as "' || l_columns(c).column_name || '"' || chr(10);
+        end loop;
+/*
+        --using quoted identifiers
+        --    ,j.interiorAngles as "interiorAngles"
+
+        l_ddl_view_columns := 
+q'[
+    ,j.a_degrees
+    ,j.a_side
+    ,j.area
+    ,j.color
+    ,j.equation
+]';
+*/
+
+        l_ddl := l_ddl || l_ddl_view_columns;
+                
+        l_ddl := l_ddl ||
+q'[    --,rs.o_jdoc_flat
+    --,json_serialize(rs.o_jdoc_flat returning clob pretty) as jdoc_flat_pretty
+from
+    dynamic_pivot_item_rowsource_v rs,
+    json_table(rs.o_jdoc_flat
+        columns
+        (
+            item_id number path '$.item_id'
+]';
+        --build json table column definitions
+        for c in 1..l_columns.count loop   --column_type  number|varchar2
+            l_ddl_json_table_columns := l_ddl_json_table_columns || lpad(' ',12,' ')
+                            || ',' || l_columns(c).column_name || ' ' || l_columns(c).column_type 
+                            || ' path ''$.' || l_columns(c).column_name || '''' || chr(10);
+        end loop;
+    
+/*
+        l_ddl_json_table_columns :=  
+q'[
+            ,a_degrees number path '$.a_degrees'
+            ,a_side number path '$.a_side'
+            ,area number path '$.area'
+            ,color varchar2(4000) path '$.color'
+            ,equation varchar2(4000) path '$.equation'
+]';
+*/
+        l_ddl := l_ddl || l_ddl_json_table_columns;
+        
+        l_ddl := l_ddl || 
+q'[        )
+    ) j]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_view_json_table');
+            raise;    
+    end rebuild_view_json_table;
+
+
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_json_table
+    (
+        p_execute in boolean default false
+    )
+    is
+        l_source varchar2(128) := 'dynamic_view_json_table_source_v';
+        l_destination varchar2(128) := 'dynamic_columns_json_table';
+        l_tablespace varchar2(128) := null;
+        l_ddl varchar2(4000);
+    begin
+
+        --rebuild the view to get current columns
+        rebuild_view_json_table(p_execute);
+        
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_json_table');
+            raise;    
+    end rebuild_table_json_table;
 
 
     procedure rebuild_view_pipelined
@@ -529,31 +639,11 @@ from
         l_ddl varchar2(4000);
     begin
 
-        if table_exists(p_table_name => l_destination) then
-            --if the table has been created, backup the current form and drop
-            create_backup_table(p_table_name => l_destination, p_execute => p_execute);
-            drop_table(p_table_name => l_destination, p_execute => p_execute);
-        end if;
-
         --rebuild the view to get current columns
         rebuild_view_pipelined(p_execute);
 
-        --create the table as select * from the source view
-        l_ddl := get_ddl_ctas_dynamic_columns(
-                        p_source => l_source, 
-                        p_destination => l_destination, 
-                        p_tablespace => l_tablespace, 
-                        p_logging => false, 
-                        p_compress => true);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
 
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
-
-        l_ddl := 
-            'alter table ' || l_destination
-            || ' add constraint ' || l_destination || '_pk' 
-            || ' primary key (item_id)';
-        run_sql(p_sql => l_ddl, p_run_now => p_execute);
-    
     exception
         when others then
             log_error(sqlerrm, 'rebuild_table_pipelined');

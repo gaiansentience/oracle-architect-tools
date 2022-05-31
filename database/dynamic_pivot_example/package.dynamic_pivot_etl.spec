@@ -39,6 +39,18 @@ as
         p_execute in boolean default false
     );
 
+    --recreate json_table view with current columns
+    procedure rebuild_view_json_table
+    (
+        p_execute in boolean default false
+    );
+
+
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_json_table
+    (
+        p_execute in boolean default false
+    );
 
     --recreate pipelined table from current pipelined view
     procedure rebuild_table_pipelined

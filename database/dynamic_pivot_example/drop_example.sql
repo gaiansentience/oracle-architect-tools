@@ -7,6 +7,8 @@ drop package dynamic_pivot_test_framework;
 drop package dynamic_pivot_etl;
 
 --dynamic tables with refreshable columns and backup tables
+drop table dynamic_columns_json_table_backup purge;
+drop table dynamic_columns_json_table purge;
 drop table dynamic_columns_polymorphic_backup purge;
 drop table dynamic_columns_polymorphic purge;
 drop table dynamic_columns_polymorphic_row_backup purge;
@@ -15,6 +17,8 @@ drop table dynamic_columns_pipelined_backup purge;
 drop table dynamic_columns_pipelined purge;
 
 --views to create dynamic tables (based on dynamic_pivot_pair_values table)
+drop view dynamic_view_json_table_source_v;
+
 drop view dynamic_view_polymorphic_row_source_v;
 drop package dynamic_view_polymorphic_row;
 

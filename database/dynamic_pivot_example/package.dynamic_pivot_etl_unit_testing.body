@@ -1,63 +1,197 @@
 create or replace package body dynamic_pivot_etl_unit_testing
 as
 
-    procedure test_pipelined
+    procedure reset_test_data
+        (
+            p_delete_triangle_polygon in boolean default false, 
+            p_delete_circle_square_rectangle in boolean default false
+        )
     is
-        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES';
-        l_test_comment varchar2(500);
+    begin
+
+        --load the full datasource and delete all pair|values for item_type triangles and regular polygons
+        dynamic_pivot_etl.reload_table_pair_value_source(p_execute => true);
+        
+        if p_delete_triangle_polygon then        
+            delete from dynamic_pivot_pair_values where item_type in ('triangle', 'regular polygon');
+            commit;
+        end if;
+        
+        if p_delete_circle_square_rectangle then
+            delete from dynamic_pivot_pair_values where item_type in ('circle', 'square', 'rectangle');
+            commit;
+        end if;
+
+    end reset_test_data;
+
+    procedure stop_test_and_print_result
+        (
+            p_dynamic_table in varchar2
+        )
+    is
+        l_pivoted_rows number;
+        l_pair_values number;
+        l_timing varchar2(1000);
+    begin
+        l_timing := dynamic_pivot_test_framework.stop_timing;
+        l_pair_values := dynamic_pivot_test_framework.get_row_count('dynamic_pivot_pair_values');
+        l_pivoted_rows := dynamic_pivot_test_framework.get_row_count(p_dynamic_table);
+        dynamic_pivot_test_framework.print_comment(p_comment => l_timing || ' to pivot ' || l_pair_values || ' name|value pairs to ' || l_pivoted_rows || ' rows.');
+        dynamic_pivot_test_framework.print_columns(p_dynamic_table);    
+    end stop_test_and_print_result;
+
+    procedure test_initialize_data_and_print_columns
+        (
+            p_dynamic_table in varchar2
+        )
+    is
+    begin
+        dynamic_pivot_test_framework.print_comment(p_comment => 'reset test data with no pair values for triangle, regular polygon, circle, square or rectangle');
+        reset_test_data(p_delete_triangle_polygon => true, p_delete_circle_square_rectangle => true);
+        dynamic_pivot_etl.rebuild_table_polymorphic(p_execute => true);
+        dynamic_pivot_test_framework.print_columns(p_dynamic_table);
+    end test_initialize_data_and_print_columns;
+
+    procedure prepare_test_1
+    is
+    begin
+        dynamic_pivot_test_framework.print_comment(p_comment => 'reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => true);    
+    end prepare_test_1;
+
+    procedure prepare_test_2
+    is
+    begin
+        dynamic_pivot_test_framework.print_comment(p_comment => 'reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => false);    
+    end prepare_test_2;
+
+
+    procedure run_test_json_table
+    is
+    begin
+        dynamic_pivot_test_framework.start_timing;
+        dynamic_pivot_etl.rebuild_table_json_table(p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => 'dynamic_columns_json_table');
+    end run_test_json_table;
+
+
+    procedure test_json_table
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING DYNAMIC JSON TABLE VIEW';
     begin
     
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        
+        dynamic_pivot_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs from flat json to columns using json table');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON AND JSON TABLE');
+
+        test_initialize_data_and_print_columns(p_dynamic_table => 'dynamic_columns_json_table');
+
+        prepare_test_1;        
+        run_test_json_table;
+        
+        prepare_test_2;
+        run_test_json_table;
     
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_json_table;
+
+    procedure run_test_pipelined
+    is
+    begin    
+        dynamic_pivot_test_framework.start_timing;
+        dynamic_pivot_etl.rebuild_table_pipelined(p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => 'dynamic_columns_pipelined');
+    end run_test_pipelined;
+
+    procedure test_pipelined
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES';
+    begin
+    
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
         
         dynamic_pivot_test_framework.testing_headline(p_headline => 'using pipelined function to pivot row name|value pairs from nested tables to object hierarchy');
-        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY');
-    
-    
-    
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE PIPELINED NESTED TABLES TO OBJECT TYPE HIERARCHY');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'rowsource not currently dynamic, contains all columns');
+        
+        test_initialize_data_and_print_columns(p_dynamic_table => 'dynamic_columns_pipelined');
+
+        prepare_test_1;        
+        run_test_pipelined;
+        
+        prepare_test_2;
+        run_test_pipelined;
+
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
     
     end test_pipelined;
 
+    procedure run_test_polymorphic
+    is
+    begin
+        dynamic_pivot_test_framework.start_timing;
+        dynamic_pivot_etl.rebuild_table_polymorphic(p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => 'dynamic_columns_polymorphic');        
+    end run_test_polymorphic;
+    
     procedure test_polymorphic
     is
-        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS';
-        l_test_comment varchar2(500); 
-        l_timing varchar2(1000);
-        l_pivoted_rows number;
-        l_pair_values number;
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND COLUMNS PUT';
     begin
     
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
     
         dynamic_pivot_test_framework.testing_headline(p_headline => 'using polymorphic function to pivot row name|value pairs to columns using flat json for name|value pairs');
-        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER');
-        
-        --load the full datasource and delete all pair|values for item_type triangles and regular polygons
-        dynamic_pivot_etl.reload_table_pair_value_source(p_execute => true);
-        delete from dynamic_pivot_pair_values where item_type in ('triangle', 'regular polygon');
-        commit;
-        --recreate the table with no columns for triangle or regular polygon
-        dynamic_pivot_etl.rebuild_table_polymorphic(p_execute => true);
-        --print the current columns
-        dynamic_pivot_test_framework.print_columns('dynamic_columns_polymorphic');
-        --load the full datasource
-        dynamic_pivot_etl.reload_table_pair_value_source(p_execute => true);
-        
-        dynamic_pivot_test_framework.start_timing;
-        --recreate the table with new columns for triangle and regular polygon
-        dynamic_pivot_etl.rebuild_table_polymorphic(p_execute => true);
-        l_timing := dynamic_pivot_test_framework.stop_timing;
-        l_pair_values := dynamic_pivot_test_framework.get_row_count('dynamic_pivot_pair_values');
-        l_pivoted_rows := dynamic_pivot_test_framework.get_row_count('dynamic_columns_polymorphic');
-        dynamic_pivot_test_framework.print_comment(p_comment => 'pivoted ' || l_pair_values || ' name|value pairs to ' || l_pivoted_rows || '  Timing = ' || l_timing);
-        --print the current columns
-        dynamic_pivot_test_framework.print_columns('dynamic_columns_polymorphic');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER WITH COLUMNS PUT');
 
-    
+        test_initialize_data_and_print_columns(p_dynamic_table => 'dynamic_columns_polymorphic');
+
+        prepare_test_1;        
+        run_test_polymorphic;
+        
+        prepare_test_2;
+        run_test_polymorphic;
+
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
 
     end test_polymorphic;
+
+
+    procedure run_test_polymorphic_row
+    is
+    begin    
+        dynamic_pivot_test_framework.start_timing;
+        dynamic_pivot_etl.rebuild_table_polymorphic_row(p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => 'dynamic_columns_polymorphic_row');
+    end run_test_polymorphic_row;
+
+    
+    procedure test_polymorphic_row
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT';
+        l_test_comment varchar2(500); 
+    begin
+    
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+    
+        dynamic_pivot_test_framework.testing_headline(p_headline => 'using polymorphic function to pivot row name|value pairs to columns using flat json for name|value pairs');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER COLUMN VALUES SET WITH ROWSET PUT');
+
+        test_initialize_data_and_print_columns(p_dynamic_table => 'dynamic_columns_polymorphic_row');
+
+        prepare_test_1;        
+        run_test_polymorphic_row;
+        
+        prepare_test_2;
+        run_test_polymorphic_row;
+
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_row;
+
 
     procedure run_all_tests
     is
@@ -66,8 +200,10 @@ as
     
         dynamic_pivot_test_framework.testing_set_banner(p_heading => l_test_set, p_start => true);
 
-        test_polymorphic;
         test_pipelined;
+        test_polymorphic;
+        test_polymorphic_row;        
+        test_json_table;
         
         dynamic_pivot_test_framework.testing_set_banner(p_heading => l_test_set, p_start => false);
 

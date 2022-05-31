@@ -104,10 +104,13 @@ prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data 
 @@package.dynamic_view_pipelined.body;
 @@view.dynamic_view_pipelined_source_v.sql;
 
+@@view.dynamic_view_json_table_source_v.sql;
+
 --dynamic tables with refreshable columns and backup tables
 @@table.dynamic_columns_polymorphic_row.sql;
 @@table.dynamic_columns_polymorphic.sql;
 @@table.dynamic_columns_pipelined.sql;
+@@table.dynamic_columns_json_table.sql;
 
 @@package.dynamic_pivot_etl.spec;
 @@package.dynamic_pivot_etl.body;
