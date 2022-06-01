@@ -7,24 +7,34 @@ item attributes are stored as name value pairs with different attributes defined
 
 	here is an example of what the source data would look like:
 
-	item		item_type	value_name	value_type	value_data
-	My triangle	triangle	a_degrees	number	30
-	My triangle	triangle	b_degrees	number	60
-	My triangle	triangle	c_degrees	number	90
-	My circle	circle	radius	number	10
-	My circle	circle	area		number	50
-	My circle	circle	color		varchar2	Blue
-	My square	square	side		number	5
-	My square	square	area		number	25
+	item			item_type		value_name		value_type		value_data
+	My triangle		triangle		a_degrees		number		30
+	My triangle		triangle		b_degrees		number		60
+	My triangle		triangle		c_degrees		number		90
+	My circle		circle		radius		number		10
+	My circle		circle		area			number		50
+	My circle		circle		color			varchar2		Blue
+	My square		square		side			number		5
+	My square		square		area			number		25
 	
 the basic concept is to display all items (shapes) in a single crosstab as one row per item with non null values for attributes that belong to an item...
 
-	item		item_type	a_degrees	b_degrees	c_degrees	radius	area	side	color
-	My triangle	triangle	30		60		90		null		null	null	null
-	My circle	circle	null		null		null		10		50	null	Blue
-	My square	square	null		null		null		null		25	5	null
+	item			item_type		a_degrees		b_degrees		c_degrees		radius	area		side		color
+	My triangle		triangle		30			60			90			null		null		null		null
+	My circle		circle		null			null			null			10		50		null		Blue
+	My square		square		null			null			null			null		25		5		null
 
-	as new item types are added to the data, the results query should add columns for any new attributes
+	as new item types are added to the data, the results query should add columns for any new attributes.
+	for example, adding polygons with pair values for number of sides and interior angles would add columns for number_sides and interior_angles...
+	My polygon		polygon		side_count		number		4
+	My polygon		polygon		interior_angles	number		90
+
+	the result would then show the new columns:
+	item			item_type		a_degrees		b_degrees		c_degrees		radius	area		side		color		number_sides	interior_angles
+	My triangle		triangle		30			60			90			null		null		null		null		null			null
+	My circle		circle		null			null			null			10		50		null		Blue		null			null
+	My square		square		null			null			null			null		25		5		null		null			null
+	My polygon		polygon		null			null			null			null		null		null		null		4			90
 
 	the etl scenario recreates and reloads the output table with columns defined by all current attributes in the pair values source table
 
