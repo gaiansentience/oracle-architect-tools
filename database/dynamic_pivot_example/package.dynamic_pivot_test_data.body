@@ -171,6 +171,97 @@ as
             log_err(sqlerrm,'append_shape');
             raise;
     end append_shape;
+
+    function right_triangle_hypotenuse
+    (
+        p_side_a in number,
+        p_side_b in number
+    ) return number
+    is
+        l_side_c number;
+    begin
+        --c2 = a2 + b2
+        l_side_c := power( (power(p_side_a,2) + power(p_side_b,2))  , 0.5);
+        return round(l_side_c, 4);
+    end right_triangle_hypotenuse;
+    
+    function right_triangle_side
+    (
+        p_side_a in number,
+        p_hypotenuse in number
+    ) return number
+    is
+        l_side_b number;
+    begin
+        --c2 = a2 + b2
+        --b2 = c2 - a2
+        --b = sqrt(c - a)
+        l_side_b := power( (p_hypotenuse - p_side_a)  , 0.5);
+        return round(l_side_b, 4);
+    end right_triangle_side;
+    
+    function triangle_height
+    (
+        p_base in number,
+        p_a_degress in number,
+        p_b_degrees in number
+    ) return number
+    is
+        l_height number;
+    begin
+        raise_application_error(-20100, 'triangle height is undefined');    
+        return round(l_height, 4);
+    end triangle_height;
+    
+    function triangle_area
+    (
+        p_base in number,
+        p_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := 1/2 * p_base * p_height;
+        return round(l_area, 4);
+    end triangle_area;
+    
+    function equilateral_triangle_area
+    (
+        p_side in number
+    ) return number
+    is
+        l_area number;
+        l_angles number := 60;
+        l_height number := triangle_height(p_side, l_angles, l_angles);
+    begin
+        l_area := triangle_area(p_side, l_height);
+        return round(l_area, 4);
+    end equilateral_triangle_area;
+    
+    function right_triangle_area
+    (
+        p_base in number,
+        p_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := triangle_area(p_base, p_height);
+        return round(l_area, 4);    
+    end right_triangle_area;
+    
+    function triangle_side
+    (
+        p_side_a in number,
+        p_side_b in number,
+        p_angle in number
+    ) return number
+    is
+        l_side_c number;
+    begin
+        raise_application_error(-20100, 'triangle side c given side a and side b and angle is undefined');
+        return round(l_side_c, 4);
+    end triangle_side;
     
     function get_triangle
     (
@@ -182,13 +273,12 @@ as
         p_b_side in number
     ) return r_item
     is
-        l_item r_item;
+        l_item r_item := define_item(p_id, p_name, 'triangle'); 
         l_c_degrees number := 180 - (p_a_degrees + p_b_degrees);
         --pretend its a right triangle for side and area
-        l_c_side number := round( power( power(p_a_side,2) + power(p_b_side,2) , 0.5) , 4);
-        l_area number := 0.5 * p_a_side * p_b_side;
+        l_c_side number := right_triangle_hypotenuse(p_a_side, p_b_side);
+        l_area number := triangle_area(p_base => p_a_side, p_height => p_b_side);
     begin
-        l_item := define_item(p_id, p_name, 'triangle'); 
         append_value_pair(l_item, p_id + 0.1, 'a_degrees', 'number', p_a_degrees);
         append_value_pair(l_item, p_id + 0.2, 'b_degrees', 'number', p_b_degrees);
         append_value_pair(l_item, p_id + 0.3, 'c_degrees', 'number', l_c_degrees);
@@ -206,10 +296,9 @@ as
         p_side in number
     ) return r_item
     is
-        l_item r_item;
+        l_item r_item := define_item(p_id, p_name, 'square'); 
         l_area number := power(p_side, 2);
     begin
-        l_item := define_item(p_id, p_name, 'square'); 
         append_value_pair(l_item, p_id + 0.1, 'side', 'number', p_side);
         append_value_pair(l_item, p_id + 0.2, 'area', 'number', l_area);
         return l_item;
@@ -224,10 +313,9 @@ as
         p_color in varchar2
     ) return r_item
     is
-        l_item r_item;
+        l_item r_item := define_item(p_id, p_name, 'rectangle'); 
         l_area number := p_length * p_width;
     begin
-        l_item := define_item(p_id, p_name, 'rectangle'); 
         append_value_pair(l_item, p_id + 0.1, 'length', 'number', p_length);
         append_value_pair(l_item, p_id + 0.2, 'width', 'number', p_width);
         append_value_pair(l_item, p_id + 0.3, 'area', 'number', l_area);
@@ -235,7 +323,7 @@ as
         return l_item;
     end get_rectangle;
     
-    function circle_circumference
+    function circumference
     (
         p_radius in number
     ) return number
@@ -245,7 +333,7 @@ as
         l_circumference := 2 * pi * p_radius;
         l_circumference := round(l_circumference, 4);
         return l_circumference;
-    end circle_circumference;
+    end circumference;
     
     function circle_area
     (
@@ -255,8 +343,7 @@ as
         l_area number;
     begin
         l_area := pi * power(p_radius,2);
-        l_area := round(l_area,4);
-        return l_area;
+        return round(l_area,4);
     end circle_area;
 
     function get_circle
@@ -267,18 +354,216 @@ as
         p_color in varchar2
     ) return r_item
     is
-        l_item r_item;
+        l_item r_item := define_item(p_id, p_name, 'circle'); 
         l_area number := circle_area(p_radius);
-        l_circumference number := circle_circumference(p_radius);
+        l_circumference number := circumference(p_radius);
     begin
-        l_item := define_item(p_id, p_name, 'circle'); 
         append_value_pair(l_item, p_id + 0.1, 'radius', 'number', p_radius);
-        append_value_pair(l_item, p_id + 0.1, 'circumference', 'number', l_circumference);
-        append_value_pair(l_item, p_id + 0.2, 'area', 'number', l_area );
-        append_value_pair(l_item, p_id + 0.2, 'color', 'varchar2', p_color);
+        append_value_pair(l_item, p_id + 0.2, 'circumference', 'number', l_circumference);
+        append_value_pair(l_item, p_id + 0.3, 'area', 'number', l_area );
+        append_value_pair(l_item, p_id + 0.4, 'color', 'varchar2', p_color);
         return l_item;
     end get_circle;
+
+    function sphere_volume
+    (
+        p_radius in number
+    ) return number
+    is
+        l_volume number;
+    begin
+        l_volume := 4/3 * pi * power(p_radius, 3);
+        l_volume := round(l_volume, 4);
+        return l_volume;
+    end sphere_volume;
+
+    function sphere_surface_area
+    (
+        p_radius in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := 4 * pi * power(p_radius, 2);
+        l_area := round(l_area, 4);
+        return l_area;
+    end sphere_surface_area;
+
+    function get_sphere
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_radius in number,
+        p_color in varchar2
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'sphere'); 
+        l_circumference number := circumference(p_radius);
+        l_surface_area number := sphere_surface_area(p_radius);
+        l_volume number := sphere_volume(p_radius);
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'radius', 'number', p_radius);
+        append_value_pair(l_item, p_id + 0.2, 'circumference', 'number', l_circumference);
+        append_value_pair(l_item, p_id + 0.3, 'surfaceArea', 'number', l_surface_area);
+        append_value_pair(l_item, p_id + 0.4, 'volume', 'number', l_volume);
+        append_value_pair(l_item, p_id + 0.5, 'color', 'varchar2', p_color);
+        return l_item;
+    end get_sphere;
     
+    
+    function get_cube
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_side in number,
+        p_composition in varchar2
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'cube');
+        l_surface_area number := 6 * power(p_side, 2);
+        l_volume number := power(p_side, 3);
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'side', 'number', p_side);
+        append_value_pair(l_item, p_id + 0.2, 'surfaceArea', 'number', l_surface_area);
+        append_value_pair(l_item, p_id + 0.3, 'volume', 'number', l_volume);        
+        append_value_pair(l_item, p_id + 0.4, 'composition', 'varchar2', p_composition);
+    end get_cube;
+
+    
+    function get_cylinder
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_radius in number,
+        p_height in number
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'cylinder');
+        l_base_circumference number := circumference(p_radius);
+        l_base_area number := circle_area(p_radius);
+        l_curved_area number := l_base_circumference * p_height;
+        l_total_surface_area number := l_curved_area + l_base_area * 2;
+        l_volume number := l_base_area * p_height;
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'radius', 'number', p_radius);
+        append_value_pair(l_item, p_id + 0.2, 'height', 'number', p_height);
+        append_value_pair(l_item, p_id + 0.3, 'baseCircumference', 'number', l_base_circumference);
+        append_value_pair(l_item, p_id + 0.4, 'baseArea', 'number', l_base_area);
+        append_value_pair(l_item, p_id + 0.5, 'curvedArea', 'number', l_curved_area);
+        append_value_pair(l_item, p_id + 0.6, 'totalSurfaceArea', 'number', l_total_surface_area);
+        append_value_pair(l_item, p_id + 0.7, 'volume', 'number', l_volume);
+    end get_cylinder;
+    
+    
+    
+    function conic_lateral_area
+    (
+        p_radius in number,
+        p_slant_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := pi * p_radius * p_slant_height;
+        return round(l_area, 4);
+    end conic_lateral_area;
+    
+    function conic_volume
+    (
+        p_radius in number,
+        p_height in number
+    ) return number
+    is
+        l_volume number;
+    begin
+        l_volume := 1/3 * pi * power(p_radius, 2) * p_height;
+        return round(l_volume, 4);
+    end conic_volume;
+    
+    function get_conic
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_radius in number,
+        p_height in number    
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'conic');
+        l_volume number := conic_volume(p_radius, p_height);
+        l_base_circumference number := circumference(p_radius);
+        l_base_area number := circle_area(p_radius);
+        l_slant_height number := right_triangle_hypotenuse(p_radius, p_height);
+        l_lateral_area number := conic_lateral_area(p_radius, l_slant_height);
+        l_total_surface_area number := l_lateral_area + l_base_area;    
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'radius', 'number', p_radius);
+        append_value_pair(l_item, p_id + 0.2, 'height', 'number', p_height);
+        append_value_pair(l_item, p_id + 0.3, 'baseCircumference', 'number', l_base_circumference);
+        append_value_pair(l_item, p_id + 0.4, 'baseArea', 'number', l_base_area);
+        append_value_pair(l_item, p_id + 0.4, 'slantHeight', 'number', l_slant_height);
+        append_value_pair(l_item, p_id + 0.5, 'lateralArea', 'number', l_lateral_area);
+        append_value_pair(l_item, p_id + 0.6, 'totalSurfaceArea', 'number', l_total_surface_area);
+        append_value_pair(l_item, p_id + 0.7, 'volume', 'number', l_volume);    
+    end get_conic;
+
+    
+    function cuboid_surface_area
+    (
+        p_base in number, 
+        p_depth in number, 
+        p_height in number    
+    ) return number
+    is
+        l_surface_area number;
+    begin
+        l_surface_area := (2 * p_base * p_depth) + (2 * p_base * p_height) + (2 * p_depth * p_height);
+        return round(l_surface_area, 4);
+    end cuboid_surface_area;
+    
+    function get_cuboid
+    (
+        p_id in number,
+        p_name in varchar2,    
+        p_base in number, 
+        p_depth in number, 
+        p_height in number
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'conic');
+        l_volume number := p_base * p_depth * p_height;
+        l_surface_area number := cuboid_surface_area(p_base, p_depth, p_height);
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'base', 'number', p_base);
+        append_value_pair(l_item, p_id + 0.2, 'depth', 'number', p_depth);
+        append_value_pair(l_item, p_id + 0.3, 'height', 'number', p_height);
+        append_value_pair(l_item, p_id + 0.4, 'surfaceArea', 'number', l_surface_area);
+        append_value_pair(l_item, p_id + 0.5, 'volume', 'number', l_volume);    
+    end get_cuboid;
+
+
+    function cosecant
+    (
+        p_angle in number
+    ) return number
+    is
+        l_cosecant number;
+    begin
+        l_cosecant := 1/sin(p_angle);
+        return l_cosecant;
+    end cosecant;
+    
+    function polygon_circumradius
+    (
+        p_sides in number,
+        p_length in number
+    ) return number
+    is
+        l_circumradius number;
+    begin
+        l_circumradius := 1/2 * p_length * cosecant(pi/p_sides);
+        return round(l_circumradius, 4);
+    end polygon_circumradius;
+
     function polygon_interior_angle
     (
         p_sides in number
@@ -287,8 +572,7 @@ as
         l_angle number;
     begin
         l_angle := 180 * (p_sides - 2) / p_sides;
-        l_angle := round(l_angle,4);
-        return l_angle;
+        return round(l_angle, 4);
     exception
         when zero_divide then
             return 0;
@@ -302,10 +586,8 @@ as
     is
         l_area number;
     begin
---        l_area := p_sides * power(p_length,2) * (cos(180/p_sides)/sin(180/p_sides))/4;
         l_area := p_sides * power(p_length,2) * (cos(pi/p_sides)/sin(pi/p_sides))/4;
-        l_area := round(l_area, 4);
-        return l_area;
+        return round(l_area, 4);
     end polygon_area;
     
     function get_polygon
@@ -317,23 +599,233 @@ as
         p_shading in varchar2
     ) return r_item
     is
-        l_item r_item;
-        l_interior_angles number := polygon_interior_angle(p_sides);
-        
+        l_item r_item := define_item(p_id, p_name, 'regular polygon'); 
+        l_interior_angles number := polygon_interior_angle(p_sides);        
         l_sum_angles number := l_interior_angles * p_sides;
         l_area number := polygon_area(p_sides, p_side_length);
     begin
-        l_item := define_item(p_id, p_name, 'regular polygon'); 
         append_value_pair(l_item, p_id + 0.1, 'sides', 'number', p_sides);
         append_value_pair(l_item, p_id + 0.2, 'sideLength', 'number', p_side_length);
         append_value_pair(l_item, p_id + 0.3, 'interiorAngles', 'number', l_interior_angles);
         append_value_pair(l_item, p_id + 0.4, 'sumInteriorAngles', 'number', l_sum_angles);
         append_value_pair(l_item, p_id + 0.5, 'area', 'number', l_area);
         append_value_pair(l_item, p_id + 0.6, 'shading', 'varchar2', p_shading);
-        return l_item;    
-    
+        return l_item;       
     end get_polygon;
 
+    
+    function pyramid_base_angles
+    (   
+        p_height in number,
+        p_base_length in number,
+        p_base_sides in number
+    ) return number
+    is
+        l_angle number;
+    begin
+        raise_application_error(-20100, 'Pyramid base angle is undefined');
+        return round(l_angle, 4);
+    end pyramid_base_angles;
+
+    function pyramid_vertex_angles
+    (   
+        p_height in number,
+        p_base_length in number,
+        p_base_sides in number
+    ) return number
+    is
+        l_angle number;
+    begin
+        raise_application_error(-20100, 'Pyramid vertex angle is undefined');
+        return round(l_angle, 4);
+    end pyramid_vertex_angles;
+    
+    function pyramid_slant_height
+    (
+        p_base in number,
+        p_height in number,
+        p_sides in number
+    ) return number
+    is
+        l_slant_height number;
+        l_circumradius number := polygon_circumradius(p_sides,p_base);
+    begin
+        case p_sides
+            when 4 then
+                l_slant_height := right_triangle_hypotenuse(p_base / 2, p_height);
+            when 3 then
+                l_slant_height := power(p_base, 2) * 1/12;
+            else
+                --slant_height = sqrt(h2 + circumradius2)
+                l_slant_height := power(  (power(p_height,2) + power(l_circumradius, 2))  , 0.5);
+        end case;
+        return round(l_slant_height, 4);
+    end pyramid_slant_height;
+    
+    
+    function pyramid_base_area
+    (
+        p_base_length in number,
+        p_base_sides in number
+    ) return number
+    is
+        l_area number;
+    begin
+        case
+        when p_base_sides = 4 then
+            l_area := power(p_base_length, 2);
+        when p_base_sides = 3 then
+            l_area := equilateral_triangle_area(p_base_length);
+        else
+            l_area := polygon_area(p_base_length, p_base_sides);
+        end case;
+        return round(l_area, 4);
+     end pyramid_base_area;
+    
+    function pyramid_side_area
+    (
+        p_base_length in number,
+        p_slant_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := 1/2 * p_base_length * p_slant_height;
+        return round(l_area);
+    end pyramid_side_area;
+
+    function pyramid_volume
+    (   
+        p_height in number,
+        p_base_area in number
+    ) return number
+    is
+        l_volume number;
+    begin
+        --height × base area / 3.
+        l_volume := 1/3 * p_height * p_base_area;
+        return round(l_volume, 4);    
+    end pyramid_volume;
+    
+    function get_pyramid
+    (
+        p_id in number,
+        p_name in varchar2,
+        p_height in number,
+        p_base_length in number,
+        p_base_sides in number
+    ) return r_item
+    is
+        l_item r_item := define_item(p_id, p_name, 'pyramid');
+        --l_base_angles number := pyramid_base_angles(p_height, p_base_length, p_base_sides);
+        --l_vertex_angles number := pyramid_vertex_angles(p_height, p_base_length, p_base_sides);
+        l_base_perimeter number := p_base_length * p_base_sides;
+        l_base_area number := pyramid_base_area(p_base_length, p_base_sides);
+        l_slant_height number := pyramid_slant_height(p_base_length, p_height, p_base_sides);
+        l_side_area number := pyramid_side_area(p_base_length, l_slant_height);
+        l_total_side_area number := l_side_area * p_base_sides;
+        l_total_surface_area number := l_total_side_area + l_base_area;        
+        l_volume number := pyramid_volume(p_height, l_base_area);
+    begin
+        append_value_pair(l_item, p_id + 0.1, 'height', 'number', p_height);
+        append_value_pair(l_item, p_id + 0.2, 'baseLength', 'number', p_base_length);
+        append_value_pair(l_item, p_id + 0.3, 'baseSides', 'number', p_base_sides);
+        append_value_pair(l_item, p_id + 0.4, 'baseArea', 'number', l_base_area);
+        append_value_pair(l_item, p_id + 0.5, 'basePerimeter', 'number', l_base_perimeter);
+        --append_value_pair(l_item, p_id + 0.6, 'baseAngles', 'number', l_base_angles);
+        --append_value_pair(l_item, p_id + 0.7, 'vertexAngles', 'number', l_vertex_angles);
+        append_value_pair(l_item, p_id + 0.8, 'slantHeight', 'number', l_slant_height);
+        append_value_pair(l_item, p_id + 0.9, 'sideArea', 'number', l_side_area);
+        append_value_pair(l_item, p_id + 0.11, 'totalSideArea', 'number', l_total_side_area);
+        append_value_pair(l_item, p_id + 0.12, 'totalSurfaceArea', 'number', l_total_surface_area);
+        append_value_pair(l_item, p_id + 0.13, 'volume', 'number', l_volume);        
+    end get_pyramid;
+    
+
+    procedure get_cubes(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_cube(p_items.count + 1, 'cube 1', p_side => 4, p_composition => 'glass'));
+        append_shape(p_items, get_cube(p_items.count + 1, 'cube 2', p_side => 8, p_composition => 'calcite'));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_cubes');
+            raise;
+    end get_cubes;
+
+    procedure get_cuboids(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_cuboid(p_items.count + 1, 'cuboid 1', p_base => 4, p_depth => 2, p_height => 1));
+        append_shape(p_items, get_cuboid(p_items.count + 1, 'cuboid 2', p_base => 8, p_depth => 3, p_height => 2));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_cuboids');
+            raise;
+    end get_cuboids;
+
+    procedure get_spheres(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_sphere(p_items.count + 1, 'sphere 1', p_radius => 4, p_color => 'silver'));
+        append_shape(p_items, get_sphere(p_items.count + 1, 'sphere 2', p_radius => 8, p_color => 'bronze'));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_spheres');
+            raise;
+    end get_spheres;
+
+
+    procedure get_cylinders(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_cylinder(p_items.count + 1, 'cylinder 1', p_radius => 4, p_height => 1));
+        append_shape(p_items, get_cylinder(p_items.count + 1, 'cylinder 2', p_radius => 8, p_height => 2));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_cylinders');
+            raise;
+    end get_cylinders;
+
+
+
+
+    procedure get_conics(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_conic(p_items.count + 1, 'conic 1', p_radius => 4, p_height => 1));
+        append_shape(p_items, get_conic(p_items.count + 1, 'conic 2', p_radius => 8, p_height => 2));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_conics');
+            raise;
+    end get_conics;
+
+
+    procedure get_pyramids(p_items in out nocopy t_items)
+    is
+    begin
+
+        append_shape(p_items, get_pyramid(p_items.count + 1, 'pyramid 1', p_height => 22, p_base_length => 10, p_base_sides => 4));
+        append_shape(p_items, get_pyramid(p_items.count + 1, 'pyramid 2', p_height => 33, p_base_length => 100, p_base_sides => 5));
+    
+    exception
+        when others then
+            log_err(sqlerrm,'get_pyramids');
+            raise;
+    end get_pyramids;
+    
+    
     function get_line
     (
         p_id in number,
@@ -342,15 +834,13 @@ as
         p_y_intercept in number
     ) return r_item
     is
-        l_item r_item;
+        l_item r_item := define_item(p_id, p_name, 'line');
         l_equation varchar2(100) := 'y = ' || p_slope || 'x + ' || p_y_intercept;
     begin
-        l_item := define_item(p_id, p_name, 'line'); 
         append_value_pair(l_item, p_id + 0.1, 'y_intercept', 'number', p_y_intercept);
         append_value_pair(l_item, p_id + 0.2, 'slope', 'number', p_slope);
         append_value_pair(l_item, p_id + 0.3, 'equation', 'varchar2', l_equation);
         return l_item;    
-    
     end get_line;
 
     procedure get_lines(p_items in out nocopy t_items)
@@ -448,6 +938,15 @@ as
             get_circles(l_items);
             get_polygons(l_items);
             get_lines(l_items);
+/*
+get_cubes(l_items);
+get_cuboids(l_items);
+get_spheres(l_items);
+get_cylinders(l_items);
+get_conics(l_items);
+get_pyramids(l_items);
+*/
+
         end loop;
         
         return l_items;
