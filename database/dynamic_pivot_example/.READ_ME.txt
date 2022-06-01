@@ -1,0 +1,63 @@
+basic assumptions:
+
+items are defined by item type.  (I have used geometric shapes here, triangle, square, etc).
+
+item attributes are stored as name value pairs with different attributes defined for each item...
+	ie, triangles have 3 sides, 3 angles and area.  circles have radius and area and color.  squares have sides and area.
+
+	here is an example of what the source data would look like:
+
+	item		item_type	value_name	value_type	value_data
+	My triangle	triangle	a_degrees	number	30
+	My triangle	triangle	b_degrees	number	60
+	My triangle	triangle	c_degrees	number	90
+	My circle	circle	radius	number	10
+	My circle	circle	area		number	50
+	My circle	circle	color		varchar2	Blue
+	My square	square	side		number	5
+	My square	square	area		number	25
+	
+the basic concept is to display all items (shapes) in a single crosstab as one row per item with non null values for attributes that belong to an item...
+
+	item		item_type	a_degrees	b_degrees	c_degrees	radius	area	side	color
+	My triangle	triangle	30		60		90		null		null	null	null
+	My circle	circle	null		null		null		10		50	null	Blue
+	My square	square	null		null		null		null		25	5	null
+
+	as new item types are added to the data, the results query should add columns for any new attributes
+
+	the etl scenario recreates and reloads the output table with columns defined by all current attributes in the pair values source table
+
+deployment:
+
+	to deploy the example initially use create_example.sql from sqlplus or sqldeveloper.
+
+	after making any changes to the code use drop_and_create_example.sql to rebuild the codebase.
+
+testing:
+
+	full example with dynamic table generation:
+
+	to test the full example creating dynamic tables, run the test procedures in the dynamic_pivot_etl_testing package.
+
+	the test folder includes test scripts for the different methods as well as a test comparing the timings for all methods included in the etl package.
+
+	use test.etl.reload_table_pair_value_source.sql to reload the source table.
+	you can delete various item types (and their pair values) to regenerate the output tables with different column sets.
+
+	use test.etl.rebuild_table_xxx to run each test scenario.
+
+	use test.etl.run_all_tests.sql to run all test scenarios.
+
+proof of concept testing (no table generation)
+
+	note:  the dynamic json_table view approach which has the best performance in the etl examples is not included here because it can only be used with dynamic view creation.
+
+	to test the different approaches without generating tables use the dynamic_pivot_unit_testing package...
+
+	test scripts are included to show comparative timings of each approach.
+
+	use test.comparative_timingsXXX to run each scenario.
+
+	use test.comparative_timings.sql to test all current scenarios.
+
