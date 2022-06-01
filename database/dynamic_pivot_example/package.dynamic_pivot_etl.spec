@@ -27,6 +27,19 @@ as
     );
 
     --recreate polymorphic view with current columns
+    procedure rebuild_view_polymorphic_objectagg
+    (
+        p_execute in boolean default false
+    );
+
+    --recreate polymorphic table from fresh polymorphic view
+    procedure rebuild_table_polymorphic_objectagg
+    (
+        p_execute in boolean default false
+    );
+
+
+    --recreate polymorphic view with current columns
     procedure rebuild_view_polymorphic_row
     (
         p_execute in boolean default false

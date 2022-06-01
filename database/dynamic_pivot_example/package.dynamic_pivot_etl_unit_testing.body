@@ -177,6 +177,44 @@ as
 
     end test_polymorphic;
 
+    procedure run_test_polymorphic_objectagg
+    is
+    begin    
+        dynamic_pivot_test_framework.start_timing;
+        dynamic_pivot_etl.rebuild_table_polymorphic_objectagg(p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => 'dynamic_columns_polymorphic_objectagg');
+    end run_test_polymorphic_objectagg;
+
+    
+    procedure test_polymorphic_objectagg
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT';
+        l_test_comment varchar2(500); 
+    begin
+    
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+    
+        dynamic_pivot_test_framework.testing_headline(p_headline => 'using polymorphic function to pivot row name|value pairs to columns using NESTED json for name|value pairs');
+        dynamic_pivot_test_framework.print_comment(p_comment => 'ROWSOURCE NESTED JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER COLUMN VALUES SET WITH ROWSET PUT');
+
+        --clear all test data and generate the starting shape of the dynamic table
+        clear_all_test_data;
+        dynamic_pivot_etl.rebuild_table_polymorphic_objectagg(p_execute => true);        
+
+        test_initialize_data_and_print_columns(p_dynamic_table => 'dynamic_columns_polymorphic_objectagg');
+        run_test_polymorphic_objectagg;
+
+        prepare_test_1;        
+        run_test_polymorphic_objectagg;
+        
+        prepare_test_2;
+        run_test_polymorphic_objectagg;
+
+        dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_objectagg;
+
+
     procedure run_test_polymorphic_row
     is
     begin    
@@ -223,6 +261,7 @@ as
 
         test_pipelined;
         test_polymorphic;
+        test_polymorphic_objectagg;
         test_polymorphic_row;        
         test_json_table;
         

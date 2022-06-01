@@ -8,6 +8,8 @@ as
     
     procedure test_polymorphic;
     
+    procedure test_polymorphic_objectagg;
+    
     procedure test_polymorphic_row;
     
     procedure run_all_tests;

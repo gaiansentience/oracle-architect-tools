@@ -14,6 +14,13 @@ prompt views to consolidate test data name|value pairs as json using sql
 @@view.dynamic_pivot_data_to_json_v.sql;
 @@view.dynamic_pivot_data_to_json_large_v.sql;
 @@view.dynamic_pivot_data_to_json_xlarge_v.sql;
+--alternative view eliminating the correlated subquery for json_arrayagg
+@@view.dynamic_pivot_data_to_json_v_alt.sql;
+--alternative view using json_objectagg (value pairs are nested json object instead of json array)
+@@view.dynamic_pivot_data_to_json_v_objectagg.sql;
+@@view.dynamic_pivot_data_to_json_v_objectagg_large.sql;
+@@view.dynamic_pivot_data_to_json_v_objectagg_xlarge.sql;
+
 
 prompt creating dynamic name|value nested table type objects
 @@create_types_dynamic_item.sql;
@@ -73,12 +80,20 @@ prompt polymorphic function sets each column for all rows and puts the column va
 
 
 prompt polymorphic function pivoting columns from flat json rowsource - data as varchar or number
-prompt polymorphic functin sets all columns in each row and puts the entire rowset
+prompt polymorphic function sets all columns in each row and puts the entire rowset
 @@package.dynamic_pivot_polymorphic_typed_flat_row.spec;
 @@package.dynamic_pivot_polymorphic_typed_flat_row.body;
 @@view.dynamic_pivot_polymorphic_typed_flat_rows_v.sql;
 @@view.dynamic_pivot_polymorphic_typed_large_flat_rows_v.sql;
 @@view.dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v.sql;
+
+prompt polymorphic function pivoting columns from nested json rowsource - data as varchar or number
+@@package.dynamic_pivot_polymorphic_typed_objectagg_row.spec;
+@@package.dynamic_pivot_polymorphic_typed_objectagg_row.body;
+@@view.dynamic_pivot_polymorphic_typed_objectagg_rows_v.sql;
+@@view.dynamic_pivot_polymorphic_typed_objectagg_rows_v_large.sql;
+@@view.dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge.sql;
+
 
 
 prompt creating table based pair values data and rowsource consolidation view
@@ -88,12 +103,17 @@ prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data 
 @@table.dynamic_pivot_pair_values.sql;
 @@view.dynamic_pivot_value_types_v.sql;
 @@view.dynamic_pivot_item_rowsource_v.sql;
+@@view.dynamic_pivot_item_rowsource_objectagg_v.sql;
 --??create table dynamic_pivot_rowsource
 
 --packages and views to create dynamic tables (based on dynamic_pivot_pair_values table)
 @@package.dynamic_view_polymorphic.spec;
 @@package.dynamic_view_polymorphic.body;
 @@view.dynamic_view_polymorphic_source_v.sql;
+
+@@package.dynamic_view_polymorphic_row_objectagg.spec;
+@@package.dynamic_view_polymorphic_row_objectagg.body;
+@@view.dynamic_view_polymorphic_row_objectagg_source_v.sql;
 
 @@package.dynamic_view_polymorphic_row.spec;
 @@package.dynamic_view_polymorphic_row.body;
@@ -108,7 +128,9 @@ prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data 
 
 --dynamic tables with refreshable columns and backup tables
 @@table.dynamic_columns_polymorphic_row.sql;
+
 @@table.dynamic_columns_polymorphic.sql;
+@@table.dynamic_columns_polymorphic_objectagg.sql;
 @@table.dynamic_columns_pipelined.sql;
 @@table.dynamic_columns_json_table.sql;
 

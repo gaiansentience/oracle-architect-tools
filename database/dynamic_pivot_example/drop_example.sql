@@ -11,6 +11,8 @@ drop table dynamic_columns_json_table_backup purge;
 drop table dynamic_columns_json_table purge;
 drop table dynamic_columns_polymorphic_backup purge;
 drop table dynamic_columns_polymorphic purge;
+drop table dynamic_columns_polymorphic_objectagg_backup purge;
+drop table dynamic_columns_polymorphic_objectagg purge;
 drop table dynamic_columns_polymorphic_row_backup purge;
 drop table dynamic_columns_polymorphic_row purge;
 drop table dynamic_columns_pipelined_backup purge;
@@ -22,6 +24,9 @@ drop view dynamic_view_json_table_source_v;
 drop view dynamic_view_polymorphic_row_source_v;
 drop package dynamic_view_polymorphic_row;
 
+drop view dynamic_view_polymorphic_row_objectagg_source_v;
+drop package dynamic_view_polymorphic_row_objectagg;
+
 drop view dynamic_view_polymorphic_source_v;
 drop package dynamic_view_polymorphic;
 
@@ -29,7 +34,7 @@ drop view dynamic_view_pipelined_source_v;
 drop package dynamic_view_pipelined;
 
 --??drop table dynamic_pivot_rowsource
-
+drop view dynamic_pivot_item_rowsource_objectagg_v;
 drop view dynamic_pivot_item_rowsource_v;
 drop view dynamic_pivot_value_types_v;
 drop table dynamic_pivot_pair_values_backup purge;
@@ -63,6 +68,12 @@ drop view dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v;
 drop package dynamic_pivot_polymorphic_typed_flat_row;
 
 
+drop view dynamic_pivot_polymorphic_typed_objectagg_rows_v;
+drop view dynamic_pivot_polymorphic_typed_objectagg_rows_v_large;
+drop view dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge;
+drop package dynamic_pivot_polymorphic_typed_objectagg_row;
+
+
 
 drop view dynamic_pivot_pipeline_objects_v;
 drop view dynamic_pivot_pipeline_objects_large_v;
@@ -77,10 +88,18 @@ drop package dynamic_pipeline_objects_json;
 --types shared by pipelined packages and object views
 @@drop_types_dynamic_geometry.sql;
 
+--views creating nested json source
+drop view dynamic_pivot_data_to_json_v_objectagg;
+drop view dynamic_pivot_data_to_json_v_objectagg_large;
+drop view dynamic_pivot_data_to_json_v_objectagg_xlarge;
+
+--views creating hierarchical json source
+drop view dynamic_pivot_data_to_json_v_alt;
 drop view dynamic_pivot_data_to_json_v;
 drop view dynamic_pivot_data_to_json_large_v;
 drop view dynamic_pivot_data_to_json_xlarge_v;
 
+--views creating flat json source
 drop view dynamic_item_object_v;
 drop view dynamic_item_object_large_v;
 drop view dynamic_item_object_xlarge_v;
