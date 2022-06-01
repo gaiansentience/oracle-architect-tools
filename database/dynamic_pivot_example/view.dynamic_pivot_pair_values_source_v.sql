@@ -8,7 +8,4 @@ select
     ,value_type
     ,value_data
 from 
-    --dynamic_pivot_test_data_v
-    --dynamic_pivot_test_data_large_v
-    dynamic_pivot_test_data_xlarge_v
-    ;
+    dynamic_pivot_pair_values_generator_v;

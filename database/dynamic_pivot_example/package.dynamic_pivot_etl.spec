@@ -11,7 +11,8 @@ as
     --reload pair value source data from generator view
     procedure reload_table_pair_value_source
     (
-        p_execute in boolean default false
+        p_execute in boolean default false,
+        p_load_3d_shapes in boolean default false
     );
 
     --recreate polymorphic view with current columns

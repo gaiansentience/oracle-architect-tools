@@ -97,6 +97,7 @@ prompt polymorphic function pivoting columns from nested json rowsource - data a
 
 
 prompt creating table based pair values data and rowsource consolidation view
+@@view.dynamic_pivot_pair_values_generator_v.sql;
 @@view.dynamic_pivot_pair_values_source_v.sql;
 prompt creating empty dynamic_pivot_pair_values table and backup table
 prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data and backup table

@@ -40,7 +40,7 @@ drop view dynamic_pivot_value_types_v;
 drop table dynamic_pivot_pair_values_backup purge;
 drop table dynamic_pivot_pair_values purge;
 drop view dynamic_pivot_pair_values_source_v;
-
+drop view dynamic_pivot_pair_values_generator_v;
 
 drop view dynamic_pivot_polymorphic_v;
 drop view dynamic_pivot_polymorphic_large_v;

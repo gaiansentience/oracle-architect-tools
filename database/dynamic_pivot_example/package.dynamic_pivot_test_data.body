@@ -2,6 +2,7 @@ create or replace package body dynamic_pivot_test_data
 as
 
     pi constant number := 3.1415;
+    g_load_3d_shapes boolean := false;
 
     type r_item_value_pair is record
         (
@@ -22,6 +23,18 @@ as
         );
     
     type t_items is table of r_item;
+    
+    procedure set_load_3d_shapes
+    (
+        p_load_3d in boolean default false
+    )
+    is
+    begin
+    
+        g_load_3d_shapes := p_load_3d;
+    
+    end set_load_3d_shapes;
+    
     
         
     procedure log_err(p_msg in varchar2, p_locale in varchar2)
@@ -427,6 +440,7 @@ as
         append_value_pair(l_item, p_id + 0.2, 'surfaceArea', 'number', l_surface_area);
         append_value_pair(l_item, p_id + 0.3, 'volume', 'number', l_volume);        
         append_value_pair(l_item, p_id + 0.4, 'composition', 'varchar2', p_composition);
+        return l_item;
     end get_cube;
 
     
@@ -452,6 +466,7 @@ as
         append_value_pair(l_item, p_id + 0.5, 'curvedArea', 'number', l_curved_area);
         append_value_pair(l_item, p_id + 0.6, 'totalSurfaceArea', 'number', l_total_surface_area);
         append_value_pair(l_item, p_id + 0.7, 'volume', 'number', l_volume);
+        return l_item;        
     end get_cylinder;
     
     
@@ -504,6 +519,7 @@ as
         append_value_pair(l_item, p_id + 0.5, 'lateralArea', 'number', l_lateral_area);
         append_value_pair(l_item, p_id + 0.6, 'totalSurfaceArea', 'number', l_total_surface_area);
         append_value_pair(l_item, p_id + 0.7, 'volume', 'number', l_volume);    
+        return l_item;        
     end get_conic;
 
     
@@ -538,6 +554,7 @@ as
         append_value_pair(l_item, p_id + 0.3, 'height', 'number', p_height);
         append_value_pair(l_item, p_id + 0.4, 'surfaceArea', 'number', l_surface_area);
         append_value_pair(l_item, p_id + 0.5, 'volume', 'number', l_volume);    
+        return l_item;        
     end get_cuboid;
 
 
@@ -738,7 +755,8 @@ as
         append_value_pair(l_item, p_id + 0.9, 'sideArea', 'number', l_side_area);
         append_value_pair(l_item, p_id + 0.11, 'totalSideArea', 'number', l_total_side_area);
         append_value_pair(l_item, p_id + 0.12, 'totalSurfaceArea', 'number', l_total_surface_area);
-        append_value_pair(l_item, p_id + 0.13, 'volume', 'number', l_volume);        
+        append_value_pair(l_item, p_id + 0.13, 'volume', 'number', l_volume);   
+        return l_item;        
     end get_pyramid;
     
 
@@ -938,15 +956,19 @@ as
             get_circles(l_items);
             get_polygons(l_items);
             get_lines(l_items);
-/*
-get_cubes(l_items);
-get_cuboids(l_items);
-get_spheres(l_items);
-get_cylinders(l_items);
-get_conics(l_items);
-get_pyramids(l_items);
-*/
 
+
+            if g_load_3d_shapes then
+
+                get_cubes(l_items);
+                get_cuboids(l_items);
+                get_spheres(l_items);
+                get_cylinders(l_items);
+                get_conics(l_items);
+                get_pyramids(l_items);
+
+            end if;
+            
         end loop;
         
         return l_items;
