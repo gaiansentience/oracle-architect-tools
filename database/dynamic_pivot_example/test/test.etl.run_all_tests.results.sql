@@ -1,663 +1,244 @@
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.14.43.598000000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.52.12.708150000 PM AMERICA/DENVER
      STARTING TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.14.43.598000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.52.12.708176000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
-ROWSOURCE PIPELINED NESTED TABLES TO OBJECT TYPE HIERARCHY
 rowsource not currently dynamic, contains all columns
 reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
-dynamic_columns_pipelined has 24 columns.  Time is 01-JUN-22 10.14.46.924000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 100]
-    shading[VARCHAR2 LENGTH: 100]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    yIntercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_pipelined
- 00.5050 seconds to pivot 6000 name|value pairs to 2000 rows.
-dynamic_columns_pipelined has 24 columns.  Time is 01-JUN-22 10.14.47.433000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 100]
-    shading[VARCHAR2 LENGTH: 100]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    yIntercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_pipelined
+ 00.5276 seconds to pivot 6000 name|value pairs to 2000 rows with 24 columns
 reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
- 03.4190 seconds to pivot 63000 name|value pairs to 11000 rows.
-dynamic_columns_pipelined has 24 columns.  Time is 01-JUN-22 10.14.53.888000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 100]
-    shading[VARCHAR2 LENGTH: 100]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    yIntercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_pipelined
+ 03.7719 seconds to pivot 63000 name|value pairs to 11000 rows with 24 columns
 reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
- 04.8160 seconds to pivot 83000 name|value pairs to 17000 rows.
-dynamic_columns_pipelined has 24 columns.  Time is 01-JUN-22 10.15.01.656000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 100]
-    shading[VARCHAR2 LENGTH: 100]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    yIntercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_pipelined
+ 05.3162 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
 reset test data to full dataset: all 2d shapes and 3d solids
- 10.1740 seconds to pivot 190000 name|value pairs to 34000 rows.
-dynamic_columns_pipelined has 24 columns.  Time is 01-JUN-22 10.15.18.333000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 100]
-    shading[VARCHAR2 LENGTH: 100]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    yIntercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_pipelined
+ 11.0458 seconds to pivot 190000 name|value pairs to 34000 rows with 24 columns
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.15.18.333000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.52.52.207770000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND COLUMNS PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.15.18.333000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT USING POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.52.52.207791000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***using polymorphic function to pivot row name|value pairs to columns using flat json for name|value pairs***
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER WITH COLUMNS PUT
 reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
-dynamic_columns_polymorphic has 3 columns.  Time is 01-JUN-22 10.15.21.998000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_polymorphic
- 00.2440 seconds to pivot 6000 name|value pairs to 2000 rows.
-dynamic_columns_polymorphic has 6 columns.  Time is 01-JUN-22 10.15.22.246000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic
+ 00.2505 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
 reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
- 02.7760 seconds to pivot 63000 name|value pairs to 11000 rows.
-dynamic_columns_polymorphic has 18 columns.  Time is 01-JUN-22 10.15.27.988000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic
+ 02.9015 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
 reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
- 05.3010 seconds to pivot 83000 name|value pairs to 17000 rows.
-dynamic_columns_polymorphic has 24 columns.  Time is 01-JUN-22 10.15.36.250000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic
+ 05.6406 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
 reset test data to full dataset: all 2d shapes and 3d solids
- 17.5950 seconds to pivot 190000 name|value pairs to 34000 rows.
-dynamic_columns_polymorphic has 41 columns.  Time is 01-JUN-22 10.16.00.277000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    depth[NUMBER LENGTH: 22]
-    curvedArea[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    circumference[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    basePerimeter[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    volume[NUMBER LENGTH: 22]
-    baseSides[NUMBER LENGTH: 22]
-    totalSideArea[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    composition[VARCHAR2 LENGTH: 4000]
-    b_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    surfaceArea[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    slantHeight[NUMBER LENGTH: 22]
-    sideArea[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-    base[NUMBER LENGTH: 22]
-    baseCircumference[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-    height[NUMBER LENGTH: 22]
-    baseArea[NUMBER LENGTH: 22]
-    totalSurfaceArea[NUMBER LENGTH: 22]
-    lateralArea[NUMBER LENGTH: 22]
-    baseLength[NUMBER LENGTH: 22]
-end column details for dynamic_columns_polymorphic
+ 17.9230 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND COLUMNS PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.00.278000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT USING POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.53.37.290473000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.00.278000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.53.37.290493000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-***using polymorphic function to pivot row name|value pairs to columns using NESTED json for name|value pairs***
-ROWSOURCE NESTED JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER COLUMN VALUES SET WITH ROWSET PUT
+***polymorphic pivot row name|value pairs to columns using nested json for name|value pairs***
 reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
-dynamic_columns_polymorphic_objectagg has 3 columns.  Time is 01-JUN-22 10.16.03.947000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_polymorphic_objectagg
- 00.1410 seconds to pivot 6000 name|value pairs to 2000 rows.
-dynamic_columns_polymorphic_objectagg has 6 columns.  Time is 01-JUN-22 10.16.04.093000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_objectagg
+ 00.1296 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
 reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
- 00.9490 seconds to pivot 63000 name|value pairs to 11000 rows.
-dynamic_columns_polymorphic_objectagg has 18 columns.  Time is 01-JUN-22 10.16.08.029000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_objectagg
+ 00.8930 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
 reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
- 01.6720 seconds to pivot 83000 name|value pairs to 17000 rows.
-dynamic_columns_polymorphic_objectagg has 24 columns.  Time is 01-JUN-22 10.16.12.656000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_objectagg
+ 01.6469 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
 reset test data to full dataset: all 2d shapes and 3d solids
- 04.8590 seconds to pivot 190000 name|value pairs to 34000 rows.
-dynamic_columns_polymorphic_objectagg has 41 columns.  Time is 01-JUN-22 10.16.23.974000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    depth[NUMBER LENGTH: 22]
-    curvedArea[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    circumference[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    basePerimeter[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    volume[NUMBER LENGTH: 22]
-    baseSides[NUMBER LENGTH: 22]
-    totalSideArea[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    composition[VARCHAR2 LENGTH: 4000]
-    b_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    surfaceArea[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    slantHeight[NUMBER LENGTH: 22]
-    sideArea[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-    base[NUMBER LENGTH: 22]
-    baseCircumference[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-    height[NUMBER LENGTH: 22]
-    baseArea[NUMBER LENGTH: 22]
-    totalSurfaceArea[NUMBER LENGTH: 22]
-    lateralArea[NUMBER LENGTH: 22]
-    baseLength[NUMBER LENGTH: 22]
-end column details for dynamic_columns_polymorphic_objectagg
+ 04.6285 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.23.974000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.54.04.719472000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.23.974000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.54.04.719493000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-***using polymorphic function to pivot row name|value pairs to columns using flat json for name|value pairs***
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER COLUMN VALUES SET WITH ROWSET PUT
+***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
 reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
-dynamic_columns_polymorphic_row has 3 columns.  Time is 01-JUN-22 10.16.27.642000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_polymorphic_row
- 00.2150 seconds to pivot 6000 name|value pairs to 2000 rows.
-dynamic_columns_polymorphic_row has 6 columns.  Time is 01-JUN-22 10.16.27.862000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_row
+ 00.2227 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
 reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
- 01.4660 seconds to pivot 63000 name|value pairs to 11000 rows.
-dynamic_columns_polymorphic_row has 18 columns.  Time is 01-JUN-22 10.16.32.353000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_row
+ 01.4613 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
 reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
- 02.4360 seconds to pivot 83000 name|value pairs to 17000 rows.
-dynamic_columns_polymorphic_row has 24 columns.  Time is 01-JUN-22 10.16.37.749000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    radius[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    y_intercept[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-end column details for dynamic_columns_polymorphic_row
+ 02.5868 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
 reset test data to full dataset: all 2d shapes and 3d solids
- 06.6540 seconds to pivot 190000 name|value pairs to 34000 rows.
-dynamic_columns_polymorphic_row has 41 columns.  Time is 01-JUN-22 10.16.50.838000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    area[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    depth[NUMBER LENGTH: 22]
-    curvedArea[NUMBER LENGTH: 22]
-    a_degrees[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    circumference[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    basePerimeter[NUMBER LENGTH: 22]
-    side[NUMBER LENGTH: 22]
-    volume[NUMBER LENGTH: 22]
-    baseSides[NUMBER LENGTH: 22]
-    totalSideArea[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    composition[VARCHAR2 LENGTH: 4000]
-    b_side[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    surfaceArea[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    slantHeight[NUMBER LENGTH: 22]
-    sideArea[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-    base[NUMBER LENGTH: 22]
-    baseCircumference[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-    height[NUMBER LENGTH: 22]
-    baseArea[NUMBER LENGTH: 22]
-    totalSurfaceArea[NUMBER LENGTH: 22]
-    lateralArea[NUMBER LENGTH: 22]
-    baseLength[NUMBER LENGTH: 22]
-end column details for dynamic_columns_polymorphic_row
+ 06.5759 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS AND ROWSET PUT
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.50.839000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.54.35.760966000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING DYNAMIC JSON TABLE VIEW
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.16.50.839000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT  USING DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.54.35.760987000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***dynamically creating source view to pivot row name|value pairs from flat json to columns using json table***
-ROWSOURCE FLAT JSON AND JSON TABLE
 reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
-dynamic_columns_json_table has 3 columns.  Time is 01-JUN-22 10.16.54.524000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-end column details for dynamic_columns_json_table
- 00.1720 seconds to pivot 6000 name|value pairs to 2000 rows.
-dynamic_columns_json_table has 6 columns.  Time is 01-JUN-22 10.16.54.701000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    equation[VARCHAR2 LENGTH: 4000]
-    slope[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-end column details for dynamic_columns_json_table
+ 00.1804 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
 reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
- 00.8890 seconds to pivot 63000 name|value pairs to 11000 rows.
-dynamic_columns_json_table has 18 columns.  Time is 01-JUN-22 10.16.58.531000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-    interiorAngles[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    sideLength[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-end column details for dynamic_columns_json_table
+ 00.9418 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
 reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
- 01.3370 seconds to pivot 83000 name|value pairs to 17000 rows.
-dynamic_columns_json_table has 24 columns.  Time is 01-JUN-22 10.17.02.862000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    equation[VARCHAR2 LENGTH: 4000]
-    interiorAngles[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    side[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-end column details for dynamic_columns_json_table
+ 01.4159 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
 reset test data to full dataset: all 2d shapes and 3d solids
- 02.8930 seconds to pivot 190000 name|value pairs to 34000 rows.
-dynamic_columns_json_table has 41 columns.  Time is 01-JUN-22 10.17.12.202000000 PM
-    ITEM_ID[NUMBER LENGTH: 22]
-    ITEM_NAME[VARCHAR2 LENGTH: 100]
-    ITEM_TYPE[VARCHAR2 LENGTH: 100]
-    a_degrees[NUMBER LENGTH: 22]
-    a_side[NUMBER LENGTH: 22]
-    area[NUMBER LENGTH: 22]
-    b_degrees[NUMBER LENGTH: 22]
-    b_side[NUMBER LENGTH: 22]
-    base[NUMBER LENGTH: 22]
-    baseArea[NUMBER LENGTH: 22]
-    baseCircumference[NUMBER LENGTH: 22]
-    baseLength[NUMBER LENGTH: 22]
-    basePerimeter[NUMBER LENGTH: 22]
-    baseSides[NUMBER LENGTH: 22]
-    c_degrees[NUMBER LENGTH: 22]
-    c_side[NUMBER LENGTH: 22]
-    circumference[NUMBER LENGTH: 22]
-    color[VARCHAR2 LENGTH: 4000]
-    composition[VARCHAR2 LENGTH: 4000]
-    curvedArea[NUMBER LENGTH: 22]
-    depth[NUMBER LENGTH: 22]
-    equation[VARCHAR2 LENGTH: 4000]
-    height[NUMBER LENGTH: 22]
-    interiorAngles[NUMBER LENGTH: 22]
-    lateralArea[NUMBER LENGTH: 22]
-    length[NUMBER LENGTH: 22]
-    radius[NUMBER LENGTH: 22]
-    shading[VARCHAR2 LENGTH: 4000]
-    side[NUMBER LENGTH: 22]
-    sideArea[NUMBER LENGTH: 22]
-    sideLength[NUMBER LENGTH: 22]
-    sides[NUMBER LENGTH: 22]
-    slantHeight[NUMBER LENGTH: 22]
-    slope[NUMBER LENGTH: 22]
-    sumInteriorAngles[NUMBER LENGTH: 22]
-    surfaceArea[NUMBER LENGTH: 22]
-    totalSideArea[NUMBER LENGTH: 22]
-    totalSurfaceArea[NUMBER LENGTH: 22]
-    volume[NUMBER LENGTH: 22]
-    width[NUMBER LENGTH: 22]
-    y_intercept[NUMBER LENGTH: 22]
-end column details for dynamic_columns_json_table
+ 03.0666 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
-     DYNAMIC TABLE COLUMNS FROM ROW PIVOT  USING DYNAMIC JSON TABLE VIEW
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.17.12.202000000 PM AMERICA/DENVER
+     DYNAMIC TABLE COLUMNS PIVOT  USING DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.55.00.744040000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.17.12.202000000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.55.00.744058000 PM AMERICA/DENVER
+     FINISHED TEST SET
+----------------------------------------------------------------------------------------------------
+*****/
+
+
+PL/SQL procedure successfully completed.
+
+/*****
+----------------------------------------------------------------------------------------------------
+DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.56.31.815000000 PM AMERICA/DENVER
+     STARTING TEST SET
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.56.31.815000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
+rowsource not currently dynamic, contains all columns
+reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
+ 00.4950 seconds to pivot 6000 name|value pairs to 2000 rows with 24 columns
+reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
+ 03.3730 seconds to pivot 63000 name|value pairs to 11000 rows with 24 columns
+reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
+ 04.7730 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+reset test data to full dataset: all 2d shapes and 3d solids
+ 10.0050 seconds to pivot 190000 name|value pairs to 34000 rows with 24 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT  USING PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.57.05.977000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT USING POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.57.05.977000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***using polymorphic function to pivot row name|value pairs to columns using flat json for name|value pairs***
+reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
+ 00.2490 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
+ 02.7310 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
+ 05.2050 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+reset test data to full dataset: all 2d shapes and 3d solids
+ 16.9060 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT USING POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.57.46.994000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.57.46.994000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***polymorphic pivot row name|value pairs to columns using nested json for name|value pairs***
+reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
+ 00.1380 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
+ 00.9400 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
+ 01.6450 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+reset test data to full dataset: all 2d shapes and 3d solids
+ 04.7920 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.10.549000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.10.549000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
+reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
+ 00.2120 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
+ 01.4200 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
+ 02.4020 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+reset test data to full dataset: all 2d shapes and 3d solids
+ 06.4000 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.37.039000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT  USING DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.37.039000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***dynamically creating source view to pivot row name|value pairs from flat json to columns using json table***
+reset test data with no pair values for triangle, regular polygon, circle, square or rectangle
+ 00.1730 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle
+ 00.8760 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle
+ 01.3460 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+reset test data to full dataset: all 2d shapes and 3d solids
+ 02.8600 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT  USING DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.58.253000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
+     ORACLE VERSION 21  CODEBASE poc refactored (version 1)  TESTING TIME 02-JUN-22 02.58.58.253000000 PM AMERICA/DENVER
      FINISHED TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/

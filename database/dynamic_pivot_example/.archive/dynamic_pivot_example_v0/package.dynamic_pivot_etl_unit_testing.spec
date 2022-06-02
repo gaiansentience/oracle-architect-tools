@@ -12,6 +12,6 @@ as
     
     procedure test_polymorphic_row;
     
-    procedure run_all_tests;
+    procedure run_all_tests(p_show_columns in boolean default false);
 
 end dynamic_pivot_etl_unit_testing;

@@ -1,13 +1,193 @@
 create or replace package body dynamic_pivot_test_framework
 as
 
-    g_start timestamp;
 
-    procedure print_oracle_version_and_time
+    g_codebase varchar2(100) := 'poc refactored (version 2)';
+    g_start timestamp;
+    g_stop timestamp;
+    g_results_table varchar2(128) := 'oa_dpc_test_results';
+    g_current_test_id number;
+    g_test_info clob;
+    g_archive_tests varchar2(10) := 'NO';
+
+    procedure verify_codebase(p_required_codebase in varchar2)
     is
     begin
-        dbms_output.put_line('     ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME ' || current_timestamp);
-    end print_oracle_version_and_time;
+        if g_codebase <> p_required_codebase then
+            raise_application_error(-20100, 'Required codebase is ' || p_required_codebase || ' current codebase is set to ' || g_codebase);
+        end if;
+    end verify_codebase;
+    
+    procedure set_tests_to_archived
+    is
+    begin
+        g_archive_tests := 'YES';
+    end set_tests_to_archived;
+
+
+    procedure test_info_add(p_group_key in varchar2, p_key in varchar2, p_value in varchar2)
+    is
+    o_test json_object_t;
+    a_test json_array_t := json_array_t();
+    e_test json_object_t := json_object_t();    
+    begin
+        if g_test_info is null then
+            o_test := new json_object_t();
+        else
+            o_test := json_object_t(g_test_info);
+        end if;
+        --o_test := json_object_t(g_test_info);
+        if not o_test.has(p_group_key) then
+            o_test.put(p_group_key,a_test);
+        end if;
+        a_test := o_test.get_array(p_group_key);
+        e_test.put(p_key, p_value);
+        a_test.append(e_test);
+        g_test_info := o_test.to_clob();    
+    end test_info_add;
+
+    procedure test_info_add_environment
+    is
+        l_group_key varchar2(100) := 'testing_environment';
+    begin
+        test_info_add(l_group_key, 'oracleVersion', dbms_db_version.version);
+        test_info_add(l_group_key, 'codebase', g_codebase);
+    end test_info_add_environment;
+
+    procedure test_info_add_setup(p_key in varchar2, p_value in varchar2)
+    is
+    begin
+        test_info_add('test_setup', p_key, p_value);
+    end test_info_add_setup;
+    
+    procedure test_info_add_results(p_key in varchar2, p_value in varchar2)
+    is
+    begin
+        test_info_add('test_results', p_key, p_value);
+    end test_info_add_results;
+    
+    procedure timing_start
+    is
+    begin
+        g_start := localtimestamp;
+        g_stop := null;
+    end timing_start;
+    
+    procedure timing_stop
+    is
+    begin
+        g_stop := localtimestamp;
+    end timing_stop;
+    
+    function timing_result return varchar2
+    is
+        l_interval dsinterval_unconstrained;
+        m number;
+        s number;
+        l_timing varchar2(100);
+    begin
+        if g_stop is null then
+            timing_stop;
+        end if;
+        l_interval := g_stop - g_start;
+        m := extract(minute from l_interval);
+        s := extract(second from l_interval);
+        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
+
+        test_info_add_results('timingResult', l_timing);        
+
+        return l_timing;
+    end timing_result;
+
+    function table_exists(p_table in varchar2) return boolean
+    is
+        i number;
+    begin
+        select count(*) into i 
+        from user_tables 
+        where upper(table_name) = upper(p_table);
+        return (i > 0);
+    end table_exists;
+    
+    procedure test_results_create_table
+    is
+        l_ddl varchar2(4000);
+    begin
+        if not table_exists(g_results_table) then
+            l_ddl := 
+'create table ' || g_results_table || q'[ 
+(
+    test_id number generated always as identity
+    ,codebase     varchar2(100)
+    ,test_name    varchar2(100)
+    ,test_set     varchar2(100)
+    ,test_group   varchar2(1000)
+    ,test_summary varchar2(4000)
+    ,test_date    date
+    ,start_time   timestamp
+    ,stop_time    timestamp
+    ,test_info    clob
+    ,is_archived  varchar2(10) default 'NO'
+)
+]';
+            --dbms_output.put_line(l_ddl);
+            execute immediate l_ddl;
+        end if;
+    end test_results_create_table;
+    
+    procedure test_results_drop_table
+    is
+        l_ddl varchar2(1000);
+    begin
+        if table_exists(g_results_table) then
+            l_ddl := 'drop table ' || g_results_table || ' purge';
+            --dbms_output.put_line(l_ddl);
+            execute immediate l_ddl;
+        end if;
+    end test_results_drop_table;
+
+    procedure test_results_start_record
+    (
+        p_test_name in varchar2, 
+        p_test_set in varchar2 default null, 
+        p_test_group in varchar2 default null
+    )
+    is
+        pragma autonomous_transaction;
+        l_dml varchar2(4000);
+    begin
+        test_results_create_table;
+        g_test_info := null;
+        l_dml := 'begin insert into ' || g_results_table 
+        || ' (codebase, test_name, test_set, test_group, test_date, is_archived) ' 
+        || ' values(:codebase, :test, :set, :group, sysdate, :archived) ' 
+        || ' returning test_id into :id; commit; end;';
+        --dbms_output.put_line(l_dml);
+        execute immediate l_dml using in g_codebase, in p_test_name, in p_test_set, in p_test_group, in g_archive_tests, out g_current_test_id;
+        test_info_add_environment;
+    end test_results_start_record;
+
+    procedure test_results_stop_record
+    (
+        p_test_summary in varchar2 default 'completed'
+    )
+    is
+        pragma autonomous_transaction;
+        l_dml clob;
+    begin
+        --check g_test_id  to see if there is a current testing record
+        l_dml := 'begin update ' || g_results_table 
+        || ' set test_summary = :summary, start_time = :start, stop_time = :stop, test_info = :info ' 
+        || ' where test_id = :id; commit; end;';
+        --dbms_output.put_line(l_dml);
+        execute immediate l_dml using in p_test_summary, in g_start, in g_stop, in g_test_info, in g_current_test_id;
+    end test_results_stop_record;
+    
+    procedure print_test_environment
+    is
+    begin
+        dbms_output.put_line('     ORACLE VERSION ' || dbms_db_version.version || '  CODEBASE ' || g_codebase || '  TESTING TIME ' || current_timestamp);
+    end print_test_environment;
     
     procedure print_line_separator
     is
@@ -43,7 +223,7 @@ as
         print_star_separator(p_start_comment => true);
         print_line_separator;
         dbms_output.put_line(p_heading);
-        print_oracle_version_and_time;
+        print_test_environment;
         if p_start then
             dbms_output.put_line('     STARTING TEST SET');
         else
@@ -66,7 +246,7 @@ as
         
         print_line_separator;
         dbms_output.put_line('     ' || p_heading);
-        print_oracle_version_and_time;
+        print_test_environment;
         if p_start then
             dbms_output.put_line('     STARTING TEST');
         else
@@ -100,26 +280,6 @@ as
         dbms_output.put_line(case when p_indent then '    ' end || p_comment);
     end print_comment;    
     
-    procedure start_timing
-    is
-    begin
-        g_start := localtimestamp;
-    end start_timing;
-    
-    function stop_timing return varchar2
-    is
-        l_interval dsinterval_unconstrained;
-        m number;
-        s number;
-        l_timing varchar2(100);
-    begin
-        l_interval := localtimestamp - g_start;
-        m := extract(minute from l_interval);
-        s := extract(second from l_interval);
-        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
-
-        return l_timing;
-    end stop_timing;
     
     function get_column_count
     (
@@ -137,12 +297,12 @@ as
         return i;
     end get_column_count;
         
-    procedure print_columns
+    function get_columns
     (
         p_source in varchar2
-    )
+    ) return varchar2
     is
-        i number;
+        l_columns varchar2(32000);
         cursor c_columns is
             select
                 column_name
@@ -153,13 +313,37 @@ as
                 table_name = upper(p_source)
             order by column_id;
     begin
-        i := get_column_count(p_source => p_source);
-        print_comment(p_source || ' has ' || i || ' columns.  Time is ' || localtimestamp);
+        l_columns := l_columns || 'begin column details for ' || p_source || '.  Time is ' || localtimestamp || chr(10);
         for c in c_columns loop
-            print_comment(c.column_name || '['|| c.data_type || ' LENGTH: ' || c.data_length || ']', true); 
+            l_columns := l_columns || '     ' || rpad(c.column_name, 30, ' ') || c.data_type || '(' || c.data_length || ')' || chr(10);
         end loop;
-        print_comment('end column details for ' || p_source);
-    end print_columns;
+        l_columns := l_columns || 'end column details for ' || p_source;
+        return l_columns;
+    end get_columns;
+
+    procedure add_columns_to_setup
+    (
+        p_source in varchar2,
+        p_key in varchar2 default 'columns'
+    )
+    is
+    begin
+        test_info_add_setup(p_key || 'Object', p_source);
+        test_info_add_setup(p_key || 'Count', get_column_count(p_source => p_source));
+        test_info_add_setup(p_key || 'Details', get_columns(p_source => p_source));
+    end add_columns_to_setup;
+    
+    procedure add_columns_to_results
+    (
+        p_source in varchar2,
+        p_key in varchar2 default 'columns'
+    )
+    is
+    begin
+        test_info_add_results(p_key || 'Object', p_source);
+        test_info_add_results(p_key || 'Count', get_column_count(p_source => p_source));
+        test_info_add_results(p_key || 'Details', get_columns(p_source => p_source));
+    end add_columns_to_results;
 
     function get_row_count
     (
@@ -177,27 +361,68 @@ as
         execute immediate l_dml into i;
         return i;
     end get_row_count;
+    
+    procedure add_rowcount_to_setup
+    (
+        p_source in varchar2,
+        p_where in varchar2 default null,
+        p_key in varchar2 default 'rowSource'
+    )
+    is
+    i number;
+    begin
+        i := get_row_count(p_source, p_where);
+        test_info_add_setup(p_key || 'RowSource', p_source);
+        test_info_add_setup(p_key || 'RowCount', i);
+    end add_rowcount_to_setup;
 
-    procedure test_option_with_rowcount_timing
+    procedure add_rowcount_to_results
+    (
+        p_source in varchar2,
+        p_where in varchar2 default null,
+        p_key in varchar2 default 'rowOutput'
+    )
+    is
+    i number;
+    begin
+        i := get_row_count(p_source, p_where);
+        test_info_add_results(p_key || 'RowSource', p_source);
+        test_info_add_results(p_key || 'RowCount', i);    
+    end add_rowcount_to_results;
+    
+    procedure test_rowcount_timing
     (
         p_source in varchar2, 
+        p_set in varchar2 default null,
+        p_group in varchar2 default null,
         p_comment in varchar2 default null
     )
     is
     i number;
     l_result varchar2(1000);
     begin
-        start_timing;
+        test_results_start_record(p_test_name => 'timing_rowcounts', p_test_set => p_set, p_test_group => p_group);
+        
+        timing_start;
         i := get_row_count(p_source);
-        l_result := to_char(i,'fm099,999') || ' records in ' || stop_timing();
+        timing_stop;
+        --get formatted timing result (adds it to test_info)
+        l_result := to_char(i,'fm099,999') || ' records in ' || timing_result();
         l_result := l_result || ' from ' || p_source;
+
+        test_info_add_results('rowSource', p_source);
+        test_info_add_results('rowCount', i);
+        
+        
         if p_comment is not null then
-            l_result := l_result || ' [' || p_comment || ']';
+            test_info_add_results('comment', p_comment);
         end if;
+        test_results_stop_record(l_result);
+        
         print_comment(l_result);
-    end test_option_with_rowcount_timing;
+    end test_rowcount_timing;
 
 
 begin
     null;
-end dynamic_pivot_test_framework ;
+end dynamic_pivot_test_framework;
