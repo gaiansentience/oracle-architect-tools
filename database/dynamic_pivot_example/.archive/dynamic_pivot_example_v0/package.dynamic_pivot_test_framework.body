@@ -1,0 +1,203 @@
+create or replace package body dynamic_pivot_test_framework
+as
+
+    g_start timestamp;
+
+    procedure print_oracle_version_and_time
+    is
+    begin
+        dbms_output.put_line('     ORACLE VERSION ' || dbms_db_version.version || '  TESTING TIME ' || current_timestamp);
+    end print_oracle_version_and_time;
+    
+    procedure print_line_separator
+    is
+    begin
+        dbms_output.put_line(lpad('-',100,'-'));    
+    end print_line_separator;
+    
+    procedure print_star_separator
+    (
+        p_start_comment in boolean default false, 
+        p_end_comment in boolean default false
+    )
+    is
+        l_separator varchar2(100);
+    begin
+        if p_start_comment then
+            l_separator := '/';
+        end if;
+        l_separator := l_separator || lpad('*',5,'*');
+        if p_end_comment then
+            l_separator := l_separator || '/';
+        end if;
+        dbms_output.put_line(l_separator);
+    end print_star_separator;
+    
+    procedure testing_set_banner
+    (
+        p_heading in varchar2 default 'UNIT TEST SET',
+        p_start in boolean default true
+    )
+    is
+    begin
+        print_star_separator(p_start_comment => true);
+        print_line_separator;
+        dbms_output.put_line(p_heading);
+        print_oracle_version_and_time;
+        if p_start then
+            dbms_output.put_line('     STARTING TEST SET');
+        else
+            dbms_output.put_line('     FINISHED TEST SET');
+        end if;  
+        print_line_separator;
+        print_star_separator(p_end_comment => true);
+    end testing_set_banner;
+    
+    procedure testing_banner
+    (
+        p_heading in varchar2 default 'UNIT TEST',
+        p_start in boolean default true
+    )
+    is
+    begin
+        if p_start then
+            print_star_separator(p_start_comment => true);
+        end if;
+        
+        print_line_separator;
+        dbms_output.put_line('     ' || p_heading);
+        print_oracle_version_and_time;
+        if p_start then
+            dbms_output.put_line('     STARTING TEST');
+        else
+            dbms_output.put_line('     FINISHED TEST');
+        end if;
+        print_line_separator;
+        
+        if not p_start then
+            print_star_separator(p_end_comment => true);
+        end if;
+    end testing_banner;    
+    
+    procedure testing_headline
+    (
+        p_headline in varchar2
+    )
+    is
+    begin
+    
+        dbms_output.put_line('***' || p_headline || '***');
+    
+    end testing_headline;
+    
+    procedure print_comment
+    (
+        p_comment in varchar2,
+        p_indent in boolean default false
+    )
+    is
+    begin
+        dbms_output.put_line(case when p_indent then '    ' end || p_comment);
+    end print_comment;    
+    
+    procedure start_timing
+    is
+    begin
+        g_start := localtimestamp;
+    end start_timing;
+    
+    function stop_timing return varchar2
+    is
+        l_interval dsinterval_unconstrained;
+        m number;
+        s number;
+        l_timing varchar2(100);
+    begin
+        l_interval := localtimestamp - g_start;
+        m := extract(minute from l_interval);
+        s := extract(second from l_interval);
+        l_timing := case when m > 0 then (m || ' minutes ') end || to_char(s, '09.9999') || ' seconds';
+
+        return l_timing;
+    end stop_timing;
+    
+    function get_column_count
+    (
+        p_source in varchar2
+    ) return number
+    is
+        i number;
+    begin
+    
+        select count(*)
+        into i
+        from user_tab_cols 
+        where table_name = upper(p_source);
+        
+        return i;
+    end get_column_count;
+        
+    procedure print_columns
+    (
+        p_source in varchar2
+    )
+    is
+        i number;
+        cursor c_columns is
+            select
+                column_name
+                ,data_type
+                ,data_length
+            from user_tab_cols 
+            where 
+                table_name = upper(p_source)
+            order by column_id;
+    begin
+        i := get_column_count(p_source => p_source);
+        print_comment(p_source || ' has ' || i || ' columns.  Time is ' || localtimestamp);
+        for c in c_columns loop
+            print_comment(c.column_name || '['|| c.data_type || ' LENGTH: ' || c.data_length || ']', true); 
+        end loop;
+        print_comment('end column details for ' || p_source);
+    end print_columns;
+
+    function get_row_count
+    (
+        p_source in varchar2,
+        p_where in varchar2 default null        
+    ) return number
+    is
+        i number;
+        l_dml varchar2(4000);
+    begin
+        l_dml := 'select count(*) from ' || p_source;
+        if p_where is not null then
+            l_dml := l_dml || ' ' || p_where;
+        end if;
+        execute immediate l_dml into i;
+        return i;
+    end get_row_count;
+
+    procedure test_option_with_rowcount_timing
+    (
+        p_source in varchar2, 
+        p_comment in varchar2 default null
+    )
+    is
+    i number;
+    l_result varchar2(1000);
+    begin
+        start_timing;
+        i := get_row_count(p_source);
+        l_result := to_char(i,'fm099,999') || ' records in ' || stop_timing();
+        l_result := l_result || ' from ' || p_source;
+        if p_comment is not null then
+            l_result := l_result || ' [' || p_comment || ']';
+        end if;
+        print_comment(l_result);
+    end test_option_with_rowcount_timing;
+
+
+begin
+    null;
+end dynamic_pivot_test_framework ;

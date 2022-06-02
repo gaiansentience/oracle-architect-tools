@@ -6,6 +6,27 @@ begin
     
 end;
 
+/****
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.03.29.408000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
+ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
+000,017 records in  00.0330 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.7420 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  07.2780 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
+000,017 records in  00.0270 seconds from dynamic_pivot_pipeline_objects_v
+001,700 records in  00.7450 seconds from dynamic_pivot_pipeline_objects_large_v
+017,000 records in  07.2570 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+----------------------------------------------------------------------------------------------------
+     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
+     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.03.45.490000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
 
 /*****
 ----------------------------------------------------------------------------------------------------

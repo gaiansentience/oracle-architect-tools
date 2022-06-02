@@ -6,6 +6,36 @@ begin
     
 end; 
 
+/*****optimized data_to_json removing converting from subselect json_arrayagg and valuedefinition
+----------------------------------------------------------------------------------------------------
+     GENERATE TEST DATA: NAME|VALUE PAIRS
+     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.07.37.798000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***generating test data as name|value rows and converting to single rows with multiple values (as json or as nested table)***
+generate name|value rows using json source document created in plsql
+000,083 records in  00.0060 seconds from dynamic_pivot_test_data_v
+008,300 records in  00.2580 seconds from dynamic_pivot_test_data_large_v
+083,000 records in  02.5880 seconds from dynamic_pivot_test_data_xlarge_v
+consolidate name|value pairs to row json using sql and json_arrayagg (creates hierarchical json)
+000,017 records in  00.0060 seconds from dynamic_pivot_data_to_json_v
+001,700 records in  00.2700 seconds from dynamic_pivot_data_to_json_large_v
+017,000 records in  02.7130 seconds from dynamic_pivot_data_to_json_xlarge_v
+consolidate name|value pairs to row json using sql and json_objectagg (creates nested json)
+000,017 records in  00.0060 seconds from dynamic_pivot_data_to_json_v_objectagg
+001,700 records in  00.2670 seconds from dynamic_pivot_data_to_json_v_objectagg_large
+017,000 records in  02.6930 seconds from dynamic_pivot_data_to_json_v_objectagg_xlarge
+consolidate name|value pairs to row json using plsql AND to nested tables using objects
+000,017 records in  00.0070 seconds from dynamic_item_object_v
+001,700 records in  00.2790 seconds from dynamic_item_object_large_v
+017,000 records in  02.7990 seconds from dynamic_item_object_xlarge_v
+----------------------------------------------------------------------------------------------------
+     GENERATE TEST DATA: NAME|VALUE PAIRS
+     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.07.49.690000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+
 /*****
 ----------------------------------------------------------------------------------------------------
      GENERATE TEST DATA: NAME|VALUE PAIRS
