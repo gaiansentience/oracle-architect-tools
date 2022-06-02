@@ -10,13 +10,14 @@ as
     procedure reset_test_data
     (
         p_delete_triangle_polygon in boolean default false, 
-        p_delete_circle_square_rectangle in boolean default false
+        p_delete_circle_square_rectangle in boolean default false,
+        p_load_3d_shapes in boolean default false
     )
     is
     begin
 
         --load the full datasource and delete all pair|values for item_type triangles and regular polygons
-        dynamic_pivot_etl.reload_table_pair_value_source(p_execute => true);
+        dynamic_pivot_etl.reload_table_pair_value_source(p_execute => true, p_load_3d_shapes => p_load_3d_shapes);
         
         if p_delete_triangle_polygon then        
             delete from dynamic_pivot_pair_values where item_type in ('triangle', 'regular polygon');
@@ -70,7 +71,14 @@ as
         dynamic_pivot_test_framework.print_comment(p_comment => 'reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle');
         reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => false);    
     end prepare_test_2;
-
+    
+    procedure prepare_test_3
+    is
+    begin
+        dynamic_pivot_test_framework.print_comment(p_comment => 'reset test data to full dataset: all 2d shapes and 3d solids');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => false, p_load_3d_shapes => true); 
+    end prepare_test_3;
+    
     procedure run_test_json_table
     is
     begin
@@ -101,6 +109,10 @@ as
         
         prepare_test_2;
         run_test_json_table;
+        
+        prepare_test_3;
+        run_test_json_table;
+        
     
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
     
@@ -138,6 +150,10 @@ as
         prepare_test_2;
         run_test_pipelined;
 
+        prepare_test_3;
+        run_test_pipelined;
+
+
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
     
     end test_pipelined;
@@ -172,6 +188,10 @@ as
         
         prepare_test_2;
         run_test_polymorphic;
+
+        prepare_test_3;
+        run_test_polymorphic;
+
 
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
 
@@ -210,6 +230,10 @@ as
         prepare_test_2;
         run_test_polymorphic_objectagg;
 
+        prepare_test_3;
+        run_test_polymorphic_objectagg;
+
+
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
 
     end test_polymorphic_objectagg;
@@ -246,6 +270,9 @@ as
         run_test_polymorphic_row;
         
         prepare_test_2;
+        run_test_polymorphic_row;
+
+        prepare_test_3;
         run_test_polymorphic_row;
 
         dynamic_pivot_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
