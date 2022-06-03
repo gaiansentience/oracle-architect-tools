@@ -1,0 +1,226 @@
+create or replace package body oa_dpc_poc_pf_json
+as
+
+    g_bulk_limit number := 100;
+
+    procedure log_err(p_msg in varchar2, p_locale in varchar2)
+    is
+    begin
+        dbms_output.put_line('EXCEPTION IN ' || p_locale || ': ' || p_msg);
+    end log_err;
+
+/*
+    --get column value from json as string
+    function get_column_value
+    (
+        p_row_json_source in out nocopy clob,
+        p_key in varchar2
+    ) return varchar2
+    is
+        o json_object_t;
+        l_column_value varchar2(4000);
+    begin
+        o := json_object_t(p_row_json_source);
+        if o.has(p_key) then
+            l_column_value := o.get_string(p_key);
+        end if;
+        return l_column_value;
+    end get_column_value;
+*/    
+
+    --get column value from json as object
+    function get_column_value
+    (
+        p_json_source_object in out nocopy json_object_t,
+        p_key in varchar2
+    ) return varchar2
+    is
+        l_column_value varchar2(4000);
+    begin
+        if p_json_source_object.has(p_key) then
+            l_column_value := p_json_source_object.get_string(p_key);
+        end if;
+        return l_column_value;
+    end get_column_value;
+
+
+    function get_shapes(
+        p_dynamic_items_rc in t_dynamic_items_rc
+    ) return oa_dpc_t_geometry_table pipelined
+    parallel_enable (partition p_dynamic_items_rc by hash(item_id))
+    is
+        type t_items is table of oa_dpc_poc_test_data_row_objects_v%rowtype;
+        l_items    t_items;
+        l_geometry oa_dpc_t_geometry;
+        o_json_src json_object_t;
+        --common variables
+        l_area    number;
+        l_color   varchar2(100);
+        l_shading varchar2(100);
+        --variables unique to square
+        l_side number;
+        --variables unique to rectangle
+        l_length number;
+        l_width  number;
+        --variables unique to circle
+        l_radius        number;
+        l_circumference number;
+        --variables unique to polygon
+        l_sides               number;
+        l_side_length         number;
+        l_interior_angles     number;
+        l_sum_interior_angles number;
+        --variable unique to line
+        l_y_intercept number;
+        l_slope       number;
+        l_equation    varchar2(100);
+        --variables unique to triangle
+        l_a_degrees number;
+        l_b_degrees number;
+        l_c_degrees number;
+        l_a_side    number;
+        l_b_side    number;
+        l_c_side    number;
+        procedure reset_variables
+        is
+        begin
+            --common variables
+            l_area    := null;
+            l_color   := null;
+            l_shading := null;
+            --variables unique to square
+            l_side := null;
+            --variables unique to rectangle
+            l_length := null;
+            l_width  := null;
+            --variables unique to circle
+            l_radius        := null;
+            l_circumference := null;
+            --variables unique to polygon
+            l_sides := null;
+            l_side_length         := null;
+            l_interior_angles     := null;
+            l_sum_interior_angles := null;
+            --variable unique to line
+            l_y_intercept := null;
+            l_slope       := null;
+            l_equation    := null;
+            --variables unique to triangle
+            l_a_degrees := null;
+            l_b_degrees := null;
+            l_c_degrees := null;
+            l_a_side    := null;
+            l_b_side    := null;
+            l_c_side    := null;
+        end reset_variables;
+    begin
+
+        loop
+        
+            fetch p_dynamic_items_rc bulk collect into l_items limit g_bulk_limit;
+            exit when l_items.count = 0;
+    
+            for i in 1..l_items.count loop
+                reset_variables;
+                o_json_src := json_object_t(l_items(i).o_jdoc_flat);
+                case 
+                when l_items(i).o_item.item_type = 'triangle' then
+                    --find a_degrees, b_degrees, c_degrees, a_side, b_side, c_side, area
+                    l_a_degrees := get_column_value(o_json_src,'a_degrees');
+                    l_b_degrees := get_column_value(o_json_src,'b_degrees');
+                    l_c_degrees := get_column_value(o_json_src,'c_degrees');
+                    l_a_side    := get_column_value(o_json_src,'a_side');
+                    l_b_side    := get_column_value(o_json_src,'b_side');
+                    l_c_side    := get_column_value(o_json_src,'c_side');
+                    l_area      := get_column_value(o_json_src,'area');
+
+                    l_geometry := new oa_dpc_t_geometry_triangle(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_a_degrees,l_b_degrees,l_c_degrees,l_a_side,l_b_side,l_c_side,l_area
+                        );
+                when l_items(i).o_item.item_type = 'square' then
+                    --find side and area in the item value pairs collection
+                    l_side      := get_column_value(o_json_src,'side');
+                    l_area      := get_column_value(o_json_src,'area');
+                    
+                    l_geometry := new oa_dpc_t_geometry_square(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_side,l_area
+                        );
+                when l_items(i).o_item.item_type = 'rectangle' then
+                    --find length, width, area and color in the item value pairs collection
+                    l_length    := get_column_value(o_json_src,'length');
+                    l_width     := get_column_value(o_json_src,'width');
+                    l_area      := get_column_value(o_json_src,'area');
+                    l_color     := get_column_value(o_json_src,'color');
+
+                    l_geometry := new oa_dpc_t_geometry_rectangle(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_length,l_width,l_area,l_color
+                        );
+                when l_items(i).o_item.item_type = 'regular polygon' then
+                    --find sides, side_length, interior_angles, sum_interior_angles, area and shading in the item value pairs collection
+                    l_sides               := get_column_value(o_json_src,'sides');
+                    l_side_length         := get_column_value(o_json_src,'sideLength');
+                    l_interior_angles     := get_column_value(o_json_src,'interiorAngles');
+                    l_sum_interior_angles := get_column_value(o_json_src,'sumInteriorAngles');
+                    l_area                := get_column_value(o_json_src,'area');
+                    l_shading             := get_column_value(o_json_src,'shading');
+
+                    l_geometry := new oa_dpc_t_geometry_polygon(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_sides,l_side_length,l_interior_angles,l_sum_interior_angles,l_area,l_shading
+                        );
+                when l_items(i).o_item.item_type = 'circle' then
+                    --find radius, circumference, area and color in the item value pairs collection
+                    l_radius        := get_column_value(o_json_src,'radius');
+                    l_circumference := get_column_value(o_json_src,'circumference');
+                    l_area          := get_column_value(o_json_src,'area');
+                    l_color         := get_column_value(o_json_src,'color');
+
+                    l_geometry := new oa_dpc_t_geometry_circle(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_radius,l_circumference,l_area,l_color
+                        );
+                when l_items(i).o_item.item_type = 'line' then
+                    --find y_intercept, slope, equation in the item value pairs collection
+                    l_y_intercept  := get_column_value(o_json_src,'y_intercept');
+                    l_slope        := get_column_value(o_json_src,'slope');
+                    l_equation     := get_column_value(o_json_src,'equation');
+
+                    l_geometry := new oa_dpc_t_geometry_line(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat,
+                        l_y_intercept,l_slope,l_equation
+                        );
+                else 
+                    l_geometry := new oa_dpc_t_geometry(
+                        l_items(i).o_item.item_id, l_items(i).o_item.item_name, l_items(i).o_item.item_type, 
+                        l_items(i).o_jdoc_flat
+                        );
+                end case;
+                pipe row(l_geometry);
+            end loop;
+    
+        end loop;
+
+        close p_dynamic_items_rc;
+        
+        return;
+    
+    exception
+        when no_data_needed then
+            raise;
+        when others then
+            log_err(sqlerrm,'get_shapes');
+            raise;
+    end get_shapes;
+
+begin
+    null;
+end oa_dpc_poc_pf_json;

@@ -2,47 +2,60 @@
 --create package for timing, tracing and logging
 
 prompt creating test data generator objects
-@@package.dynamic_pivot_test_data.spec;
-@@package.dynamic_pivot_test_data.body;
+@@package.oa_dpc_test_data_generator.spec;
+@@package.oa_dpc_test_data_generator.body;
 
-@@view.dynamic_pivot_test_data_v.sql;
-@@view.dynamic_pivot_test_data_large_v.sql;
-@@view.dynamic_pivot_test_data_xlarge_v.sql;
+@@view.oa_dpc_poc_test_data_name_value_v.sql;
+@@view.oa_dpc_poc_test_data_name_value_vl.sql;
+@@view.oa_dpc_poc_test_data_name_value_vxl.sql;
 prompt created test data with polymorphic contents as name value pairs
 
 prompt views to consolidate test data name|value pairs as json using sql
-@@view.dynamic_pivot_data_to_json_v.sql;
-@@view.dynamic_pivot_data_to_json_large_v.sql;
-@@view.dynamic_pivot_data_to_json_xlarge_v.sql;
---alternative view eliminating the correlated subquery for json_arrayagg
-@@view.dynamic_pivot_data_to_json_v_alt.sql;
+@@view.oa_dpc_poc_test_data_row_json_arrayagg_v.sql;
+@@view.oa_dpc_poc_test_data_row_json_arrayagg_vl.sql;
+@@view.oa_dpc_poc_test_data_row_json_arrayagg_vxl.sql;
+
 --alternative view using json_objectagg (value pairs are nested json object instead of json array)
-@@view.dynamic_pivot_data_to_json_v_objectagg.sql;
-@@view.dynamic_pivot_data_to_json_v_objectagg_large.sql;
-@@view.dynamic_pivot_data_to_json_v_objectagg_xlarge.sql;
+@@view.oa_dpc_poc_test_data_row_json_objectagg_v.sql;
+@@view.oa_dpc_poc_test_data_row_json_objectagg_vl.sql;
+@@view.oa_dpc_poc_test_data_row_json_objectagg_vxl.sql;
 
+prompt creating row consolidation name|value nested table type objects
+prompt these types are common to oa_dpc_poc* and oa_dpc_etl*
+@@create_types_oa_dpc_test_data_rows.sql
 
-prompt creating dynamic name|value nested table type objects
-@@create_types_dynamic_item.sql;
 prompt creating object views to consolidate test data name|value pairs as json using plsql and as nested tables using objects
-@@view.dynamic_item_object_v.sql;
-@@view.dynamic_item_object_large_v.sql;
-@@view.dynamic_item_object_xlarge_v.sql;
+@@view.oa_dpc_poc_test_data_row_objects_v.sql;
+@@view.oa_dpc_poc_test_data_row_objects_vl.sql;
+@@view.oa_dpc_poc_test_data_row_objects_vxl.sql;
+
+prompt creating dynamic pivot using pipelined functions returning object hierarchy
 
 prompt creating dynamic geometry object hierarchy
-@@create_types_dynamic_geometry.sql;
+prompt these types are common to oa_dpc_poc* and oa_dpc_etl*
+@@create_types_oa_dpc_geometry.sql;
+
 prompt creating pipeline package and views to return nested table name|value pairs as dynamic_geometry subtypes
+@@package.oa_dpc_poc_pf_objects.spec;
+@@package.oa_dpc_poc_pf_objects.body;
 @@package.dynamic_pipeline_objects.spec;
 @@package.dynamic_pipeline_objects.body;
-@@view.dynamic_pivot_pipeline_objects_v.sql;
-@@view.dynamic_pivot_pipeline_objects_large_v.sql;
-@@view.dynamic_pivot_pipeline_objects_xlarge_v.sql;
+
+@@view.oa_dpc_poc_pf_objects_v.sql;
+@@view.oa_dpc_poc_pf_objects_vl.sql;
+@@view.oa_dpc_poc_pf_objects_vxl.sql;
+ 
 prompt creating pipeline package and views to return flat json name|value pairs as dynamic_geometry subtypes
+@@package.oa_dpc_poc_pf_json.spec;
+@@package.oa_dpc_poc_pf_json.body;
 @@package.dynamic_pipeline_objects_json.spec;
 @@package.dynamic_pipeline_objects_json.body;
-@@view.dynamic_pivot_pipeline_objects_json_v.sql;
-@@view.dynamic_pivot_pipeline_objects_json_large_v.sql;
-@@view.dynamic_pivot_pipeline_objects_json_xlarge_v.sql;
+
+@@view.oa_dpc_poc_pf_json_v.sql;
+@@view.oa_dpc_poc_pf_json_vl.sql;
+@@view.oa_dpc_poc_pf_json_vxl.sql;
+
+
 
 prompt creating dynamic pivot using polymorphic row functions
 
@@ -97,12 +110,14 @@ prompt polymorphic function pivoting columns from nested json rowsource - data a
 
 
 prompt creating table based pair values data and rowsource consolidation view
-@@view.dynamic_pivot_pair_values_generator_v.sql;
-@@view.dynamic_pivot_pair_values_source_v.sql;
+@@view.oa_dpc_etl_pair_values_generator_v.sql;
+@@view.oa_dpc_etl_pair_values_source_v.sql;
 prompt creating empty dynamic_pivot_pair_values table and backup table
 prompt run dynamic_pivot_etl.reload_table_pair_value_source to create test data and backup table
-@@table.dynamic_pivot_pair_values.sql;
-@@view.dynamic_pivot_value_types_v.sql;
+@@table.oa_dpc_pair_values.sql;
+@@view.oa_dpc_value_types_v.sql;
+
+
 @@view.dynamic_pivot_item_rowsource_v.sql;
 @@view.dynamic_pivot_item_rowsource_objectagg_v.sql;
 --??create table dynamic_pivot_rowsource

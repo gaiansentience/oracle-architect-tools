@@ -36,11 +36,17 @@ drop package dynamic_view_pipelined;
 --??drop table dynamic_pivot_rowsource
 drop view dynamic_pivot_item_rowsource_objectagg_v;
 drop view dynamic_pivot_item_rowsource_v;
-drop view dynamic_pivot_value_types_v;
-drop table dynamic_pivot_pair_values_backup purge;
-drop table dynamic_pivot_pair_values purge;
-drop view dynamic_pivot_pair_values_source_v;
-drop view dynamic_pivot_pair_values_generator_v;
+
+--drop view dynamic_pivot_value_types_v;
+drop view oa_dpc_value_types_v;
+
+drop table oa_dpc_pair_values_backup purge;
+drop table oa_dpc_pair_values purge;
+drop view oa_dpc_etl_pair_values_source_v;
+drop view oa_dpc_etl_pair_values_generator_v;
+
+
+
 
 drop view dynamic_pivot_polymorphic_v;
 drop view dynamic_pivot_polymorphic_large_v;
@@ -74,42 +80,51 @@ drop view dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge;
 drop package dynamic_pivot_polymorphic_typed_objectagg_row;
 
 
-
-drop view dynamic_pivot_pipeline_objects_v;
-drop view dynamic_pivot_pipeline_objects_large_v;
-drop view dynamic_pivot_pipeline_objects_xlarge_v;
-drop package dynamic_pipeline_objects;
+--views for pipeline using nested objects
+--drop view dynamic_pivot_pipeline_objects_v;
+--drop view dynamic_pivot_pipeline_objects_large_v;
+--drop view dynamic_pivot_pipeline_objects_xlarge_v;
+drop view oa_dpc_poc_pf_objects_v;
+drop view oa_dpc_poc_pf_objects_vl;
+drop view oa_dpc_poc_pf_objects_vxl;
+--drop package dynamic_pipeline_objects;
+drop package oa_dpc_poc_pf_objects;
 
 --views for pipeline using json
-drop view dynamic_pivot_pipeline_objects_json_v;
-drop view dynamic_pivot_pipeline_objects_json_large_v;
-drop view dynamic_pivot_pipeline_objects_json_xlarge_v;
-drop package dynamic_pipeline_objects_json;
---types shared by pipelined packages and object views
-@@drop_types_dynamic_geometry.sql;
+--drop view dynamic_pivot_pipeline_objects_json_v;
+--drop view dynamic_pivot_pipeline_objects_json_large_v;
+--drop view dynamic_pivot_pipeline_objects_json_xlarge_v;
+drop view oa_dpc_poc_pf_json_v;
+drop view oa_dpc_poc_pf_json_vl;
+drop view oa_dpc_poc_pf_json_vxl;
+--drop package dynamic_pipeline_objects_json;
+drop package oa_dpc_poc_pf_json;
 
---views creating nested json source
-drop view dynamic_pivot_data_to_json_v_objectagg;
-drop view dynamic_pivot_data_to_json_v_objectagg_large;
-drop view dynamic_pivot_data_to_json_v_objectagg_xlarge;
+--types shared by pipelined packages and pipeline object views
+@@drop_types_oa_dpc_geometry.sql;
+
+--views creating pair values consolidated to json source
+--views creating pair values consolidated to flat json source and nested table
+drop view oa_dpc_poc_test_data_row_objects_v;
+drop view oa_dpc_poc_test_data_row_objects_vl;
+drop view oa_dpc_poc_test_data_row_objects_vxl;
+
+@@drop_types_oa_dpc_poc_test_data_rows.sql;
 
 --views creating hierarchical json source
-drop view dynamic_pivot_data_to_json_v_alt;
-drop view dynamic_pivot_data_to_json_v;
-drop view dynamic_pivot_data_to_json_large_v;
-drop view dynamic_pivot_data_to_json_xlarge_v;
+drop view oa_dpc_poc_test_data_row_json_arrayagg_v;
+drop view oa_dpc_poc_test_data_row_json_arrayagg_vl;
+drop view oa_dpc_poc_test_data_row_json_arrayagg_vxl;
+--views creating nested json source
+drop view oa_dpc_poc_test_data_row_json_objectagg_v;
+drop view oa_dpc_poc_test_data_row_json_objectagg_vl;
+drop view oa_dpc_poc_test_data_row_json_objectagg_vxl;
+--views creating base name value pairs data
+drop view oa_dpc_poc_test_data_name_value_v;
+drop view oa_dpc_poc_test_data_name_value_vl;
+drop view oa_dpc_poc_test_data_name_value_vxl;
 
---views creating flat json source
-drop view dynamic_item_object_v;
-drop view dynamic_item_object_large_v;
-drop view dynamic_item_object_xlarge_v;
-@@drop_types_dynamic_item.sql;
-
-drop view dynamic_pivot_test_data_v;
-drop view dynamic_pivot_test_data_large_v;
-drop view dynamic_pivot_test_data_xlarge_v;
-
-drop package dynamic_pivot_test_data;
+drop package oa_dpc_test_data_generator;
 
 --drop package for timing, tracing and logging
 --drop table for timing, tracing and logging
