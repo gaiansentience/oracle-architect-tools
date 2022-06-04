@@ -1,0 +1,178 @@
+create or replace package body oa_dpc_poc_testing
+as
+
+    g_codebase      constant varchar2(100) := 'poc tuning (version 4)';
+    
+    g_dataset_empty   constant varchar2(100) := oa_dpc_test_framework.g_dataset_empty;
+    g_dataset_minimal constant varchar2(100) := oa_dpc_test_framework.g_dataset_minimal;    
+    g_dataset_small   constant varchar2(100) := oa_dpc_test_framework.g_dataset_small;
+    g_dataset_large   constant varchar2(100) := oa_dpc_test_framework.g_dataset_large;
+    g_dataset_full    constant varchar2(100) := oa_dpc_test_framework.g_dataset_full;
+
+    procedure test_initial_data_generation
+    is
+        l_test_group varchar2(100) := 'GENERATE TEST DATA NAME VALUE PAIRS AND CONSOLIDATE TO ROWS';
+        l_unit_set varchar2(100);
+        l_set varchar2(1000);
+        l_comment varchar2(1000);
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'convert multiple name|value pair details per item to consolidated rowsource per item');
+
+        l_unit_set := 'GENERATE TEST DATA: NAME|VALUE PAIRS';        
+        l_comment := 'generate name|value rows using json source document created in plsql';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(plsql)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_name_value_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_name_value_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_name_value_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+        
+        l_unit_set := 'CONSOLIDATE TEST DATA: NAME|VALUE PAIRS';
+        
+        l_comment := 'consolidate name|value pairs to row json using sql and json_arrayagg (creates hierarchical json)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(sql json_arrayagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_arrayagg_v',        p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_arrayagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_arrayagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'consolidate name|value pairs to row json using sql and json_objectagg (creates nested json)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(sql json_objectagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'consolidate name|value pairs to row json using sql and json_objectagg (creates flat json)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(sql json_objectagg flat)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_flat_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_flat_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_json_objectagg_flat_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+
+        l_comment := 'consolidate name|value pairs to row json using plsql AND to nested tables using objects';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(nested table objects)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_objects_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_objects_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_test_data_row_objects_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => false);    
+    
+    end test_initial_data_generation;
+
+    procedure test_pipelined
+    is
+        l_test_group varchar2(100) := 'ROW PIVOT WITH PIPELINED TABLE FUNCTIONS';
+        l_unit_set varchar2(100) := 'ROW PIVOT WITH PIPELINED OBJECT TYPES AND SUBTYPES';
+        l_set varchar2(1000);
+        l_comment varchar2(1000);
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'using pipelined function to pivot row name|value pairs to object hierarchy');
+        
+        l_comment := 'rowsource nested tables pipelined to object type hierarchy (avoids json completely)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);        
+        l_set := l_unit_set || '(pipelined nested objects source)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_objects_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_objects_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_objects_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+        
+        l_comment := 'rowsource flat json pipelined to object type hierarchy';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(pipelined json source)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_json_v',        p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_json_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_poc_pf_json_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => false);
+    
+    end test_pipelined;
+
+    procedure test_polymorphic
+    is
+        l_test_group varchar2(100) := 'ROW PIVOT WITH POLYMORPHIC TABLE FUNCTIONS';
+        l_unit_set varchar2(100) := 'ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS';
+        l_set varchar2(1000);
+        l_comment varchar2(500);    
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => true);
+        oa_dpc_test_framework.print_comment(p_comment => 'using polymorphic function to pivot row name|value pairs from json rowsource');
+        
+        l_comment := 'rowsource hierarchical json (uses json array_t) polymorphic put columns to varchar only';        
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_c_source_hier_json_arrayagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_arrayagg_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_arrayagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_arrayagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+         
+        l_comment := 'rowsource flat json polymorphic put columns to varchar only';        
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_c_source_flat_json)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_flat_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_flat_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_c_flat_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'rowsource hierarchical json (uses json_array_t) polymorphic put columns to varchar|number';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_ct_source_hier_json_arrayagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_arrayagg_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_arrayagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_arrayagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+            
+        l_comment := 'rowsource flat json polymorphic put columns to varchar|number';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_ct_source_flat_json)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_flat_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_flat_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_ct_flat_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'rowsource hierarchical json (uses json_array_t) polymorphic put rowset to varchar|number (traversing array elements per column for each row)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_rt_source_hier_json_arrayagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_arrayagg_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_arrayagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_arrayagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'rowsource flat json polymorphic put rowset to varchar|number (1 json_object parse per row';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_rt_source_flat_json)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_flat_v',        p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_flat_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_flat_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+        l_comment := 'rowsource nested json (with json_objectagg) polymorphic put rowset to varchar|number (2 json_object parses per row)';
+        oa_dpc_test_framework.print_comment(p_comment => l_comment);
+        l_set := l_unit_set || '(ptf_rt_source_nested_json_objectagg)';
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_objectagg_v',   p_set => l_set, p_group => g_dataset_small, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_objectagg_vl',  p_set => l_set, p_group => g_dataset_large, p_comment => l_comment);
+        oa_dpc_test_framework.test_rowcount_timing('oa_dpc_ptf_rt_objectagg_vxl', p_set => l_set, p_group => g_dataset_full, p_comment => l_comment);
+
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_group, p_start => false);
+
+    end test_polymorphic;
+
+    procedure run_all_tests
+    is
+        l_test_set varchar2(100) := 'DYNAMIC ROW TO COLUMN PIVOT COMPARISON: RUN ALL TESTS';
+    begin
+    
+        oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => true);
+
+        test_initial_data_generation;
+
+        test_polymorphic;
+        test_pipelined;
+        
+        oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => false);
+
+    end run_all_tests;
+
+begin
+    oa_dpc_test_framework.verify_codebase(g_codebase);
+end oa_dpc_poc_testing;
