@@ -2,72 +2,54 @@ set serveroutput on;
 declare
 begin
 
-    dynamic_pivot_unit_testing.test_pipelined;
+    oa_dpc_poc_testing.test_pipelined;
     
 end;
 
-/****
+
+
+/*****
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.03.29.408000000 PM AMERICA/DENVER
+     ROW PIVOT WITH PIPELINED TABLE FUNCTIONS
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.38.56.956384000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
-ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
-000,017 records in  00.0330 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.7420 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  07.2780 seconds from dynamic_pivot_pipeline_objects_xlarge_v
-ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
-000,017 records in  00.0270 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.7450 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  07.2570 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+***using pipelined function to pivot row name|value pairs to object hierarchy***
+rowsource nested tables pipelined to object type hierarchy (avoids json completely)
+000,017 records in  00.0386 seconds from oa_dpc_poc_pf_objects_v
+001,700 records in  00.6264 seconds from oa_dpc_poc_pf_objects_vl
+017,000 records in  06.0916 seconds from oa_dpc_poc_pf_objects_vxl
+rowsource flat json pipelined to object type hierarchy
+000,017 records in  00.0281 seconds from oa_dpc_poc_pf_json_v
+001,700 records in  00.6496 seconds from oa_dpc_poc_pf_json_vl
+017,000 records in  06.6014 seconds from oa_dpc_poc_pf_json_vxl
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.03.45.490000000 PM AMERICA/DENVER
+     ROW PIVOT WITH PIPELINED TABLE FUNCTIONS
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.39.11.005666000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 
+
 /*****
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 19  TESTING TIME 30-MAY-22 05.25.32.086954000 PM AMERICA/DENVER
+     ROW PIVOT WITH PIPELINED TABLE FUNCTIONS
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.40.45.625000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
-ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
-000,017 records in  00.0423 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.9671 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  09.7605 seconds from dynamic_pivot_pipeline_objects_xlarge_v
-ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
-000,017 records in  00.0277 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.9652 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  09.9192 seconds from dynamic_pivot_pipeline_objects_xlarge_v
+***using pipelined function to pivot row name|value pairs to object hierarchy***
+rowsource nested tables pipelined to object type hierarchy (avoids json completely)
+000,017 records in  00.0330 seconds from oa_dpc_poc_pf_objects_v
+001,700 records in  00.6210 seconds from oa_dpc_poc_pf_objects_vl
+017,000 records in  05.9960 seconds from oa_dpc_poc_pf_objects_vxl
+rowsource flat json pipelined to object type hierarchy
+000,017 records in  00.0280 seconds from oa_dpc_poc_pf_json_v
+001,700 records in  00.6590 seconds from oa_dpc_poc_pf_json_vl
+017,000 records in  06.4180 seconds from oa_dpc_poc_pf_json_vxl
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 19  TESTING TIME 30-MAY-22 05.25.53.769138000 PM AMERICA/DENVER
+     ROW PIVOT WITH PIPELINED TABLE FUNCTIONS
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.40.59.392000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 
-/*****
-----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 30-MAY-22 05.26.02.515000000 PM AMERICA/DENVER
-     STARTING TEST
-----------------------------------------------------------------------------------------------------
-***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
-ROWSOURCE NESTED TABLES TO OBJECT TYPE HIERARCHY (AVOIDS JSON COMPLETELY
-000,017 records in  00.0360 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.9420 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  09.1970 seconds from dynamic_pivot_pipeline_objects_xlarge_v
-ROWSOURCE FLAT JSON TO OBJECT TYPE HIERARCHY
-000,017 records in  00.0270 seconds from dynamic_pivot_pipeline_objects_v
-001,700 records in  00.9270 seconds from dynamic_pivot_pipeline_objects_large_v
-017,000 records in  09.1410 seconds from dynamic_pivot_pipeline_objects_xlarge_v
-----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING PIPELINED OBJECT TYPES AND SUBTYPES
-     ORACLE VERSION 21  TESTING TIME 30-MAY-22 05.26.22.785000000 PM AMERICA/DENVER
-     FINISHED TEST
-----------------------------------------------------------------------------------------------------
-*****/

@@ -9,6 +9,9 @@ with base as
         test_summary,
         stop_time - start_time as test_duration
     from oa_dpc_test_results
+    where 
+        stop_time is not null
+        and start_time is not null
 ), rank_in_codebase as
 (
     select

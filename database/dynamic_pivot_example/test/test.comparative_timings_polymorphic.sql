@@ -2,53 +2,49 @@ set serveroutput on;
 declare
 begin
 
-    dynamic_pivot_unit_testing.test_polymorphic;
+    oa_dpc_poc_testing.test_polymorphic;
 
 end; 
 
+
 /*****
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.02.03.309000000 PM AMERICA/DENVER
+     ROW PIVOT WITH POLYMORPHIC TABLE FUNCTIONS
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.33.45.695711000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-using polymorphic function to pivot row name|value pairs from json using array json for name|value pairs
-convert hierarchical row json name|value pairs to columns polymorphic (USES json_array_t)
-ROWSOURCE HIERARCHICAL JSON COLUMNS TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0430 seconds from dynamic_pivot_polymorphic_v
-001,700 records in  02.6690 seconds from dynamic_pivot_polymorphic_large_v
-017,000 records in  26.4760 seconds from dynamic_pivot_polymorphic_xlarge_v
-ROWSOURCE HIERARCHICAL JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0400 seconds from dynamic_pivot_polymorphic_typed_v
-001,700 records in  02.9550 seconds from dynamic_pivot_polymorphic_typed_large_v
-017,000 records in  26.6070 seconds from dynamic_pivot_polymorphic_typed_xlarge_v
-using polymorphic function to pivot row name|value pairs from json using flat json format for name|value pairs
-convert flat row json name|value pairs to columns polymorphic (AVOIDS json_array_t)
-ROWSOURCE FLAT JSON TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0300 seconds from dynamic_pivot_polymorphic_flat_v
-001,700 records in  00.7570 seconds from dynamic_pivot_polymorphic_large_flat_v
-017,000 records in  07.7560 seconds from dynamic_pivot_polymorphic_xlarge_flat_v
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0280 seconds from dynamic_pivot_polymorphic_typed_flat_v
-001,700 records in  00.7680 seconds from dynamic_pivot_polymorphic_typed_large_flat_v
-017,000 records in  07.7290 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_v
-ROWSOURCE NESTED (VIA JSON_OBJECTAGG) JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (2 json_object parses per row)
-000,017 records in  00.0170 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v
-001,700 records in  00.4060 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_large
-017,000 records in  04.0220 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (only 1 json_object parse per row)
-000,017 records in  00.0240 seconds from dynamic_pivot_polymorphic_typed_flat_rows_v
-001,700 records in  00.4840 seconds from dynamic_pivot_polymorphic_typed_large_flat_rows_v
-017,000 records in  04.8130 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v
+using polymorphic function to pivot row name|value pairs from json rowsource
+rowsource hierarchical json (uses json array_t) polymorphic put columns to varchar only
+000,017 records in  00.0390 seconds from oa_dpc_ptf_c_arrayagg_v
+001,700 records in  02.3805 seconds from oa_dpc_ptf_c_arrayagg_vl
+017,000 records in  24.3447 seconds from oa_dpc_ptf_c_arrayagg_vxl
+rowsource flat json polymorphic put columns to varchar only
+000,017 records in  00.0192 seconds from oa_dpc_ptf_c_flat_v
+001,700 records in  00.6483 seconds from oa_dpc_ptf_c_flat_vl
+017,000 records in  06.4486 seconds from oa_dpc_ptf_c_flat_vxl
+rowsource hierarchical json (uses json_array_t) polymorphic put columns to varchar|number
+000,017 records in  00.0468 seconds from oa_dpc_ptf_ct_arrayagg_v
+001,700 records in  02.6097 seconds from oa_dpc_ptf_ct_arrayagg_vl
+017,000 records in  25.9574 seconds from oa_dpc_ptf_ct_arrayagg_vxl
+rowsource flat json polymorphic put columns to varchar|number
+000,017 records in  00.0180 seconds from oa_dpc_ptf_ct_flat_v
+001,700 records in  00.6440 seconds from oa_dpc_ptf_ct_flat_vl
+017,000 records in  06.4361 seconds from oa_dpc_ptf_ct_flat_vxl
+rowsource hierarchical json (uses json_array_t) polymorphic put rowset to varchar|number (traversing array elements per column for each row)
+000,017 records in  00.0318 seconds from oa_dpc_ptf_rt_arrayagg_v
+001,700 records in  01.8733 seconds from oa_dpc_ptf_rt_arrayagg_vl
+017,000 records in  18.9103 seconds from oa_dpc_ptf_rt_arrayagg_vxl
+rowsource flat json polymorphic put rowset to varchar|number (1 json_object parse per row
+000,017 records in  00.0180 seconds from oa_dpc_ptf_rt_flat_v
+001,700 records in  00.3759 seconds from oa_dpc_ptf_rt_flat_vl
+017,000 records in  03.6886 seconds from oa_dpc_ptf_rt_flat_vxl
+rowsource nested json (with json_objectagg) polymorphic put rowset to varchar|number (2 json_object parses per row)
+000,017 records in  00.0169 seconds from oa_dpc_ptf_rt_objectagg_v
+001,700 records in  00.3878 seconds from oa_dpc_ptf_rt_objectagg_vl
+017,000 records in  03.8576 seconds from oa_dpc_ptf_rt_objectagg_vxl
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 21  TESTING TIME 01-JUN-22 10.03.28.934000000 PM AMERICA/DENVER
+     ROW PIVOT WITH POLYMORPHIC TABLE FUNCTIONS
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.35.24.492638000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
@@ -56,94 +52,42 @@ SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (only 1 json_object parse per 
 
 /*****
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 19  TESTING TIME 31-MAY-22 09.56.04.771079000 PM AMERICA/DENVER
+     ROW PIVOT WITH POLYMORPHIC TABLE FUNCTIONS
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.35.49.157000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
-using polymorphic function to pivot row name|value pairs from json using array json for name|value pairs
-convert hierarchical row json name|value pairs to columns polymorphic (USES json_array_t)
-ROWSOURCE HIERARCHICAL JSON COLUMNS TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0888 seconds from dynamic_pivot_polymorphic_v
-001,700 records in  03.1783 seconds from dynamic_pivot_polymorphic_large_v
-017,000 records in  32.2236 seconds from dynamic_pivot_polymorphic_xlarge_v
-ROWSOURCE HIERARCHICAL JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0834 seconds from dynamic_pivot_polymorphic_typed_v
-001,700 records in  03.1933 seconds from dynamic_pivot_polymorphic_typed_large_v
-017,000 records in  32.4841 seconds from dynamic_pivot_polymorphic_typed_xlarge_v
-using polymorphic function to pivot row name|value pairs from json using flat json format for name|value pairs
-convert flat row json name|value pairs to columns polymorphic (AVOIDS json_array_t)
-ROWSOURCE FLAT JSON TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0305 seconds from dynamic_pivot_polymorphic_flat_v
-001,700 records in  01.0354 seconds from dynamic_pivot_polymorphic_large_flat_v
-017,000 records in  10.1768 seconds from dynamic_pivot_polymorphic_xlarge_flat_v
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0288 seconds from dynamic_pivot_polymorphic_typed_flat_v
-001,700 records in  01.0144 seconds from dynamic_pivot_polymorphic_typed_large_flat_v
-017,000 records in  10.1699 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_v
-ROWSOURCE NESTED (VIA JSON_OBJECTAGG) JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (2 json_object parses per row)
-000,017 records in  00.0195 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v
-001,700 records in  00.4264 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_large
-017,000 records in  04.2264 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (only 1 json_object parse per row)
-000,017 records in  00.0266 seconds from dynamic_pivot_polymorphic_typed_flat_rows_v
-001,700 records in  00.6063 seconds from dynamic_pivot_polymorphic_typed_large_flat_rows_v
-017,000 records in  05.9693 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v
+using polymorphic function to pivot row name|value pairs from json rowsource
+rowsource hierarchical json (uses json array_t) polymorphic put columns to varchar only
+000,017 records in  00.0400 seconds from oa_dpc_ptf_c_arrayagg_v
+001,700 records in  02.6270 seconds from oa_dpc_ptf_c_arrayagg_vl
+017,000 records in  26.2610 seconds from oa_dpc_ptf_c_arrayagg_vxl
+rowsource flat json polymorphic put columns to varchar only
+000,017 records in  00.0200 seconds from oa_dpc_ptf_c_flat_v
+001,700 records in  00.6410 seconds from oa_dpc_ptf_c_flat_vl
+017,000 records in  06.3930 seconds from oa_dpc_ptf_c_flat_vxl
+rowsource hierarchical json (uses json_array_t) polymorphic put columns to varchar|number
+000,017 records in  00.0480 seconds from oa_dpc_ptf_ct_arrayagg_v
+001,700 records in  02.7770 seconds from oa_dpc_ptf_ct_arrayagg_vl
+017,000 records in  27.7640 seconds from oa_dpc_ptf_ct_arrayagg_vxl
+rowsource flat json polymorphic put columns to varchar|number
+000,017 records in  00.0210 seconds from oa_dpc_ptf_ct_flat_v
+001,700 records in  00.6500 seconds from oa_dpc_ptf_ct_flat_vl
+017,000 records in  06.4720 seconds from oa_dpc_ptf_ct_flat_vxl
+rowsource hierarchical json (uses json_array_t) polymorphic put rowset to varchar|number (traversing array elements per column for each row)
+000,017 records in  00.0360 seconds from oa_dpc_ptf_rt_arrayagg_v
+001,700 records in  02.0780 seconds from oa_dpc_ptf_rt_arrayagg_vl
+017,000 records in  20.7690 seconds from oa_dpc_ptf_rt_arrayagg_vxl
+rowsource flat json polymorphic put rowset to varchar|number (1 json_object parse per row
+000,017 records in  00.0180 seconds from oa_dpc_ptf_rt_flat_v
+001,700 records in  00.3990 seconds from oa_dpc_ptf_rt_flat_vl
+017,000 records in  03.9470 seconds from oa_dpc_ptf_rt_flat_vxl
+rowsource nested json (with json_objectagg) polymorphic put rowset to varchar|number (2 json_object parses per row)
+000,017 records in  00.0190 seconds from oa_dpc_ptf_rt_objectagg_v
+001,700 records in  00.4130 seconds from oa_dpc_ptf_rt_objectagg_vl
+017,000 records in  04.1050 seconds from oa_dpc_ptf_rt_objectagg_vxl
 ----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 19  TESTING TIME 31-MAY-22 09.57.49.753378000 PM AMERICA/DENVER
-     FINISHED TEST
-----------------------------------------------------------------------------------------------------
-*****/
-
-/*****
-----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 21  TESTING TIME 31-MAY-22 09.59.08.452000000 PM AMERICA/DENVER
-     STARTING TEST
-----------------------------------------------------------------------------------------------------
-using polymorphic function to pivot row name|value pairs from json using array json for name|value pairs
-convert hierarchical row json name|value pairs to columns polymorphic (USES json_array_t)
-ROWSOURCE HIERARCHICAL JSON COLUMNS TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0860 seconds from dynamic_pivot_polymorphic_v
-001,700 records in  03.1540 seconds from dynamic_pivot_polymorphic_large_v
-017,000 records in  31.7520 seconds from dynamic_pivot_polymorphic_xlarge_v
-ROWSOURCE HIERARCHICAL JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0860 seconds from dynamic_pivot_polymorphic_typed_v
-001,700 records in  03.1750 seconds from dynamic_pivot_polymorphic_typed_large_v
-017,000 records in  32.7660 seconds from dynamic_pivot_polymorphic_typed_xlarge_v
-using polymorphic function to pivot row name|value pairs from json using flat json format for name|value pairs
-convert flat row json name|value pairs to columns polymorphic (AVOIDS json_array_t)
-ROWSOURCE FLAT JSON TYPED AS VARCHAR ONLY
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0290 seconds from dynamic_pivot_polymorphic_flat_v
-001,700 records in  00.9420 seconds from dynamic_pivot_polymorphic_large_flat_v
-017,000 records in  09.3890 seconds from dynamic_pivot_polymorphic_xlarge_flat_v
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL ROWS FOR A COLUMN THEN UPDATES COLUMN VALUES AND MOVES TO THE NEXT COLUMN
-000,017 records in  00.0290 seconds from dynamic_pivot_polymorphic_typed_flat_v
-001,700 records in  00.9290 seconds from dynamic_pivot_polymorphic_typed_large_flat_v
-017,000 records in  09.3080 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_v
-ROWSOURCE NESTED (VIA JSON_OBJECTAGG) JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (2 json_object parses per row)
-000,017 records in  00.0190 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v
-001,700 records in  00.4490 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_large
-017,000 records in  04.2920 seconds from dynamic_pivot_polymorphic_typed_objectagg_rows_v_xlarge
-ROWSOURCE FLAT JSON COLUMNS DYNAMICALLY TYPED TO VARCHAR|NUMBER
-SETS ALL COLUMNS FOR EACH ROW THEN UPDATES ROWSET (only 1 json_object parse per row)
-000,017 records in  00.0260 seconds from dynamic_pivot_polymorphic_typed_flat_rows_v
-001,700 records in  00.5700 seconds from dynamic_pivot_polymorphic_typed_large_flat_rows_v
-017,000 records in  05.6950 seconds from dynamic_pivot_polymorphic_typed_xlarge_flat_rows_v
-----------------------------------------------------------------------------------------------------
-     ROW PIVOT USING POLYMORPHIC TABLE FUNCTIONS
-     ORACLE VERSION 21  TESTING TIME 31-MAY-22 10.00.51.148000000 PM AMERICA/DENVER
+     ROW PIVOT WITH POLYMORPHIC TABLE FUNCTIONS
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 04-JUN-22 02.37.34.697000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
