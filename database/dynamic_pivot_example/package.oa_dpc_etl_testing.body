@@ -152,6 +152,43 @@ as
     
     end test_json_table;
 
+    procedure run_test_xml_table
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_xml_table';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);        
+        oa_dpc_etl.rebuild_table_items_xml_table (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_xml_table;
+
+    procedure test_xml_table
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs from xml to columns using xml table');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_xml_table (p_execute => true);
+
+        test_initialize_data;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_large);        
+        prepare_test_3;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_full);
+        
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_xml_table;
+
     procedure run_test_pipelined_objects
     (
         p_set in varchar2 default null,
@@ -375,6 +412,48 @@ as
 
     end test_polymorphic_rt_flat;
 
+    procedure run_test_polymorphic_rt_xml
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_rt_xml';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_rt_xml (p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_rt_xml;
+
+
+    procedure test_polymorphic_rt_xml
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using xml for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_rt_xml (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_rt_xml;
+
+
+
+
+
     procedure run_all_tests(p_show_columns in boolean default false)
     is
         l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS';
@@ -388,8 +467,10 @@ as
         test_polymorphic_ct_flat;  
         test_polymorphic_rt_flat;  
         test_polymorphic_rt_objectagg;
+        test_polymorphic_rt_xml;
         test_pipelined_objects;
         test_json_table;
+        test_xml_table;
 
         oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => false);
 

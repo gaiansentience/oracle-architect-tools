@@ -633,6 +633,161 @@ from
             raise;    
     end rebuild_table_items_ptf_rt_objectagg;
 
+    procedure rebuild_etl_view_ptf_rt_xml (p_execute in boolean default false)
+    is
+        l_view varchar2(128) := 'oa_dpc_etl_ptf_rt_xml_v';
+        l_ddl varchar2(4000);
+    begin
+    
+    l_ddl := 
+q'[
+create or replace view oa_dpc_etl_ptf_rt_xml_v as
+with base as
+(
+    select 
+        x.item_id
+        ,x.item_name
+        ,x.item_type
+        ,x.xml_doc
+    from 
+        oa_dpc_etl_item_row_xml_v x
+)
+select * 
+from
+    oa_dpc_ptf_rt_xml.f(
+        base, 
+        columns(item_id, item_name, item_type), 
+        columns(xml_doc), 
+        'select distinct value_name, value_type from oa_dpc_value_types_v'
+        )        
+]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_etl_view_ptf_rt_xml');
+            raise;    
+    end rebuild_etl_view_ptf_rt_xml;
+     
+    procedure rebuild_table_items_ptf_rt_xml (p_execute in boolean default false)
+    is
+        l_source varchar2(128) := 'oa_dpc_etl_ptf_rt_xml_v';
+        l_destination varchar2(128) := 'oa_dpc_items_ptf_rt_xml';
+    begin
+        rebuild_etl_view_ptf_rt_xml(p_execute);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_items_ptf_rt_xml');
+            raise;    
+    end rebuild_table_items_ptf_rt_xml;
+
+    procedure rebuild_etl_view_xml_table (p_execute in boolean default false)
+    is
+        type r_columns is record(column_name varchar2(128), column_type varchar2(128));
+        type t_columns is table of r_columns index by pls_integer;
+        l_columns t_columns;
+        l_ddl varchar2(32000);
+        l_ddl_view_columns varchar2(4000);
+        l_ddl_xml_table_columns varchar2(4000);
+    begin
+        --select distinct value_name, value_type from dynamic_pivot_value_types_v
+        --value type is number|varchar2
+        select distinct value_name, value_type 
+        bulk collect into l_columns
+        from oa_dpc_value_types_v 
+        order by value_name;
+        
+        l_ddl := 
+q'[
+create or replace view oa_dpc_etl_xml_table_v as
+with base as
+(
+    select
+        x.item_id,
+        x.item_name,
+        x.item_type,
+        x.xml_doc
+    from
+        oa_dpc_etl_item_row_xml_v x
+)
+select
+    b.item_id
+    ,b.item_name
+    ,b.item_type
+]';
+        --build view columns
+        for c in 1..l_columns.count loop   --column_type  number|varchar2
+            l_ddl_view_columns := l_ddl_view_columns  || lpad(' ',4,' ') 
+                            || rpad(',x.' || l_columns(c).column_name, 33, ' ') || ' as "' || l_columns(c).column_name || '"' || chr(10);
+        end loop;
+/*
+        l_ddl_view_columns := 
+q'[
+    ,x.a_degrees as "a_degrees"
+    ,x.a_side    as "a_side"
+    ,x.area      as "area"
+    ,x.color     as "color"
+    ,x.equation  as "equation"    
+]';
+*/
+
+        l_ddl := l_ddl || l_ddl_view_columns;
+                
+        l_ddl := l_ddl ||
+q'[    --,b.xml_doc
+    --,xmlserialize(content xmltype(b.xml_doc) as clob indent) as xml_doc_pretty
+from 
+    base b,
+    xmltable('/itemValues' passing xmltype(b.xml_doc)
+        columns
+            item_id   number         path 'item_id'
+]';
+        --build xml table column definitions
+        for c in 1..l_columns.count loop
+            l_ddl_xml_table_columns := l_ddl_xml_table_columns || lpad(' ',12,' ')
+                            || ',' || rpad(l_columns(c).column_name, 30, ' ') || l_columns(c).column_type 
+                            || case when l_columns(c).column_type = 'varchar2' then '(4000)' end
+                            || ' path ''' || l_columns(c).column_name || '''' || chr(10);
+        end loop;
+    
+/*
+        l_ddl_xml_table_columns :=  
+q'[
+            ,a_degrees number         path 'a_degrees'
+            ,a_side    number         path 'a_side'
+            ,area      number         path 'area'
+            ,color     varchar2(4000) path 'color'
+            ,equation  varchar2(4000) path 'equation'
+]';
+*/
+        l_ddl := l_ddl || l_ddl_xml_table_columns;
+        
+        l_ddl := l_ddl || 
+q'[    ) x]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_etl_view_xml_table');
+            raise;    
+    end rebuild_etl_view_xml_table;
+
+    procedure rebuild_table_items_xml_table (p_execute in boolean default false)
+    is
+        l_source varchar2(128) := 'oa_dpc_etl_xml_table_v';
+        l_destination varchar2(128) := 'oa_dpc_items_xml_table';
+    begin
+        rebuild_etl_view_xml_table(p_execute);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_items_xml_table');
+            raise;    
+    end rebuild_table_items_xml_table;
+
     procedure rebuild_etl_view_json_table (p_execute in boolean default false)
     is
         type r_columns is record(column_name varchar2(128), column_type varchar2(128));
@@ -672,19 +827,17 @@ select
         --build view columns
         for c in 1..l_columns.count loop   --column_type  number|varchar2
             l_ddl_view_columns := l_ddl_view_columns  || lpad(' ',4,' ') 
-                            || ',j.' || l_columns(c).column_name || ' as "' || l_columns(c).column_name || '"' || chr(10);
+                      || rpad(',j.' || l_columns(c).column_name, 33, ' ') || ' as "' || l_columns(c).column_name || '"' || chr(10);
         end loop;
 /*
-        --using quoted identifiers
-        --    ,j.interiorAngles as "interiorAngles"
-
         l_ddl_view_columns := 
 q'[
-    ,j.a_degrees
-    ,j.a_side
-    ,j.area
-    ,j.color
-    ,j.equation
+    ,j.a_degrees      as "a_degrees"
+    ,j.a_side         as "a_side"
+    ,j.area           as "area"
+    ,j.color          as "color"
+    ,j.interiorAngles as "interiorAngles"
+    ,j.equation       as "equation"
 ]';
 */
 
@@ -703,18 +856,19 @@ from
         --build json table column definitions
         for c in 1..l_columns.count loop   --column_type  number|varchar2
             l_ddl_json_table_columns := l_ddl_json_table_columns || lpad(' ',12,' ')
-                            || ',' || l_columns(c).column_name || ' ' || l_columns(c).column_type 
+                            || ',' || rpad(l_columns(c).column_name,30, ' ') || l_columns(c).column_type 
+                            || case when l_columns(c).column_type = 'varchar2' then '(4000)' end
                             || ' path ''$.' || l_columns(c).column_name || '''' || chr(10);
         end loop;
     
 /*
         l_ddl_json_table_columns :=  
 q'[
-            ,a_degrees number path '$.a_degrees'
-            ,a_side number path '$.a_side'
-            ,area number path '$.area'
-            ,color varchar2(4000) path '$.color'
-            ,equation varchar2(4000) path '$.equation'
+            ,a_degrees number         path '$.a_degrees'
+            ,a_side    number         path '$.a_side'
+            ,area      number         path '$.area'
+            ,color     varchar2(4000) path '$.color'
+            ,equation  varchar2(4000) path '$.equation'
 ]';
 */
         l_ddl := l_ddl || l_ddl_json_table_columns;
@@ -788,7 +942,9 @@ q'[        )
         rebuild_table_items_ptf_ct_flat (p_execute => p_execute);
         rebuild_table_items_ptf_rt_flat (p_execute => p_execute);
         rebuild_table_items_ptf_rt_objectagg (p_execute => p_execute);
+        rebuild_table_items_ptf_rt_xml (p_execute => p_execute);
         rebuild_table_items_json_table (p_execute => p_execute);
+        rebuild_table_items_xml_table (p_execute => p_execute);
         rebuild_table_items_pf_objects (p_execute => p_execute);
         
     exception

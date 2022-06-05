@@ -1,4 +1,4 @@
-create or replace package body oa_dpc_ptf_ct_arrayagg as
+create or replace package Body oa_dpc_ptf_rt_xml as
     
     type r_columns is record(column_name varchar2(100), column_type varchar2(25));
     type t_columns is table of r_columns index by pls_integer;
@@ -80,60 +80,58 @@ create or replace package body oa_dpc_ptf_ct_arrayagg as
         null;
     end open;
 
+
     function get_column_value_number
     (
-        p_row_json_source in out nocopy clob,
+        o in out nocopy xmltype,
         p_key in varchar2
     ) return varchar2
     is
-        o json_object_t;
-        a json_array_t;
-        e json_object_t;
         l_column_value number;
+        l_xpath varchar2(100) := '/itemValues/' || p_key;
+        l_xpath_value varchar2(100) := l_xpath || '/text()';        
     begin
-        o := json_object_t(p_row_json_source);
-        --value pairs are stored in an array
-        a := o.get_array('itemValues');
-        if a.get_size > 0 then
-            for i in 0..a.get_size - 1 loop
-                e := json_object_t(a.get(i));
-                if e.has(p_key) then
-                    --found a value for this key (column)
-                    l_column_value := e.get_number(p_key);
-                    exit;
-                end if;
-            end loop;
+        if o.existsnode(l_xpath) = 1 then
+            l_column_value := o.extract(l_xpath_value).getNumberVal();
         end if;
+        
         return l_column_value;
+    exception
+        when others then
+            return null;
     end get_column_value_number;
 
 
     function get_column_value_string
     (
-        p_row_json_source in out nocopy clob,
+        o in out nocopy xmltype,
         p_key in varchar2
     ) return varchar2
     is
-        o json_object_t;
-        a json_array_t;
-        e json_object_t;
         l_column_value varchar2(4000);
+        l_xpath varchar2(100) := '/itemValues/' || p_key;
+        l_xpath_value varchar2(100) := l_xpath || '/text()';
     begin
-        o := json_object_t(p_row_json_source);
-        --value pairs are stored in an array
-        a := o.get_array('itemValues');
-        if a.get_size > 0 then
-            for i in 0..a.get_size - 1 loop
-                e := json_object_t(a.get(i));
-                if e.has(p_key) then
-                    --found a value for this key (column)
-                    l_column_value := e.get_string(p_key);
-                    exit;
-                end if;
-            end loop;
+        if o.existsnode(l_xpath) = 1 then
+            l_column_value := o.extract(l_xpath_value).getStringVal();
         end if;
         return l_column_value;
+    exception
+        when others then
+            return null;
     end get_column_value_string;
+
+/*
+--pair values to xml with xmlagg
+<itemValues>
+  <radius>16</radius>
+  <color>purple</color>
+  <area>804.224</area>
+  <circumference>100.528</circumference>
+</itemValues>
+
+*/
+
 
     procedure fetch_rows
     (
@@ -141,36 +139,31 @@ create or replace package body oa_dpc_ptf_ct_arrayagg as
     )
     is
         l_current_rows dbms_tf.row_set_t;
-        l_new_column_varchar2 dbms_tf.tab_varchar2_t;
-        l_new_column_number dbms_tf.tab_number_t;
         l_row_count pls_integer;
+        l_out_rows dbms_tf.row_set_t;
         l_current_column varchar2(100);
+        o_row xmltype;
     begin
     
         dbms_tf.get_row_set(l_current_rows, row_count => l_row_count);
-
-        for column_index in 1..g_columns.count loop
-            l_current_column := g_columns(column_index).column_name;
-            --clear any column values from previous columns            
-            l_new_column_varchar2.delete;
-            l_new_column_number.delete;
-            --set the value in this column to null or a value if one exists
-            --use number if column is defined as number, otherwise use varchar
-            for row_index in 1 .. l_row_count loop
+            
+        --for each row    
+        for row_index in 1 .. l_row_count loop
+            --get the rowsource for the whole row
+            o_row := xmltype(l_current_rows(1).tab_clob(row_index));
+            for column_index in 1..g_columns.count loop
+                --set the value for each column in the output row   
+                l_current_column := g_columns(column_index).column_name;
                 if g_columns(column_index).column_type = 'number' then
-                    l_new_column_number(row_index) := get_column_value_number(l_current_rows(1).tab_clob(row_index), l_current_column);
+                    l_out_rows(column_index).tab_number(row_index) :=  get_column_value_number(o_row, l_current_column);
                 else
-                    l_new_column_varchar2(row_index) := get_column_value_string(l_current_rows(1).tab_clob(row_index), l_current_column);                
+                    l_out_rows(column_index).tab_varchar2(row_index) := get_column_value_string(o_row, l_current_column);
                 end if;
             end loop;
-            --put the values in this column into the rowset being fetched
-            if g_columns(column_index).column_type = 'number' then
-                dbms_tf.put_col(column_index, l_new_column_number);
-            else
-                dbms_tf.put_col(column_index, l_new_column_varchar2);            
-            end if;
         end loop;
-
+            
+        dbms_tf.put_row_set(l_out_rows); 
+            
     exception
         when others then
             raise_application_error(-20100,'exception in fetch_rows, current column is ' || l_current_column || ' SQLERRM: ' || sqlerrm);
@@ -182,4 +175,4 @@ create or replace package body oa_dpc_ptf_ct_arrayagg as
         null;
     end close;
 
-end oa_dpc_ptf_ct_arrayagg;
+end oa_dpc_ptf_rt_xml;

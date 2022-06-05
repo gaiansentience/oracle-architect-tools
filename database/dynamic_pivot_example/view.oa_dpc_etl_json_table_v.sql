@@ -16,10 +16,10 @@ select
     ,rs.item_name
     ,rs.item_type
     ,j.a_degrees as "a_degrees"
-    ,j.a_side as "a_side"
-    ,j.area as "area"
-    ,j.color as "color"
-    ,j.equation as "equation"
+    ,j.a_side    as "a_side"
+    ,j.area      as "area"
+    ,j.color     as "color"
+    ,j.equation  as "equation"
     --,rs.jdoc
     --,json_serialize(rs.jdoc returning clob pretty) as jdoc_pretty
 from
@@ -27,10 +27,10 @@ from
     json_table(rs.jdoc
         columns
         (
-            a_degrees number path '$.a_degrees',
-            a_side number path '$.a_side',
-            area number path '$.area',
-            color varchar2(4000) path '$.color',
-            equation varchar2(4000) path '$.equation'
+            a_degrees number         path '$.a_degrees',
+            a_side    number         path '$.a_side',
+            area      number         path '$.area',
+            color     varchar2(4000) path '$.color',
+            equation  varchar2(4000) path '$.equation'
         )
     ) j;

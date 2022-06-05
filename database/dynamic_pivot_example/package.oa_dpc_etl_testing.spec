@@ -4,6 +4,8 @@ as
 
     procedure test_json_table;
     
+    procedure test_xml_table;
+    
     procedure test_pipelined_objects;
     
     procedure test_polymorphic_ct_arrayagg;
@@ -15,6 +17,8 @@ as
     procedure test_polymorphic_rt_flat;
 
     procedure test_polymorphic_rt_objectagg;
+    
+    procedure test_polymorphic_rt_xml;
         
     procedure run_all_tests(p_show_columns in boolean default false);
 

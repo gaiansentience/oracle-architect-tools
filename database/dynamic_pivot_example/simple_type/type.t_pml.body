@@ -1,0 +1,179 @@
+create or replace type body t_pml
+    is
+
+    constructor function t_pml return self as result
+    is
+    begin
+    self.initialize;
+    return;
+    end t_pml;
+
+    constructor function t_pml(p_key in varchar2, p_value in varchar2) return self as result
+    is
+    begin
+        self.initialize;
+        self.key := p_key;
+        self.value := p_value;
+        return;
+    end t_pml;
+
+    constructor function t_pml(p_key in varchar2, p_value in date) return self as result
+    is
+    begin
+        self.initialize;
+        self.key := p_key;
+        self.value := to_char(p_value, self.format_mask_date_time);
+        return;
+    end t_pml;
+
+    constructor function t_pml(p_key in varchar2, p_value in timestamp) return self as result
+    is
+    begin
+        self.initialize;
+        self.key := p_key;
+        self.value := to_char(p_value, self.format_mask_timestamp);
+        return;
+    end t_pml;
+
+
+    constructor function t_pml(p_doc in clob) return self as result
+    is
+    begin
+        self.initialize;
+        self.doc := p_doc;
+        return;
+    end t_pml;
+
+    member procedure initialize
+    is
+    begin
+        self.key := null;
+        self.value := null;
+        self.doc := null;
+        self.format_mask_date_time := 'yyyy-mm-dd"T"hh24:mi:ss';
+        self.format_mask_timestamp := 'yyyy-mm-dd"T"hh24:mi:ss.ff';
+    end initialize;
+    
+    member function open_markup(p_key in varchar2) return varchar2
+    is
+    begin
+        --return '<<|' || p_key || '|>';
+        return '<' || p_key || '>';
+    end open_markup;
+
+    member function close_markup(p_key in varchar2) return varchar2
+    is
+    begin
+        --return '<|' || p_key || '|>>';
+        return '</' || p_key || '>';
+    end close_markup;
+
+    member function open_markup return varchar2
+    is
+    begin
+        return self.open_markup(self.key);
+    end open_markup;
+
+    member function close_markup return varchar2
+    is
+    begin
+        return self.close_markup(self.key);
+    end close_markup;
+
+    member function element return varchar2
+    is
+    begin
+        return self.open_markup || self.value ||self.close_markup;
+    end element;
+
+    member function has_markup_start(p_key in varchar2) return number
+    is
+    begin
+        return instr(self.doc, self.open_markup(p_key));
+    end has_markup_start;
+
+    member function has(p_key in varchar2) return boolean
+    is
+    begin
+        return (self.has_markup_start(p_key) > 0);
+    end has;
+
+    member procedure put_element(p_element in varchar2)
+    is
+    begin
+        self.doc := self.doc || p_element;
+    end put_element;
+
+    member procedure put(p_key in varchar2, p_value in varchar2)
+    is
+    begin
+        self.key := p_key;
+        self.value := p_value;
+        self.put_element(self.element);
+    end put;
+    
+    member procedure put(p_key in varchar2, p_date_value in date)
+    is
+    begin
+        self.put(p_key, to_char(p_date_value, self.format_mask_date_time));
+    end put;
+    
+    member procedure put(p_key in varchar2, p_timestamp_value in timestamp)
+    is
+    begin
+        self.put(p_key, to_char(p_timestamp_value, self.format_mask_timestamp));
+    end put;
+        
+    member function parse(p_key in varchar2) return varchar2
+    is
+        l_start number := 0;
+        l_stop number := 0;
+        l_value varchar2(4000) := null;
+    begin
+        l_start := self.has_markup_start(p_key);
+        if l_start > 0 then
+            l_start := l_start + length(p_key) + 2;   --+5 for <<|key|>  +2 for xml <key>
+            l_stop := instr(self.doc, self.close_markup(p_key));
+            l_value := substr(self.doc, l_start, l_stop - l_start);
+        end if;
+        return l_value;
+    end parse;    
+    
+    member function get_string(p_key in varchar2) return varchar2
+    is
+    begin
+        return self.parse(p_key);
+    exception
+        when others then
+            return null;
+    end get_string;
+
+    member function get_number(p_key in varchar2) return number
+    is
+    begin
+        return to_number(self.parse(p_key));
+    exception
+        when others then
+            return null;
+    end get_number;
+
+    member function get_date_time(p_key in varchar2) return date
+    is
+    begin
+        return to_date(self.parse(p_key),self.format_mask_date_time);
+    exception
+        when others then
+            return null;
+    end get_date_time;
+
+    member function get_timestamp(p_key in varchar2) return timestamp
+    is
+    begin
+        return to_timestamp(self.parse(p_key),self.format_mask_timestamp);
+    exception
+        when others then
+            return null;
+    end get_timestamp;
+
+
+end;

@@ -22,14 +22,17 @@ drop table oa_dpc_items_ptf_rt_objectagg_backup purge;
 drop table oa_dpc_items_ptf_rt_objectagg purge;
 drop table oa_dpc_items_ptf_ct_flat_backup purge;
 drop table oa_dpc_items_ptf_ct_flat purge;
-
-
 drop table oa_dpc_items_ptf_rt_flat_backup purge;
 drop table oa_dpc_items_ptf_rt_flat purge;
 drop table oa_dpc_items_pf_objects_backup purge;
 drop table oa_dpc_items_pf_objects purge;
 drop table oa_dpc_items_json_table_backup purge;
 drop table oa_dpc_items_json_table purge;
+drop table oa_dpc_items_ptf_rt_xml purge;
+drop table oa_dpc_items_ptf_rt_xml_backup purge;
+drop table oa_dpc_items_xml_table_backup purge;
+drop table oa_dpc_items_xml_table purge;
+
 
 --views to create dynamic tables (based on dynamic_pivot_pair_values table)
 drop view oa_dpc_etl_json_table_v;
@@ -43,6 +46,8 @@ drop view oa_dpc_etl_ptf_ct_flat_v;
 drop view oa_dpc_etl_ptf_rt_flat_v;
 drop view oa_dpc_etl_ptf_rt_arrayagg_v;
 drop view oa_dpc_etl_ptf_ct_arrayagg_v;
+drop view oa_dpc_etl_ptf_rt_xml_v;
+drop view oa_dpc_etl_xml_table_v;
 
 --??drop table dynamic_pivot_rowsource
 
@@ -50,6 +55,7 @@ drop view oa_dpc_etl_item_row_arrayagg_v;
 drop view oa_dpc_etl_item_row_objectagg_v;
 drop view oa_dpc_etl_item_row_objectagg_flat_v;
 drop view oa_dpc_etl_item_row_objects_v;
+drop view oa_dpc_etl_item_row_xml_v;
 
 drop view oa_dpc_value_types_v;
 
@@ -96,6 +102,10 @@ drop view oa_dpc_ptf_rt_objectagg_vl;
 drop view oa_dpc_ptf_rt_objectagg_vxl;
 drop package oa_dpc_ptf_rt_objectagg;
 
+drop view oa_dpc_ptf_rt_xml_v;
+drop view oa_dpc_ptf_rt_xml_vl;
+drop view oa_dpc_ptf_rt_xml_vxl;
+drop package oa_dpc_ptf_rt_xml;
 
 --views for pipeline using nested objects
 drop view oa_dpc_poc_pf_objects_v;
@@ -122,6 +132,11 @@ drop view oa_dpc_poc_test_data_row_objects_vl;
 drop view oa_dpc_poc_test_data_row_objects_vxl;
 
 @@drop_types_oa_dpc_test_data_rows.sql;
+
+--views creating xml source with xmlagg
+drop view oa_dpc_poc_test_data_row_xml_v;
+drop view oa_dpc_poc_test_data_row_xml_vl;
+drop view oa_dpc_poc_test_data_row_xml_vxl;
 
 --views creating hierarchical json source with json_arrayagg
 drop view oa_dpc_poc_test_data_row_json_arrayagg_v;

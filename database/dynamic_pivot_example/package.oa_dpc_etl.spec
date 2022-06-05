@@ -40,6 +40,16 @@ as
     procedure rebuild_table_items_ptf_rt_objectagg (p_execute in boolean default false);
 
 
+    procedure rebuild_etl_view_ptf_rt_xml (p_execute in boolean default false);
+
+    procedure rebuild_table_items_ptf_rt_xml (p_execute in boolean default false);
+
+
+    procedure rebuild_etl_view_xml_table (p_execute in boolean default false);
+
+    procedure rebuild_table_items_xml_table (p_execute in boolean default false);
+
+
     procedure rebuild_etl_view_json_table (p_execute in boolean default false);
 
     procedure rebuild_table_items_json_table (p_execute in boolean default false);

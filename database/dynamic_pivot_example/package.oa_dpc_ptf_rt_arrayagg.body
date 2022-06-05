@@ -138,6 +138,7 @@ create or replace package Body oa_dpc_ptf_rt_arrayagg as
         l_current_rows dbms_tf.row_set_t;
         l_row_count pls_integer;
         l_out_rows dbms_tf.row_set_t;
+        l_current_column varchar2(100);
         o_row json_object_t;
         o_a_row_values json_array_t;
     begin
@@ -153,17 +154,21 @@ create or replace package Body oa_dpc_ptf_rt_arrayagg as
 
 
             for column_index in 1..g_columns.count loop
-                --set the value for each column in the output row            
+                --set the value for each column in the output row    
+                l_current_column := g_columns(column_index).column_name;
                 if g_columns(column_index).column_type = 'number' then
-                    l_out_rows(column_index).tab_number(row_index) := get_column_value_number(o_a_row_values, g_columns(column_index).column_name);
+                    l_out_rows(column_index).tab_number(row_index) := get_column_value_number(o_a_row_values, l_current_column);
                 else
-                    l_out_rows(column_index).tab_varchar2(row_index) := get_column_value_string(o_a_row_values, g_columns(column_index).column_name);
+                    l_out_rows(column_index).tab_varchar2(row_index) := get_column_value_string(o_a_row_values, l_current_column);
                 end if;
             end loop;
         end loop;
             
         dbms_tf.put_row_set(l_out_rows); 
             
+    exception
+        when others then
+            raise_application_error(-20100,'exception in fetch_rows, current column is ' || l_current_column || ' SQLERRM: ' || sqlerrm);            
     end fetch_rows;
 
     procedure close 

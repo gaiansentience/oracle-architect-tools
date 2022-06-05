@@ -15,15 +15,20 @@ prompt views to consolidate test data name|value pairs as json using sql
 @@view.oa_dpc_poc_test_data_row_json_arrayagg_vl.sql;
 @@view.oa_dpc_poc_test_data_row_json_arrayagg_vxl.sql;
 
---alternative view using json_objectagg (value pairs are nested json object instead of json array)
+prompt views using json_objectagg (value pairs are nested json object instead of json array)
 @@view.oa_dpc_poc_test_data_row_json_objectagg_v.sql;
 @@view.oa_dpc_poc_test_data_row_json_objectagg_vl.sql;
 @@view.oa_dpc_poc_test_data_row_json_objectagg_vxl.sql;
 
---alternative view using json_objectagg (value pairs are flat json object instead of json array)
+prompt views using json_objectagg (value pairs are flat json object instead of json array)
 @@view.oa_dpc_poc_test_data_row_json_objectagg_flat_v.sql;
 @@view.oa_dpc_poc_test_data_row_json_objectagg_flat_vl.sql;
 @@view.oa_dpc_poc_test_data_row_json_objectagg_flat_vxl.sql;
+
+prompt views to consolidate test data name|value pairs as xml using xmlagg
+@@view.oa_dpc_poc_test_data_row_xml_v.sql;
+@@view.oa_dpc_poc_test_data_row_xml_vl.sql;
+@@view.oa_dpc_poc_test_data_row_xml_vxl.sql;
 
 prompt creating row consolidation name|value nested table type objects
 prompt these types are common to oa_dpc_poc* and oa_dpc_etl*
@@ -119,6 +124,11 @@ prompt polymorphic function sets all columns in each row and puts the entire row
 @@view.oa_dpc_ptf_rt_objectagg_vl.sql;
 @@view.oa_dpc_ptf_rt_objectagg_vxl.sql;
 
+@@package.oa_dpc_ptf_rt_xml.spec;
+@@package.oa_dpc_ptf_rt_xml.body;
+@@view.oa_dpc_ptf_rt_xml_v.sql;
+@@view.oa_dpc_ptf_rt_xml_vl.sql;
+@@view.oa_dpc_ptf_rt_xml_vxl.sql;
 
 prompt creating table based pair values data and rowsource consolidation view
 @@view.oa_dpc_etl_pair_values_generator_v.sql;
@@ -133,6 +143,8 @@ prompt etl views with consolidated rowsource for each item
 @@view.oa_dpc_etl_item_row_objectagg_v.sql;
 @@view.oa_dpc_etl_item_row_objectagg_flat_v.sql;
 @@view.oa_dpc_etl_item_row_objects_v.sql;
+@@view.oa_dpc_etl_item_row_xml_v.sql;
+
 
 --??create table dynamic_pivot_rowsource
 
@@ -143,12 +155,16 @@ prompt etl views with consolidated rowsource for each item
 @@view.oa_dpc_etl_ptf_rt_objectagg_v.sql;
 @@view.oa_dpc_etl_ptf_ct_flat_v.sql;
 @@view.oa_dpc_etl_ptf_rt_flat_v.sql;
+@@view.oa_dpc_etl_ptf_rt_xml_v.sql;
+
 --etl pipelined view and package
 @@package.oa_dpc_etl_pf_objects.spec;
 @@package.oa_dpc_etl_pf_objects.body;
 @@view.oa_dpc_etl_pf_objects_v.sql;
 --etl using json_table only
 @@view.oa_dpc_etl_json_table_v.sql;
+--etl using xml_table only
+@@view.oa_dpc_etl_xml_table_v.sql;
 
 --dynamic tables with refreshable columns and backup tables
 @@table.oa_dpc_items_ptf_ct_arrayagg.sql;
@@ -158,6 +174,8 @@ prompt etl views with consolidated rowsource for each item
 @@table.oa_dpc_items_ptf_rt_flat.sql;
 @@table.oa_dpc_items_pf_objects.sql;
 @@table.oa_dpc_items_json_table.sql;
+@@table.oa_dpc_items_ptf_rt_xml.sql;
+@@table.oa_dpc_items_xml_table.sql;
 
 
 @@view.oa_dpc_etl_table_rowcounts_v.sql;
