@@ -151,6 +151,8 @@ as
         oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
     
     end test_json_table;
+    
+    
 
     procedure run_test_xml_table
     (
@@ -188,6 +190,43 @@ as
         oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
     
     end test_xml_table;
+
+    procedure run_test_pivot_clause
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_pivot';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);        
+        oa_dpc_etl.rebuild_table_items_pivot (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_pivot_clause;
+
+    procedure test_pivot_clause
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs to columns using pivot clause');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_pivot (p_execute => true);
+
+        test_initialize_data;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_large);        
+        prepare_test_3;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_full);
+        
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_pivot_clause;
 
     procedure run_test_pipelined_objects
     (
@@ -471,6 +510,7 @@ as
         test_pipelined_objects;
         test_json_table;
         test_xml_table;
+        test_pivot_clause;
 
         oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => false);
 

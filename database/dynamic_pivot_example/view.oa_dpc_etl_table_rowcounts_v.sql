@@ -41,5 +41,10 @@ from oa_dpc_items_xml_table
 union all
 select 
     count(*)
+    , 'oa_dpc_items_pivot' 
+from oa_dpc_items_pivot
+union all
+select 
+    count(*)
     , 'oa_dpc_pair_values' 
 from oa_dpc_pair_values

@@ -898,6 +898,119 @@ q'[        )
             raise;    
     end rebuild_table_items_json_table;
 
+    procedure rebuild_etl_view_pivot (p_execute in boolean default false)
+    is
+        type r_columns is record(column_name varchar2(128), column_type varchar2(128));
+        type t_columns is table of r_columns index by pls_integer;
+        l_columns t_columns;
+        l_ddl varchar2(32000);
+        l_ddl_view_columns varchar2(4000);
+        l_ddl_pivot_columns varchar2(4000);
+    begin
+
+        select distinct value_name, value_type 
+        bulk collect into l_columns
+        from oa_dpc_value_types_v 
+        order by value_name;
+        
+        l_ddl := 
+q'[create or replace view oa_dpc_etl_pivot_v as
+with base as
+(
+    select 
+        pv.item_id
+        ,pv.item_name
+        ,pv.item_type
+        ,pv.value_name
+        ,pv.value_data
+    from oa_dpc_pair_values pv
+)
+select
+    p.item_id
+    ,p.item_name
+    ,p.item_type
+]';
+        --build view columns
+        for c in 1..l_columns.count loop   --column_type  number|varchar2
+            l_ddl_view_columns := l_ddl_view_columns  || lpad(' ',4,' ') 
+                      || rpad(',p.' || l_columns(c).column_name, 33, ' ') || ' as "' || l_columns(c).column_name || '"' || chr(10);
+        end loop;
+/*
+        l_ddl_view_columns := 
+q'[
+    ,p.c_degrees as "c_degrees"
+    ,p.a_side    as "a_side"
+    ,p.b_side    as "b_side"
+    ,p.side      as "side"
+    ,p.length    as "length"
+    ,p.width     as "width"
+    ,p.radius    as "radius"
+    ,p.area      as "area"
+    ,p.color     as "color"
+]';
+*/
+
+        l_ddl := l_ddl || l_ddl_view_columns;
+                
+        l_ddl := l_ddl ||
+q'[    
+from
+    base b
+    pivot
+    (
+        max(value_data) for
+        value_name in
+        (
+            'dummy_item_id' as dummy_item_id
+]';
+        --build pivot column definitions
+        for c in 1..l_columns.count loop   --column_type  number|varchar2
+            l_ddl_pivot_columns := l_ddl_pivot_columns || lpad(' ',12,' ')
+                            || ',' || rpad( '''' || l_columns(c).column_name || ''''  ,30, ' ')
+                            || ' as ' || l_columns(c).column_name || chr(10);
+        end loop;
+    
+/*
+        l_ddl_pivot_columns :=  
+q'[
+            ,'c_degrees' as c_degrees
+            ,'a_side'    as a_side
+            ,'b_side'    as b_side
+            ,'side'      as side
+            ,'length'    as length
+            ,'width'     as width
+            ,'radius'    as radius
+            ,'area'      as area
+            ,'color'     as color
+]';
+*/
+        l_ddl := l_ddl || l_ddl_pivot_columns;
+        
+        l_ddl := l_ddl || 
+q'[        )
+    ) p]';
+
+        run_sql(p_sql => l_ddl, p_run_now => p_execute);
+
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_etl_view_pivot');
+            raise;    
+    end rebuild_etl_view_pivot;
+
+    procedure rebuild_table_items_pivot (p_execute in boolean default false)
+    is
+        l_source varchar2(128) := 'oa_dpc_etl_pivot_v';
+        l_destination varchar2(128) := 'oa_dpc_items_pivot';
+    begin
+        rebuild_etl_view_pivot(p_execute);
+        rebuild_table_dynamic_columns(p_source => l_source, p_destination => l_destination, p_execute => p_execute);
+    exception
+        when others then
+            log_error(sqlerrm, 'rebuild_table_items_pivot');
+            raise;    
+    end rebuild_table_items_pivot;
+
     procedure rebuild_etl_view_pf_objects (p_execute in boolean default false)
     is
         l_ddl varchar2(32000);
@@ -945,6 +1058,7 @@ q'[        )
         rebuild_table_items_ptf_rt_xml (p_execute => p_execute);
         rebuild_table_items_json_table (p_execute => p_execute);
         rebuild_table_items_xml_table (p_execute => p_execute);
+        rebuild_table_items_pivot (p_execute => p_execute);
         rebuild_table_items_pf_objects (p_execute => p_execute);
         
     exception

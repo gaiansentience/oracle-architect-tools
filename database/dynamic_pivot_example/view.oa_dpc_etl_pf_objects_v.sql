@@ -39,8 +39,9 @@ select
 b.item_id
 ,b.item_name
 ,b.item_type
-,b.record_object
-,b.record_type
+--hide the record object values so table does not show virtual columns for all attributes of the object hierarchy
+--,b.record_object
+--,b.record_type
 --hide these when compiling the view (item_json is an attribute of the parent geometry type)
 --,b.item_json
 --end of hide columns

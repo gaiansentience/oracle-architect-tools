@@ -1,5 +1,6 @@
 prompt dropping example objects
 
+--drop view oa_dpc_test_compare_codebase_pivot_v;
 --drop view oa_dpc_test_compare_codebase_v;
 --drop table oa_dpc_test_results purge;
 
@@ -32,10 +33,15 @@ drop table oa_dpc_items_ptf_rt_xml purge;
 drop table oa_dpc_items_ptf_rt_xml_backup purge;
 drop table oa_dpc_items_xml_table_backup purge;
 drop table oa_dpc_items_xml_table purge;
+drop table oa_dpc_items_pivot_backup purge;
+drop table oa_dpc_items_pivot purge;
 
 
 --views to create dynamic tables (based on dynamic_pivot_pair_values table)
+--dynamically rewriting the etl source view based on current pair_value value_names
 drop view oa_dpc_etl_json_table_v;
+drop view oa_dpc_etl_xml_table_v;
+drop view oa_dpc_etl_pivot_v;
 
 --pipelined etl view
 drop view oa_dpc_etl_pf_objects_v;
@@ -47,7 +53,6 @@ drop view oa_dpc_etl_ptf_rt_flat_v;
 drop view oa_dpc_etl_ptf_rt_arrayagg_v;
 drop view oa_dpc_etl_ptf_ct_arrayagg_v;
 drop view oa_dpc_etl_ptf_rt_xml_v;
-drop view oa_dpc_etl_xml_table_v;
 
 --??drop table dynamic_pivot_rowsource
 

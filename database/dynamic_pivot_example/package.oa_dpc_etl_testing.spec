@@ -6,6 +6,8 @@ as
     
     procedure test_xml_table;
     
+    procedure test_pivot_clause;
+    
     procedure test_pipelined_objects;
     
     procedure test_polymorphic_ct_arrayagg;

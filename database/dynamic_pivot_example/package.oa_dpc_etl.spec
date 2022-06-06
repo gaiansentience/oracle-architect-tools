@@ -55,6 +55,11 @@ as
     procedure rebuild_table_items_json_table (p_execute in boolean default false);
 
 
+    procedure rebuild_etl_view_pivot (p_execute in boolean default false);
+
+    procedure rebuild_table_items_pivot (p_execute in boolean default false);
+
+
     procedure rebuild_etl_view_pf_objects (p_execute in boolean default false);
 
     procedure rebuild_table_items_pf_objects (p_execute in boolean default false);

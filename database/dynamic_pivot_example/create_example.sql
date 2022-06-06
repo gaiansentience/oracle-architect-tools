@@ -165,6 +165,8 @@ prompt etl views with consolidated rowsource for each item
 @@view.oa_dpc_etl_json_table_v.sql;
 --etl using xml_table only
 @@view.oa_dpc_etl_xml_table_v.sql;
+--etl using pivot
+@@view.oa_dpc_etl_pivot_v.sql;
 
 --dynamic tables with refreshable columns and backup tables
 @@table.oa_dpc_items_ptf_ct_arrayagg.sql;
@@ -176,7 +178,7 @@ prompt etl views with consolidated rowsource for each item
 @@table.oa_dpc_items_json_table.sql;
 @@table.oa_dpc_items_ptf_rt_xml.sql;
 @@table.oa_dpc_items_xml_table.sql;
-
+@@table.oa_dpc_items_pivot.sql;
 
 @@view.oa_dpc_etl_table_rowcounts_v.sql;
 
@@ -192,6 +194,7 @@ prompt running testing framework will create oa_dpc_test_results table if it doe
 --@@table.oa_dpc_test_results.sql;
 prompt create the oa_dpc_test_compare_codebase_v view to compare testing across different codebase versions
 --@@view.oa_dpc_test_compare_codebase_v.sql;
+--@@view.oa_dpc_test_compare_codebase_pivot_v.sql;
 
 @@package.oa_dpc_poc_testing.spec;
 @@package.oa_dpc_poc_testing.body;

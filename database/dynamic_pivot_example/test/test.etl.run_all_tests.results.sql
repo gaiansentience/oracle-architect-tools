@@ -1,134 +1,151 @@
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.05.06.053546000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.47.51.410117000 PM AMERICA/DENVER
      STARTING TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.05.06.053572000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.47.51.410144000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
- 00.1856 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 02.0698 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 04.3358 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 14.2736 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.1855 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 02.0031 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 04.1038 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 14.4723 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.05.47.019175000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.48.31.398759000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.05.47.019196000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.48.31.398782000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
- 00.1487 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.7521 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 01.4152 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 04.0282 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.1485 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.7586 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 01.7259 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 04.1082 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.06.12.326790000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.48.57.758764000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.06.12.326811000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.48.57.758784000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using nested json for name|value pairs***
- 00.1723 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.8476 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 01.5657 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 04.3217 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.2011 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.8404 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 01.5059 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 04.2790 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.06.38.002827000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.49.23.915873000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.06.38.002849000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.49.23.915893000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using xml for name|value pairs***
- 00.6284 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 05.4690 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 09.3034 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 27.5011 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.6629 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 05.5229 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 10.2860 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 27.8956 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.07.40.172996000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.50.26.390603000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.07.40.173016000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.50.26.390625000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
 rowsource not currently dynamic, contains only columns for 2d shapes
- 00.5604 seconds to pivot 6000 name|value pairs to 2000 rows with 57 columns
- 02.9613 seconds to pivot 63000 name|value pairs to 11000 rows with 57 columns
- 04.2547 seconds to pivot 83000 name|value pairs to 17000 rows with 57 columns
- 08.6979 seconds to pivot 190000 name|value pairs to 34000 rows with 57 columns
+ 00.8390 seconds to pivot 6000 name|value pairs to 2000 rows with 24 columns
+ 02.5560 seconds to pivot 63000 name|value pairs to 11000 rows with 24 columns
+ 03.6216 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 07.4476 seconds to pivot 190000 name|value pairs to 34000 rows with 24 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.08.15.952107000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.00.389786000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.08.15.952129000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.00.389807000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***dynamically creating source view to pivot row name|value pairs from flat json to columns using json table***
- 00.0742 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.1999 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 00.3345 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 00.7600 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.0771 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.1991 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 00.6614 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 00.7269 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.08.35.400086000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.21.848903000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.08.35.400108000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.21.848929000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***dynamically creating source view to pivot row name|value pairs from xml to columns using xml table***
- 00.4704 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 02.5466 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 03.8576 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 08.9955 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.4520 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 02.8222 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 03.9540 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 08.8996 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.09.09.916676000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.56.567556000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.51.56.567579000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***dynamically creating source view to pivot row name|value pairs to columns using pivot clause***
+ 00.0652 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.1590 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 00.2919 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 00.4187 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.52.16.736946000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.09.09.916698000 PM AMERICA/DENVER
+     ORACLE VERSION 19  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.52.16.736965000 PM AMERICA/DENVER
      FINISHED TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/
@@ -139,134 +156,151 @@ PL/SQL procedure successfully completed.
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.11.27.159000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.55.10.082000000 PM AMERICA/DENVER
      STARTING TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.11.27.160000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.55.10.082000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
- 00.1550 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 02.0530 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 00.1650 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 02.0010 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
  04.0070 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 14.3490 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 13.9570 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.03.960000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.55.46.444000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.03.960000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.55.46.444000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using flat json for name|value pairs***
- 00.1260 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.8440 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 01.5010 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 04.4380 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.1220 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.8280 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 01.4870 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 04.3870 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.27.139000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.56.09.531000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.27.139000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.56.09.531000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using nested json for name|value pairs***
- 00.1620 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.9300 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 01.6310 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 04.7320 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.1410 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.9160 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 01.6060 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 04.6190 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.50.758000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.56.32.801000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.12.50.758000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.56.32.801000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***polymorphic pivot row name|value pairs to columns using xml for name|value pairs***
- 00.7490 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 06.4010 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 10.7810 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 30.1580 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.7440 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 06.3260 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 10.7280 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 29.8490 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.13.55.153000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.57.36.587000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.13.55.153000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.57.36.587000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***using pipelined function to pivot row name|value pairs from nested tables to object hierarchy***
 rowsource not currently dynamic, contains only columns for 2d shapes
- 00.5330 seconds to pivot 6000 name|value pairs to 2000 rows with 57 columns
- 02.9890 seconds to pivot 63000 name|value pairs to 11000 rows with 57 columns
- 04.5040 seconds to pivot 83000 name|value pairs to 17000 rows with 57 columns
- 08.9510 seconds to pivot 190000 name|value pairs to 34000 rows with 57 columns
+ 00.4360 seconds to pivot 6000 name|value pairs to 2000 rows with 24 columns
+ 02.5820 seconds to pivot 63000 name|value pairs to 11000 rows with 24 columns
+ 03.6960 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 07.5140 seconds to pivot 190000 name|value pairs to 34000 rows with 24 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.14.29.419000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.58.07.889000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.14.29.419000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.58.07.889000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***dynamically creating source view to pivot row name|value pairs from flat json to columns using json table***
- 00.0700 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 00.2050 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 00.3390 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 00.7690 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.0670 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 00.1980 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 00.3320 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 00.7600 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.14.47.130000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.58.25.408000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.14.47.130000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.58.25.408000000 PM AMERICA/DENVER
      STARTING TEST
 ----------------------------------------------------------------------------------------------------
 ***dynamically creating source view to pivot row name|value pairs from xml to columns using xml table***
- 00.6320 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
- 03.5340 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
- 05.4230 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
- 11.6160 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+ 00.6170 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 03.4890 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 05.3580 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 11.4680 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
 ----------------------------------------------------------------------------------------------------
      DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.15.24.647000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.59.02.474000000 PM AMERICA/DENVER
+     FINISHED TEST
+----------------------------------------------------------------------------------------------------
+*****/
+/*****
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.59.02.474000000 PM AMERICA/DENVER
+     STARTING TEST
+----------------------------------------------------------------------------------------------------
+***dynamically creating source view to pivot row name|value pairs to columns using pivot clause***
+ 00.1190 seconds to pivot 6000 name|value pairs to 2000 rows with 6 columns
+ 03.2310 seconds to pivot 63000 name|value pairs to 11000 rows with 18 columns
+ 01.6460 seconds to pivot 83000 name|value pairs to 17000 rows with 24 columns
+ 04.6300 seconds to pivot 190000 name|value pairs to 34000 rows with 41 columns
+----------------------------------------------------------------------------------------------------
+     DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.59.28.262000000 PM AMERICA/DENVER
      FINISHED TEST
 ----------------------------------------------------------------------------------------------------
 *****/
 /*****
 ----------------------------------------------------------------------------------------------------
 DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS
-     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 05-JUN-22 05.15.24.647000000 PM AMERICA/DENVER
+     ORACLE VERSION 21  CODEBASE poc tuning (version 4)  TESTING TIME 06-JUN-22 12.59.28.262000000 PM AMERICA/DENVER
      FINISHED TEST SET
 ----------------------------------------------------------------------------------------------------
 *****/
