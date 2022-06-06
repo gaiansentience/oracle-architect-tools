@@ -2,7 +2,7 @@ create or replace package body oa_dpc_test_framework
 as
 
 
-    g_codebase varchar2(100) := 'poc tuning (version 4)';
+    g_codebase varchar2(100) := 'rc tuning (version 5)';
     g_start timestamp;
     g_stop timestamp;
     g_results_table varchar2(128) := 'oa_dpc_test_results';

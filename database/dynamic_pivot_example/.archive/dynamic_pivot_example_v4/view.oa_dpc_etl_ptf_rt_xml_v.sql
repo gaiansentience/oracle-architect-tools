@@ -1,0 +1,19 @@
+create or replace view oa_dpc_etl_ptf_rt_xml_v as
+with base as
+(
+    select 
+        x.item_id
+        ,x.item_name
+        ,x.item_type
+        ,x.xml_doc
+    from 
+        oa_dpc_etl_item_row_xml_v x
+)
+select * 
+from
+    oa_dpc_ptf_rt_xml.f(
+        base, 
+        columns(item_id, item_name, item_type), 
+        columns(xml_doc), 
+        'select distinct value_name, value_type from oa_dpc_value_types_v'
+        );

@@ -1,0 +1,26 @@
+codebase 0
+	initial proof of concept
+
+codebase 1
+	minor bug fixes
+	changed json_arrayagg and json_objectagg to eliminate correlated subqueries
+	changed all rowsource variable passing to use nocopy
+
+codebase version 2
+	minor bug fixes
+	streamlined rowsource json formats
+
+codebase version 3
+	changed naming convention for all objects
+	full code review
+
+codebase version 4
+	added error handling to polymorphic table functions
+	added xml examples using polymorphic functions and xml_table
+	added simple_type prototype with stripped down xml parser example
+	added example with code generator for pivot clause
+
+codebase version 5
+
+
+

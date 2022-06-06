@@ -1,0 +1,521 @@
+create or replace package body oa_dpc_etl_testing
+as
+    g_codebase constant varchar2(100) := 'poc tuning (version 4)';
+    
+    g_dataset_empty   constant varchar2(100) := oa_dpc_test_framework.g_dataset_empty;
+    g_dataset_minimal constant varchar2(100) := oa_dpc_test_framework.g_dataset_minimal;    
+    g_dataset_small   constant varchar2(100) := oa_dpc_test_framework.g_dataset_small;
+    g_dataset_large   constant varchar2(100) := oa_dpc_test_framework.g_dataset_large;
+    g_dataset_full    constant varchar2(100) := oa_dpc_test_framework.g_dataset_full;
+        
+    g_show_columns boolean := false;
+
+    procedure clear_all_test_data
+    is
+    begin
+        delete from oa_dpc_pair_values;
+        commit;
+    end clear_all_test_data;
+
+    procedure reset_test_data
+    (
+        p_delete_triangle_polygon in boolean default false, 
+        p_delete_circle_square_rectangle in boolean default false,
+        p_load_3d_shapes in boolean default false
+    )
+    is
+    begin
+
+        --load the full datasource and delete all pair|values for item_type triangles and regular polygons
+        oa_dpc_etl.reload_table_pair_value_source(p_execute => true, p_load_3d_shapes => p_load_3d_shapes);
+        
+        if p_delete_triangle_polygon then        
+            delete from oa_dpc_pair_values where item_type in ('triangle', 'regular polygon');
+            commit;
+        end if;
+        
+        if p_delete_circle_square_rectangle then
+            delete from oa_dpc_pair_values where item_type in ('circle', 'square', 'rectangle');
+            commit;
+        end if;
+
+    end reset_test_data;
+
+    procedure stop_test_and_print_result
+    (
+        p_dynamic_table in varchar2
+    )
+    is
+        l_pivoted_rows number;
+        l_pair_values number;
+        l_columns number;
+        l_timing_result varchar2(1000);
+        l_result varchar2(1000);
+    begin
+        --stop the test timer and summarize all results
+        oa_dpc_test_framework.timing_stop;
+        --get formatted timing result (adds it to test_info)
+        l_timing_result := oa_dpc_test_framework.timing_result;
+
+        oa_dpc_test_framework.add_rowcount_to_results(p_source => 'oa_dpc_pair_values', p_key => 'pairValuesTable');
+        oa_dpc_test_framework.add_rowcount_to_results(p_source => p_dynamic_table, p_key => 'dynamicTable');
+        oa_dpc_test_framework.add_columns_to_results(p_source => p_dynamic_table, p_key => 'dynamicTableFinalColumns');
+        
+        l_pair_values := oa_dpc_test_framework.get_row_count('oa_dpc_pair_values');
+        l_pivoted_rows := oa_dpc_test_framework.get_row_count(p_dynamic_table);
+        l_columns := oa_dpc_test_framework.get_column_count(p_dynamic_table);
+        l_result := l_timing_result || ' to pivot ' || l_pair_values || ' name|value pairs to ' || l_pivoted_rows || ' rows with ' || l_columns || ' columns';
+        
+        oa_dpc_test_framework.print_comment(p_comment => l_result);
+        if g_show_columns then
+            dbms_output.put_line(oa_dpc_test_framework.get_columns(p_dynamic_table));
+        end if;
+        
+        oa_dpc_test_framework.test_results_stop_record(l_result);
+    end stop_test_and_print_result;
+
+    procedure start_test
+    (
+        p_dynamic_table in varchar2,
+        p_test_set in varchar2 default null,
+        p_test_group in varchar2 default null
+    )
+    is
+    begin
+        oa_dpc_test_framework.test_results_start_record(p_test_name => 'etl_pivot_to_dynamic_columns', p_test_set => p_test_set, p_test_group => p_test_group);        
+        oa_dpc_test_framework.add_columns_to_setup(p_source => p_dynamic_table, p_key => 'dynamicTableInitialColumns');
+        oa_dpc_test_framework.timing_start;
+    end start_test;
+        
+    procedure test_initialize_data
+    is
+    begin
+        --oa_dpc_test_framework.print_comment(p_comment => 'reset test data with no pair values for triangle, regular polygon, circle, square or rectangle');
+        reset_test_data(p_delete_triangle_polygon => true, p_delete_circle_square_rectangle => true);
+    end test_initialize_data;
+
+    procedure prepare_test_1
+    is
+    begin
+        --oa_dpc_test_framework.print_comment(p_comment => 'reset test data: add pair values for triangle and regular polygon; delete pair values for circle, square and rectangle');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => true);    
+    end prepare_test_1;
+
+    procedure prepare_test_2
+    is
+    begin
+        --oa_dpc_test_framework.print_comment(p_comment => 'reset test data to full dataset: add pair values for triangle and regular polygon; add pair values for circle, square and rectangle');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => false);    
+    end prepare_test_2;
+    
+    procedure prepare_test_3
+    is
+    begin
+        --oa_dpc_test_framework.print_comment(p_comment => 'reset test data to full dataset: all 2d shapes and 3d solids');
+        reset_test_data(p_delete_triangle_polygon => false, p_delete_circle_square_rectangle => false, p_load_3d_shapes => true); 
+    end prepare_test_3;
+    
+    procedure run_test_json_table
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_json_table';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);        
+        oa_dpc_etl.rebuild_table_items_json_table (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_json_table;
+
+    procedure test_json_table
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW JSON TABLE VIEW ROWSOURCE FLAT JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs from flat json to columns using json table');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_json_table (p_execute => true);
+
+        test_initialize_data;
+        run_test_json_table(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_json_table(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_json_table(p_set => l_test_set, p_group => g_dataset_large);        
+        prepare_test_3;
+        run_test_json_table(p_set => l_test_set, p_group => g_dataset_full);
+        
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_json_table;
+    
+    
+
+    procedure run_test_xml_table
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_xml_table';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);        
+        oa_dpc_etl.rebuild_table_items_xml_table (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_xml_table;
+
+    procedure test_xml_table
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW XML TABLE VIEW ROWSOURCE XML';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs from xml to columns using xml table');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_xml_table (p_execute => true);
+
+        test_initialize_data;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_large);        
+        prepare_test_3;
+        run_test_xml_table(p_set => l_test_set, p_group => g_dataset_full);
+        
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_xml_table;
+
+    procedure run_test_pivot_clause
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_pivot';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);        
+        oa_dpc_etl.rebuild_table_items_pivot (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_pivot_clause;
+
+    procedure test_pivot_clause
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT DYNAMIC VIEW PIVOT CLAUSE ROWSOURCE PAIR VALUES TABLE';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'dynamically creating source view to pivot row name|value pairs to columns using pivot clause');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_pivot (p_execute => true);
+
+        test_initialize_data;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_large);        
+        prepare_test_3;
+        run_test_pivot_clause(p_set => l_test_set, p_group => g_dataset_full);
+        
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_pivot_clause;
+
+    procedure run_test_pipelined_objects
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_pf_objects';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_pf_objects (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_pipelined_objects;
+
+    procedure test_pipelined_objects
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT PIPELINED OBJECT TYPES AND SUBTYPES ROWSOURCE NESTED TABLE';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);        
+        oa_dpc_test_framework.testing_headline(p_headline => 'using pipelined function to pivot row name|value pairs from nested tables to object hierarchy');
+        oa_dpc_test_framework.print_comment(p_comment => 'rowsource not currently dynamic, contains only columns for 2d shapes');
+        
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_pf_objects (p_execute => true);
+        
+        test_initialize_data;
+        run_test_pipelined_objects(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_pipelined_objects(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_pipelined_objects(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_pipelined_objects(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+    
+    end test_pipelined_objects;
+
+    procedure run_test_polymorphic_ct_arrayagg
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_ct_arrayagg';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_ct_arrayagg (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);        
+    end run_test_polymorphic_ct_arrayagg;
+    
+    procedure test_polymorphic_ct_arrayagg
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE HIERARCHICAL JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);    
+        oa_dpc_test_framework.testing_headline(p_headline => 'using polymorphic function to pivot row name|value pairs to columns using hierarchical json for name|value pairs');
+
+        clear_all_test_data;
+        oa_dpc_etl.rebuild_table_items_ptf_ct_arrayagg (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_ct_arrayagg(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_ct_arrayagg(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_ct_arrayagg(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_ct_arrayagg(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_ct_arrayagg;
+
+    procedure run_test_polymorphic_rt_objectagg
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_rt_objectagg';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_rt_objectagg (p_execute => true);
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_rt_objectagg;
+
+    procedure test_polymorphic_rt_objectagg
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE NESTED JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using nested json for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_rt_objectagg (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_rt_objectagg(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_rt_objectagg(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_rt_objectagg(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_rt_objectagg(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_rt_objectagg;
+
+    procedure run_test_polymorphic_rt_arrayagg
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_rt_arrayagg';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_rt_arrayagg (p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_rt_arrayagg;
+    
+    procedure test_polymorphic_rt_arrayagg
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE HIERARCHICAL JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using hierarchical json for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_rt_arrayagg (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_rt_arrayagg(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_rt_arrayagg(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_rt_arrayagg(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_rt_arrayagg(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_rt_arrayagg;
+
+    procedure run_test_polymorphic_ct_flat
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_ct_flat';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_ct_flat (p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_ct_flat;
+    
+    procedure test_polymorphic_ct_flat
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC COLUMNS PUT ROWSOURCE FLAT JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using flat json for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_ct_flat (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_ct_flat(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_ct_flat(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_ct_flat(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_ct_flat(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_ct_flat;
+
+    procedure run_test_polymorphic_rt_flat
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_rt_flat';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_rt_flat (p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_rt_flat;
+    
+    procedure test_polymorphic_rt_flat
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE FLAT JSON';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using flat json for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_rt_flat (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_rt_flat(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_rt_flat(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_rt_flat(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_rt_flat(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_rt_flat;
+
+    procedure run_test_polymorphic_rt_xml
+    (
+        p_set in varchar2 default null,
+        p_group in varchar2 default null
+    )
+    is
+        l_dynamic_table varchar2(128) := 'oa_dpc_items_ptf_rt_xml';
+    begin
+        start_test(p_dynamic_table => l_dynamic_table, p_test_set => p_set, p_test_group => p_group);
+        oa_dpc_etl.rebuild_table_items_ptf_rt_xml (p_execute => true);        
+        stop_test_and_print_result(p_dynamic_table => l_dynamic_table);
+    end run_test_polymorphic_rt_xml;
+
+
+    procedure test_polymorphic_rt_xml
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS PIVOT POLYMORPHIC ROWSET PUT ROWSOURCE XML';
+    begin
+    
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => true);
+        oa_dpc_test_framework.testing_headline(p_headline => 'polymorphic pivot row name|value pairs to columns using xml for name|value pairs');
+
+        clear_all_test_data;        
+        oa_dpc_etl.rebuild_table_items_ptf_rt_xml (p_execute => true);
+
+        test_initialize_data;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_minimal);
+        prepare_test_1;        
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_small);
+        prepare_test_2;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_large);
+        prepare_test_3;
+        run_test_polymorphic_rt_xml(p_set => l_test_set, p_group => g_dataset_full);
+
+        oa_dpc_test_framework.testing_banner(p_heading => l_test_set, p_start => false);
+
+    end test_polymorphic_rt_xml;
+
+
+
+
+
+    procedure run_all_tests(p_show_columns in boolean default false)
+    is
+        l_test_set varchar2(100) := 'DYNAMIC TABLE COLUMNS FROM ROW PIVOT COMPARISON: RUN ALL TESTS';
+    begin
+        g_show_columns := p_show_columns;
+    
+        oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => true);
+                
+        --test_polymorphic_ct_arrayagg;
+        --test_polymorphic_rt_arrayagg;  
+        test_polymorphic_ct_flat;  
+        test_polymorphic_rt_flat;  
+        test_polymorphic_rt_objectagg;
+        test_polymorphic_rt_xml;
+        test_pipelined_objects;
+        test_json_table;
+        test_xml_table;
+        test_pivot_clause;
+
+        oa_dpc_test_framework.testing_set_banner(p_heading => l_test_set, p_start => false);
+
+    end run_all_tests;
+    
+begin
+    oa_dpc_test_framework.verify_codebase(g_codebase);
+end oa_dpc_etl_testing;

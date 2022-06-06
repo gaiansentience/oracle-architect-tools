@@ -1,7 +1,7 @@
 create or replace package body oa_dpc_poc_testing
 as
 
-    g_codebase      constant varchar2(100) := 'poc tuning (version 4)';
+    g_codebase      constant varchar2(100) := 'rc tuning (version 5)';
     
     g_dataset_empty   constant varchar2(100) := oa_dpc_test_framework.g_dataset_empty;
     g_dataset_minimal constant varchar2(100) := oa_dpc_test_framework.g_dataset_minimal;    
