@@ -1,7 +1,7 @@
 set serveroutput on;
 begin
 
-  oa_dpc_etl.rebuild_table_items_json_table(p_execute => false);
+  oa_dpc_etl.rebuild_table_items_json_table(p_execute => true);
 
 end;
 
@@ -124,6 +124,12 @@ alter table oa_dpc_items_json_table add constraint oa_dpc_items_json_table_pk pr
 PL/SQL procedure successfully completed.
 
 
+--with parallel support added to code (hint syntax edited because of nested comments)
+--drop table oa_dpc_items_json_table_backup purge
+--create table oa_dpc_items_json_table_backup nologging compress basic parallel 4 as select /x+ parallel(src, 4)x/ * from oa_dpc_items_json_table src
+--drop table oa_dpc_items_json_table purge
+--create table oa_dpc_items_json_table nologging compress basic parallel 4 as select /x+ parallel(src, 4)x/ * from oa_dpc_etl_json_table_v src
+--alter table oa_dpc_items_json_table add constraint oa_dpc_items_json_table_pk primary key (item_id)
 
 
 */

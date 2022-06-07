@@ -3,6 +3,8 @@ as
 
     g_tablespace varchar2(128) := null;
     g_backup_tablespace varchar2(128) := null;
+    g_use_parallel boolean := true;
+    g_default_degree_of_parallel number := 4;
         
     procedure log_error
     (
@@ -47,10 +49,11 @@ as
     (
         p_set_tablespace in varchar2 default null,
         p_use_logging in boolean default false,
-        p_use_compress in boolean default false    
+        p_use_compress in boolean default false,
+        p_use_parallel in boolean default false
     ) return varchar2
     is
-        l_options varchar2(100);
+        l_options varchar2(200);
     begin
         if p_set_tablespace is not null then
             l_options := l_options || ' tablespace ' || p_set_tablespace;
@@ -65,6 +68,10 @@ as
         else
             l_options := l_options || ' nocompress';
         end if;
+        if p_use_parallel then
+            l_options := l_options || ' parallel ' || g_default_degree_of_parallel;
+        end if;
+        
         return l_options;
     end get_ddl_table_options;
         
@@ -94,6 +101,7 @@ as
         p_tablespace in varchar2 default null,
         p_logging in boolean default false,
         p_compress in boolean default false,
+        p_parallel in boolean default false,
         p_create_empty in boolean default false
     ) return varchar2
     is
@@ -104,9 +112,14 @@ as
         l_ddl := l_ddl || get_ddl_table_options(
                                 p_set_tablespace => p_tablespace, 
                                 p_use_logging => p_logging, 
-                                p_use_compress => p_compress);
+                                p_use_compress => p_compress,
+                                p_use_parallel => p_parallel);
         
-        l_ddl := l_ddl || ' as select * from ' || p_source;
+        if p_parallel then
+            l_ddl := l_ddl || ' as select /*+ parallel(src, ' || g_default_degree_of_parallel || ')*/ * from ' || p_source || ' src';            
+        else
+            l_ddl := l_ddl || ' as select * from ' || p_source;
+        end if;
         
         if p_create_empty then
             l_ddl := l_ddl || ' where 1 = 0';
@@ -122,6 +135,7 @@ as
         p_tablespace in varchar2 default null,
         p_logging in boolean default false,
         p_compress in boolean default false,
+        p_parallel in boolean default false,
         p_create_empty in boolean default false
     ) return varchar2
     is
@@ -135,9 +149,15 @@ as
         l_ddl := l_ddl || get_ddl_table_options(
                                 p_set_tablespace => p_tablespace, 
                                 p_use_logging => p_logging, 
-                                p_use_compress => p_compress);
+                                p_use_compress => p_compress,
+                                p_use_parallel => p_parallel);
         
-        l_ddl := l_ddl || ' as select ' || chr(10)|| l_columns || ' from ' || p_source;
+        if p_parallel then
+            l_ddl := l_ddl || ' as select /*+ parallel(src, ' || g_default_degree_of_parallel || ')*/ ' 
+                           || chr(10)|| l_columns || ' from ' || p_source || ' src';
+        else
+            l_ddl := l_ddl || ' as select ' || chr(10)|| l_columns || ' from ' || p_source;
+        end if;
 
         if p_create_empty then
             l_ddl := l_ddl || ' where 1 = 0';
@@ -241,7 +261,8 @@ as
                         p_destination => l_backup_table_name, 
                         p_tablespace => g_backup_tablespace, 
                         p_logging => false, 
-                        p_compress => true);
+                        p_compress => true,
+                        p_parallel => g_use_parallel);
         
         run_sql(p_sql => l_ddl, p_run_now => p_execute);
 
@@ -275,6 +296,7 @@ as
                         p_tablespace => g_tablespace, 
                         p_logging => false, 
                         p_compress => true,
+                        p_parallel => g_use_parallel,
                         p_create_empty => p_create_empty);
 
         run_sql(p_sql => l_ddl, p_run_now => p_execute);
@@ -354,7 +376,8 @@ as
                         p_destination => p_destination, 
                         p_tablespace => g_tablespace, 
                         p_logging => false, 
-                        p_compress => true);
+                        p_compress => true,
+                        p_parallel => g_use_parallel);
 
         run_sql(p_sql => l_ddl, p_run_now => p_execute);
         

@@ -1,5 +1,5 @@
-create table oa_dpc_pair_values as
-select 
+create table oa_dpc_pair_values parallel 4 
+as select 
     item_id
     ,item_name
     ,item_type

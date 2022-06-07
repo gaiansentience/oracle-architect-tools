@@ -21,6 +21,6 @@ codebase version 4
 	added example with code generator for pivot clause
 
 codebase version 5
-
+	add basic parallel support to ctas statements for etl process (backup tables and create new tables)
 
 

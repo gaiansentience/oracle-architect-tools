@@ -1,3 +1,3 @@
---redeploy proof of concept tuning (version 4)
+--redeploy rc tuning (version 5)
 @@drop_example.sql;
 @@create_example.sql; 
