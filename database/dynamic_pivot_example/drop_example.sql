@@ -161,7 +161,7 @@ drop view oa_dpc_poc_test_data_name_value_vl;
 drop view oa_dpc_poc_test_data_name_value_vxl;
 
 drop package oa_dpc_test_data_generator;
-
+drop package oa_geometry;
 --drop package for timing, tracing and logging
 --drop table for timing, tracing and logging
 

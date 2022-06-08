@@ -1,0 +1,896 @@
+create or replace package body test_geometry
+as
+
+    pi constant number := 3.141592;
+
+    procedure log_error
+    (
+        p_error_message in varchar2, 
+        p_locale        in varchar2
+    )
+    is
+        l_os_user varchar2(100) := ' OS USER: ' || sys_context('env_util','os_user');
+        l_db_user varchar2(100) := ' DB USER: ' || user;
+        l_db_session  varchar2(100) := ' DB SESSION ID: ' || sys_context('env_util','sid');
+    begin
+        --change this to write to log table
+        dbms_output.put_line('EXCEPTION IN test_geometry.' || p_locale);
+        dbms_output.put_line(l_db_user || l_db_session || l_os_user);
+        dbms_output.put_line(p_error_message);
+    exception
+        when others then
+            --never raise an error from the log mechanism
+            dbms_output.put_line('FATAL ERROR IN LOG MECHANISM: ' || sqlerrm);
+    end log_error;
+
+    function to_degrees(p_radians in number) return number
+    is
+    begin
+        return trunc(p_radians * 180/pi,6);
+    end to_degrees; 
+    
+    function to_radians(p_degrees in number) return number
+    is
+    begin
+        return trunc(pi/180 * p_degrees,6);
+    end to_radians;
+
+    function acos_degrees(p_x in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := acos(p_x);
+        return to_degrees(l_radians);
+    end acos_degrees;
+
+    function asin_degrees(p_x in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := asin(p_x);
+        return to_degrees(l_radians);
+    end asin_degrees;
+
+    function atan_degrees(p_x in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := atan(p_x);
+        return to_degrees(l_radians);
+    end atan_degrees;
+
+    function cos_degrees(p_angle_degrees in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := to_radians(p_angle_degrees);
+        return cos(l_radians);
+    end cos_degrees;
+    
+    function sin_degrees(p_angle_degrees in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := to_radians(p_angle_degrees);
+        return sin(l_radians);
+    end sin_degrees;
+
+    function tan_degrees(p_angle_degrees in number) return number
+    is
+        l_radians number;
+    begin
+        l_radians := to_radians(p_angle_degrees);
+        return tan(l_radians);
+    end tan_degrees;
+    
+    function cosecant_degrees
+    (
+        p_angle_degrees in number
+    ) return number
+    is
+        l_cosecant number;
+    begin
+        l_cosecant := 1/sin_degrees(p_angle_degrees);
+        return l_cosecant;
+    end cosecant_degrees;
+    
+    function cosecant
+    (
+        p_angle_radians in number
+    ) return number
+    is
+        l_cosecant number;
+    begin
+        l_cosecant := 1/sin(p_angle_radians);
+        return l_cosecant;
+    end cosecant;
+    
+    --also called law of cosigns angle version
+    function triangle_angle_SSS
+    (
+        p_x in number,
+        p_y in number,
+        p_side_opposite_angle in number
+    ) return number
+    is
+        l_angle number;
+    begin
+    
+        --cos A = (b2 + c2 - a2) / 2bc
+        --A = acos( (b2 + c2 - a2) / 2bc  )
+        l_angle := acos_degrees(  ( power(p_x,2) + power(p_y,2) - power(p_side_opposite_angle,2) ) / (2 * p_x * p_y) );
+        return round(l_angle, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'triangle_angle_SSS');
+            raise;
+    end triangle_angle_SSS;
+
+    procedure solve_triangle_SSS
+    (
+        p_side_a   in number,
+        p_side_b   in number,
+        p_side_c   in number,
+        p_angle_a out number,
+        p_angle_b out number,
+        p_angle_c out number
+    )
+    is
+    begin
+        p_angle_a := triangle_angle_SSS(p_side_b, p_side_c, p_side_a);
+        p_angle_b := triangle_angle_SSS(p_side_a, p_side_c, p_side_b);
+        p_angle_c := 180 - (p_angle_a + p_angle_b);
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_triangle_SSS');
+            raise;
+    end solve_triangle_SSS;
+
+    function triangle_side_SAS
+    (
+        p_side_b  in number,
+        p_angle_a in number,
+        p_side_c  in number
+    ) return number
+    is
+        l_side_a number;
+    begin
+        --a2 = b2 + c2 - 2bc cosA
+        l_side_a := sqrt(   power(p_side_b,2) + power(p_side_c,2) - 2 * p_side_b * p_side_c * cos_degrees(p_angle_a) );
+        return round(l_side_a,4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'triangle_side_SAS');
+            raise;
+    end triangle_side_SAS;
+    
+    procedure solve_triangle_SAS
+    (
+        p_side_a   in number,
+        p_angle_c  in number,
+        p_side_b   in number,
+        p_angle_a out number,
+        p_angle_b out number,
+        p_side_c  out number
+    )
+    is
+    l_angle_c number;
+    begin
+        p_side_c := triangle_side_SAS(p_side_a, p_angle_c, p_side_b);
+        solve_triangle_SSS(p_side_a, p_side_b, p_side_c, p_angle_a, p_angle_b, l_angle_c);
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_triangle_SAS');
+            raise;
+    end solve_triangle_SAS;
+
+    procedure solve_triangle_ASA
+    (
+        p_angle_a    in number,
+        p_side_c     in number,
+        p_angle_b    in number,
+        p_angle_c   out number,
+        p_side_a    out number,
+        p_side_b    out number
+    )
+    is
+    begin
+
+        p_angle_c := 180 - (p_angle_a + p_angle_b);
+        
+        --a/sinA = c/sinC ... a = c/sinC * sinA
+        p_side_a := p_side_c/sin_degrees(p_angle_c) * sin_degrees(p_angle_a);
+        p_side_a := round(p_side_a, 4);
+        
+        --b/sinB = c/sin C ... b = c/sinC * sinB
+        p_side_b := p_side_c/sin_degrees(p_angle_c) * sin_degrees(p_angle_b);
+        p_side_b := round(p_side_b, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_triangle_ASA');
+            raise;        
+    end solve_triangle_ASA;
+    
+    function right_triangle_hypotenuse
+    (
+        p_side_a in number,
+        p_side_b in number
+    ) return number
+    is
+        l_side_c number;
+    begin
+
+        --c2 = a2 + b2
+        l_side_c := sqrt( (power(p_side_a,2) + power(p_side_b,2)) );
+        return round(l_side_c, 4);
+    
+    exception
+        when others then
+            log_error(sqlerrm,'right_triangle_hypotenuse');
+            raise;        
+    end right_triangle_hypotenuse;
+    
+    function right_triangle_side
+    (
+        p_side_a     in number,
+        p_hypotenuse in number
+    ) return number
+    is
+        l_side_b number;
+    begin
+
+        --c2 = a2 + b2
+        --b2 = c2 - a2
+        --b = sqrt(c - a)
+        l_side_b := sqrt( (p_hypotenuse - p_side_a) );
+        return round(l_side_b, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'right_triangle_side');
+            raise;        
+    end right_triangle_side;
+
+    function triangle_height
+    (
+        p_base      in number,
+        p_a_degrees in number,
+        p_b_degrees in number
+    ) return number
+    is
+        l_height number;
+        l_c_degrees number;
+        l_side_a number;
+        l_side_b number;
+    begin
+
+        solve_triangle_ASA(
+                    p_angle_a => p_a_degrees, 
+                    p_side_c  => p_base, 
+                    p_angle_b => p_b_degrees, 
+                    p_angle_c => l_c_degrees, 
+                    p_side_a  => l_side_a, 
+                    p_side_b  => l_side_b);
+        --h = a(sin C)
+        l_height := l_side_a * sin_degrees(l_c_degrees);
+        return round(l_height, 4);
+    
+    exception
+        when others then
+            log_error(sqlerrm,'triangle_height');
+            raise;        
+    end triangle_height;
+    
+    function triangle_area
+    (
+        p_base   in number,
+        p_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+        l_area := 1/2 * p_base * p_height;
+        return round(l_area, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'triangle_area');
+            raise;        
+    end triangle_area;
+    
+    function equilateral_triangle_area
+    (
+        p_side in number
+    ) return number
+    is
+        l_area   number;
+        l_angles number := 60;
+        l_height number;
+    begin
+
+        l_height := right_triangle_side(p_side_a => p_side/2, p_hypotenuse => p_side);
+        l_area := triangle_area(p_side, l_height);
+        return round(l_area, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'equilateral_triangle_area');
+            raise;        
+    end equilateral_triangle_area;
+    
+    function right_triangle_area
+    (
+        p_base   in number,
+        p_height in number
+     ) return number
+    is
+        l_area number;
+    begin
+
+        l_area := triangle_area(p_base, p_height);
+        return round(l_area, 4);    
+        
+    exception
+        when others then
+            log_error(sqlerrm,'right_triangle_area');
+            raise;                
+    end right_triangle_area;
+    
+    function circumference
+    (
+        p_radius in number
+    ) return number
+    is
+        l_circumference number;
+    begin
+
+        l_circumference := 2 * pi * p_radius;
+        return round(l_circumference, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'circumference');
+            raise;                
+    end circumference;
+    
+    function circle_area
+    (
+        p_radius in number
+    ) return number
+    is
+        l_area number;
+    begin
+
+        l_area := pi * power(p_radius,2);
+        return round(l_area,4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'circle_area');
+            raise;                
+    end circle_area;
+    
+    procedure solve_circle
+    (
+        p_radius in number,
+        p_circumference out number,
+        p_area out number
+    )
+    is
+    begin
+
+        p_circumference := circumference(p_radius => p_radius);
+        p_area := circle_area(p_radius => p_radius);
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_circle');
+            raise;                    
+    end solve_circle;
+
+    function sphere_volume
+    (
+        p_radius in number
+    ) return number
+    is
+        l_volume number;
+    begin
+
+        l_volume := 4/3 * pi * power(p_radius, 3);
+        return round(l_volume, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'sphere_volume');
+            raise;                
+    end sphere_volume;
+
+    function sphere_surface_area
+    (
+        p_radius in number
+    ) return number
+    is
+        l_area number;
+    begin
+
+        l_area := 4 * pi * power(p_radius, 2);
+        return round(l_area, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'sphere_surface_area');
+            raise;                
+    end sphere_surface_area;        
+
+    procedure solve_sphere
+    (
+        p_radius         in number,
+        p_circumference out number,
+        p_surface_area  out number,
+        p_volume        out number
+    )
+    is
+    begin
+    
+        p_circumference := circumference(p_radius => p_radius);
+        p_surface_area := sphere_surface_area(p_radius => p_radius);
+        p_volume := sphere_volume(p_radius => p_radius);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'solve_sphere');
+            raise;                    
+    end solve_sphere;
+
+    function conic_slant_height
+    (
+        p_radius in number,
+        p_height in number
+    ) return number
+    is
+        l_slant_height number;
+    begin
+    
+        l_slant_height := right_triangle_hypotenuse(p_side_a => p_radius, p_side_b => p_height);
+        return round(l_slant_height, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'conic_slant_height');
+            raise;                        
+    end conic_slant_height;
+    
+    function conic_lateral_area
+    (
+        p_radius       in number,
+        p_slant_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+
+        l_area := pi * p_radius * p_slant_height;
+        return round(l_area, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'conic_lateral_area');
+            raise;                
+    end conic_lateral_area;
+    
+    function conic_volume
+    (
+        p_radius in number,
+        p_height in number
+    ) return number
+    is
+        l_volume number;
+    begin
+
+        l_volume := 1/3 * pi * power(p_radius, 2) * p_height;
+        return round(l_volume, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'conic_volume');
+            raise;                
+    end conic_volume;
+    
+    procedure solve_conic
+    (
+        p_radius         in number,
+        p_height         in number,
+        p_slant_height  out number,
+        p_circumference out number,
+        p_base_area     out number,
+        p_lateral_area  out number,
+        p_surface_area  out number,
+        p_volume        out number
+    )
+    is
+    begin
+
+        solve_circle(p_radius => p_radius, p_circumference => p_circumference, p_area => p_base_area);
+
+        p_slant_height := conic_slant_height(p_radius => p_radius, p_height => p_height);
+        p_lateral_area := conic_lateral_area(p_radius => p_radius, p_slant_height => p_slant_height);
+        p_volume := conic_volume(p_radius => p_radius, p_height => p_height);
+        
+        p_surface_area := p_lateral_area + p_base_area;
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_conic');
+            raise;                    
+    end solve_conic;
+        
+    function cuboid_surface_area
+    (
+        p_base   in number, 
+        p_depth  in number, 
+        p_height in number    
+    ) return number
+    is
+        l_surface_area number;
+    begin
+
+        l_surface_area := (2 * p_base * p_depth) + (2 * p_base * p_height) + (2 * p_depth * p_height);
+        return round(l_surface_area, 4);
+
+    exception
+        when others then
+            log_error(sqlerrm,'cuboid_surface_area');
+            raise;                
+    end cuboid_surface_area;
+        
+    function polygon_interior_angles
+    (
+        p_sides in number
+    ) return number
+    is
+        l_degrees number;
+        l_radians number;
+    begin
+    
+        l_degrees := 180 * (p_sides - 2) / p_sides;
+        --l_radians := pi * (p_sides - 2) / p_sides;
+        --l_degrees := to_degrees(l_radians);
+        return round(l_degrees, 4);
+        
+    exception
+        when zero_divide then
+            return 0;
+        when others then
+            log_error(sqlerrm,'polygon_interior_angles');
+            raise;                                    
+    end polygon_interior_angles;
+    
+    function polygon_area
+    (
+        p_sides  in number,
+        p_length in number
+    ) return number
+    is
+        l_area number;
+    begin
+    
+        --cos_degrees(180/p_sides) = cos(pi/p_sides)
+        l_area := p_sides * power(p_length,2) * (cos_degrees(180/p_sides)/sin_degrees(180/p_sides))/4;
+        --l_area := p_sides * power(p_length,2) * (cos(pi/p_sides)/sin(pi/p_sides))/4;
+        return round(l_area, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'polygon_area');
+            raise;                                
+    end polygon_area;
+
+    function polygon_circumradius
+    (
+        p_sides  in number,
+        p_length in number
+    ) return number
+    is
+        l_circumradius number;
+    begin
+
+        l_circumradius := 1/2 * p_length * cosecant_degrees(180/p_sides);
+        --l_circumradius := 1/2 * p_length * cosecant(pi/p_sides);
+        return round(l_circumradius, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'polygon_circumradius');
+            raise;                        
+    end polygon_circumradius;
+    
+    function polygon_inradius
+    (
+        p_sides  in number,
+        p_length in number
+    ) return number
+    is
+        l_inradius number;
+        l_area number;
+        l_semiperimeter number := (p_sides * p_length)/2;
+    begin
+    
+        --inradius = s/ (2 tan(180/n))
+        l_inradius := p_length / (2 * tan_degrees(180/p_sides) );
+        return round(l_inradius, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'polygon_inradius');
+            raise;                        
+    end polygon_inradius;
+
+    procedure solve_polygon
+    (
+        p_sides           in number,
+        p_length          in number,
+        p_interior_angle out number,
+        p_sum_angles     out number,
+        p_area           out number,
+        p_circumradius   out number,
+        p_inradius       out number
+    )
+    is
+    begin
+
+        p_interior_angle := polygon_interior_angles(p_sides => p_sides);
+        p_sum_angles := p_interior_angle * p_sides;
+        p_area := polygon_area(p_sides => p_sides, p_length => p_length);
+        p_circumradius := polygon_circumradius(p_sides => p_sides, p_length => p_length);
+        p_inradius := polygon_inradius(p_sides => p_sides, p_length => p_length);
+
+    end solve_polygon;
+    
+    function pyramid_slant_height
+    (
+        p_base   in number,
+        p_height in number,
+        p_sides  in number
+    ) return number
+    is
+        l_slant_height number;
+        l_inradius number;
+    begin
+
+        case p_sides
+            when 4 then
+                l_slant_height := right_triangle_hypotenuse(p_base / 2, p_height);
+            when 3 then
+                --sqrt(base2 / 12 + height2)
+                l_slant_height := sqrt( power(p_base, 2) * 1/12  + power(p_height, 2) );
+            else
+                --slant_height = sqrt(h2 + inradius2)
+                l_inradius := polygon_inradius(p_sides,p_base);
+                l_slant_height := sqrt(  (power(p_height,2) + power(l_inradius, 2))  );
+        end case;
+        return round(l_slant_height, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_slant_height');
+            raise;                        
+    end pyramid_slant_height;
+
+    function pyramid_edge_height
+    (
+        p_base   in number,
+        p_height in number,
+        p_sides  in number
+    ) return number
+    is
+        l_edge_height number;
+        l_circumradius number := polygon_circumradius(p_sides,p_base);
+    begin
+        
+        l_edge_height := sqrt(  (power(p_height,2) + power(l_circumradius, 2))  );
+        return round(l_edge_height, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_edge_height');
+            raise;                        
+    end pyramid_edge_height;
+
+    function pyramid_edge_angles
+    (
+        p_height        in number,
+        p_circumradius  in number,
+        p_edge_height   in number
+    ) return number
+    is
+        l_angle     number;
+        l_a_degrees number;
+        l_b_degrees number;
+        l_c_degrees number;
+    begin
+
+        --edge height is side a, circumradius is side b, slant_height is c
+        solve_triangle_SSS(
+                    p_side_a => p_height, 
+                    p_side_b => p_circumradius, 
+                    p_side_c => p_edge_height, 
+                    p_angle_a => l_a_degrees, 
+                    p_angle_b => l_b_degrees,
+                    p_angle_c => l_c_degrees);
+        --a is the edge angle
+        l_angle := l_a_degrees;
+        return round(l_angle, 4);
+    
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_edge_angles');
+            raise;                        
+    end pyramid_edge_angles;
+
+    function pyramid_slant_angles
+    (
+        p_height       in number,
+        p_inradius     in number,
+        p_slant_height in number
+    ) return number
+    is
+        l_angle     number;
+        l_a_degrees number;
+        l_b_degrees number;
+        l_c_degrees number;
+    begin
+
+        --slant height is side a, inradius is side b, slant_height is c
+        solve_triangle_SSS(
+                    p_side_a => p_height, 
+                    p_side_b => p_inradius, 
+                    p_side_c => p_slant_height, 
+                    p_angle_a => l_a_degrees, 
+                    p_angle_b => l_b_degrees,
+                    p_angle_c => l_c_degrees);
+        --a is the slant angle
+        l_angle := l_a_degrees;
+        return round(l_angle, 4);
+    
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_slant_angles');
+            raise;                        
+    end pyramid_slant_angles;
+
+    function pyramid_vertex_angles
+    (   
+        p_base        in number,
+        p_edge_height in number
+    ) return number
+    is
+        l_angle number;
+        l_a_degrees number;
+        l_b_degrees number;
+        l_c_degrees number;
+    begin
+
+        --edge height are sides a and b, base is c
+        solve_triangle_SSS(
+                    p_side_a => p_edge_height, 
+                    p_side_b => p_edge_height, 
+                    p_side_c => p_base, 
+                    p_angle_a => l_a_degrees, 
+                    p_angle_b => l_b_degrees,
+                    p_angle_c => l_c_degrees);
+        --a and b are the base angles, c is the vertex
+        l_angle := l_c_degrees;
+        return round(l_angle, 4);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_vertex_angles');
+            raise;                                
+    end pyramid_vertex_angles;
+        
+    function pyramid_side_area
+    (
+        p_base_length  in number,
+        p_slant_height in number
+    ) return number
+    is
+        l_area number;
+    begin
+
+        l_area := 1/2 * p_base_length * p_slant_height;
+        return round(l_area,4);    
+    
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_side_area');
+            raise;                        
+    end pyramid_side_area;
+
+    function pyramid_surface_area
+    (
+        p_base_area in number,
+        p_side_area in number,
+        p_sides     in number
+    ) return number
+    is
+    begin
+
+        return p_base_area + (p_side_area * p_sides);
+        
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_surface_area');
+            raise;                                        
+    end pyramid_surface_area;
+
+    function pyramid_volume
+    (   
+        p_height    in number,
+        p_base_area in number
+    ) return number
+    is
+        l_volume number;
+    begin
+
+        --height × base area / 3.
+        l_volume := 1/3 * p_height * p_base_area;
+        return round(l_volume, 4);    
+        
+    exception
+        when others then
+            log_error(sqlerrm,'pyramid_volume');
+            raise;                                
+    end pyramid_volume;
+            
+    procedure solve_pyramid
+    (
+        p_height        in number,
+        p_base          in number,
+        p_sides         in number,
+        p_circumradius out number,
+        p_inradius     out number,
+        p_slant_height out number,
+        p_edge_height  out number,
+        p_slant_angle  out number,
+        p_edge_angle   out number,
+        p_vertex_angle out number,
+        p_base_area    out number,
+        p_side_area    out number,
+        p_surface_area out number,
+        p_volume       out number
+    )
+    is
+    begin
+    
+        p_circumradius := polygon_circumradius(p_sides => p_sides, p_length => p_base);
+        p_inradius := polygon_inradius(p_sides => p_sides, p_length => p_base);
+        
+        p_slant_height := pyramid_slant_height(p_base => p_base, p_height => p_height, p_sides => p_sides);
+        p_edge_height := pyramid_edge_height(p_base => p_base, p_height => p_height, p_sides => p_sides);
+        
+        p_slant_angle := pyramid_slant_angles(p_height => p_height, p_inradius => p_inradius, p_slant_height => p_slant_height);
+        p_edge_angle := pyramid_edge_angles(p_height => p_height, p_circumradius => p_circumradius, p_edge_height => p_edge_height);
+        
+        p_vertex_angle := pyramid_vertex_angles(p_base => p_base, p_edge_height => p_edge_height);
+        
+        p_base_area := polygon_area(p_sides => p_sides, p_length => p_base);
+        p_side_area := pyramid_side_area(p_base_length => p_base, p_slant_height => p_slant_height);
+        p_surface_area := pyramid_surface_area(p_base_area => p_base_area, p_side_area => p_side_area, p_sides => p_sides);
+        
+        p_volume := pyramid_volume(p_height => p_height, p_base_area => p_base_area);
+
+    exception
+        when others then
+            log_error(sqlerrm,'solve_pyramid');
+            raise;                                        
+    end solve_pyramid;
+    
+
+begin
+    null;
+end test_geometry;

@@ -17,7 +17,7 @@ as
         l_db_session  varchar2(100) := ' DB SESSION ID: ' || sys_context('env_util','sid');
     begin
         --change this to write to log table
-        dbms_output.put_line('EXCEPTION IN dynamic_pivot_etl.' || p_locale);
+        dbms_output.put_line('EXCEPTION IN oa_dpc_etl.' || p_locale);
         dbms_output.put_line(l_db_user || l_db_session || l_os_user);
         dbms_output.put_line(p_error_message);
     exception
