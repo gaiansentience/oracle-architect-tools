@@ -1,0 +1,57 @@
+creating app#log types
+
+Type Body APP#BOOL compiled
+
+
+Type Body APP#LOG compiled
+
+============================
+creating formatting type bodies
+
+Type Body APP#FMT compiled
+
+
+Type Body APP#FORMAT compiled
+
+
+Type Body APP#FORMAT_VC compiled
+
+
+Type Body APP#ATTRIB compiled
+
+
+Type Body APP#ATTRIBS_SET compiled
+
+
+Type Body APP#ML compiled
+
+
+Type Body APP#HTML compiled
+
+created formatting type bodies
+============================
+creating app#excel type bodies
+
+Type Body APP#EXCEL_CELL compiled
+
+
+Type Body APP#EXCEL_ROW compiled
+
+
+Type Body APP#EXCEL_TABLE compiled
+
+
+Type Body APP#EXCEL_STYLE compiled
+
+
+Type Body APP#EXCEL_STYLES_SET compiled
+
+
+Type Body APP#EXCEL_BOOK compiled
+
+app#excel type bodies created
+============================
+Miscellaneous types
+
+Type Body TYPE_TEST_PIPELINE compiled
+
