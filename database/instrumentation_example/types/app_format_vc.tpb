@@ -1,0 +1,94 @@
+create or replace type body app#format_vc is
+
+-- Author  : Anthony Harper
+-- Created : 12/20/2009
+-- Reviewed: 03/21/2022
+
+
+  -- Member procedures and functions
+  constructor function app#format_vc return self as result 
+  is
+  begin
+
+    self.initialize;
+    return;
+
+  end app#format_vc;
+
+  member procedure initialize 
+  is
+  begin
+
+    self.reset_data;
+
+  end initialize;
+
+  member procedure reset_data 
+  is
+  begin
+
+    self.data := null;
+    self.data_length := 0;
+
+  end reset_data;
+      
+
+  member procedure append
+  (
+    p_value        in varchar2,
+    p_include_crlf in boolean default false,
+    p_enclose_sq   in boolean default false
+  ) 
+  is
+  begin
+
+    app#fmt.append_vc(self.data, p_value, p_include_crlf, p_enclose_sq);
+    self.set_data_length;
+
+  end append;
+
+  member procedure append_clob(p_value in out nocopy clob) is
+    i number;
+    v_temp varchar2(32000);
+  begin
+
+    self.set_data_length;
+    i := dbms_lob.getlength(p_value);
+    if i + self.data_length < 32000 then
+      v_temp := dbms_lob.substr(p_value, i, 1);
+      self.append(v_temp);
+      self.set_data_length;
+    else
+      raise_application_error(-20100,'Data exceeds max varchar2 length');          
+    end if;
+    
+  end append_clob;
+
+  member procedure set_data_length 
+  is
+  begin
+
+    self.data_length := nvl(length(self.data), 0);
+
+  end set_data_length;
+
+  member function to_varchar return varchar2
+  is
+  begin
+  
+    return self.data;
+    
+  end to_varchar;
+  
+  member function to_clob return clob
+  is
+    v_return clob;
+  begin
+  
+    dbms_lob.createtemporary(v_return, false, dbms_lob.call);
+    app#fmt.append(v_return, self.data);
+    return v_return;
+
+  end to_clob;
+  
+end;

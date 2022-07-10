@@ -1,0 +1,7 @@
+create table TEST_PIPELINE_COLS
+(
+  COLUMN_NAME VARCHAR2(11),
+  TABLE_NAME  CHAR(13)
+)
+;
+
