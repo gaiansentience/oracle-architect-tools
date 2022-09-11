@@ -1,55 +1,49 @@
 create or replace type body app#excel_style is
-
-
--- Author  : Anthony Harper
--- Created : 12/20/2009
--- Reviewed: 03/21/2022
-
-  constructor function app#excel_style return self as result is
-  begin
-  
-    self.initialize;
-    self.initialize_style;
-    return;
-  
-  end app#excel_style;
-
-  constructor function app#excel_style
-  (
-    p_id   in varchar2,
-    p_name in varchar2
-  ) return self as result is
-  begin
-  
-    self.initialize;
-    self.initialize_style;
-    self.style_id   := p_id;
-    self.style_name := p_name;
-    return;
-  end app#excel_style;
-
-  member procedure initialize_style is
-  begin
-  
-    style_id      := null;
-    style_name    := null;
-    font          := null;
-    alignment     := null;
-    data_format   := null;
-    interior      := null;
-    border_bottom := null;
-    border_left   := null;
-    border_right  := null;
-    border_top    := null;
-    style_xml     := null;
-    dbms_lob.createtemporary(self.style_xml,
-                             false,
-                             dbms_lob.call);
-  
-  end initialize_style;
-
-  /* <Styles>
-   <Style ss:ID="Default" ss:Name="Normal">
+    
+    constructor function app#excel_style 
+    return self as result 
+    is
+    begin
+        self.initialize_style;
+        return;    
+    end app#excel_style;
+    
+    constructor function app#excel_style
+    (
+        p_id   in varchar2,
+        p_name in varchar2
+    ) return self as result 
+    is
+    begin
+    
+        self.initialize_style;
+        self.style_id   := p_id;
+        self.style_name := p_name;
+        return;
+    end app#excel_style;
+    
+    member procedure initialize_style 
+    is
+    begin
+        self.initialize;
+        style_id      := null;
+        style_name    := null;
+        attributes    := new app#attribs_set();
+        font          := new app#attribs_set();
+        alignment     := new app#attribs_set();
+        data_format   := new app#attribs_set();
+        interior      := new app#attribs_set();
+        border_top    := new app#attribs_set();
+        border_bottom := new app#attribs_set();
+        border_left   := new app#attribs_set();
+        border_right  := new app#attribs_set();
+        protection    := new app#attribs_set();
+        style_xml     := null;
+        dbms_lob.createtemporary(self.style_xml, false, dbms_lob.call);
+    end initialize_style;
+    
+    /*
+    <Style ss:ID="Default" ss:Name="Normal">
     <Alignment ss:Vertical="Bottom"/>
     <Borders/>
     or
@@ -73,25 +67,55 @@ create or replace type body app#excel_style is
     or
     <NumberFormat ss:Format="0"/>
     <Protection/>
-   </Style>
-  </Styles>*/
-
-  member procedure to_xml is
-    s_tag     varchar2(10) := 'Style';
-    v_inner_xml varchar2(32000);
-  begin
-  
-    self.open(s_tag);
+    </Style>
     
-    --build and add inner style data  
-    app#fmt.append(self.data, v_inner_xml);
+    */
+    member procedure set_style_attributes
+    is
+    begin
+        self.attributes.add_attribute('ss:ID', self.style_id);
+        self.attributes.add_attribute('ss:Name', self.style_name);
+    end set_style_attributes;
+        
+    member procedure to_xml 
+    is
+        s_tag  varchar2(10) := 'Style';
+        a_tag  varchar2(10) := 'Alignment';
+        bs_tag varchar2(10) := 'Borders';
+        b_tag  varchar2(10) := 'Border';
+        f_tag  varchar2(10) := 'Font';
+        i_tag  varchar2(10) := 'Interior';
+        nf_tag varchar2(10) := 'NumberFormat';
+        p_tag  varchar2(10) := 'Protection';
+        l_temp varchar2(4000);
+        
+    v_inner_xml varchar2(32000);
+    begin
+    
+        self.set_style_attributes;
+    
+        self.open(p_tag => s_tag, p_attributes => self.attributes.attributes_formatted);
+        self.empty(p_tag => a_tag, p_attributes => self.alignment.attributes_formatted);
 
-    self.close(s_tag);
-  
-    self.style_xml := self.data;
-  
-  end to_xml;
+        if (self.border_top.attrib_count + self.border_bottom.attrib_count + self.border_left.attrib_count + self.border_right.attrib_count) = 0 then
+            self.empty(p_tag => bs_tag);
+        else
+            self.open(p_tag => bs_tag);
+            self.empty(p_tag => b_tag, p_attributes => self.border_top.attributes_formatted);
+            self.empty(p_tag => b_tag, p_attributes => self.border_bottom.attributes_formatted);
+            self.empty(p_tag => b_tag, p_attributes => self.border_left.attributes_formatted);
+            self.empty(p_tag => b_tag, p_attributes => self.border_right.attributes_formatted);
+            self.close(p_tag => bs_tag);
+        end if;
 
+        self.empty(p_tag => f_tag, p_attributes => self.font.attributes_formatted);
+        self.empty(p_tag => i_tag, p_attributes => self.interior.attributes_formatted);
+        self.empty(p_tag => nf_tag, p_attributes => self.data_format.attributes_formatted);
+        self.empty(p_tag => p_tag, p_attributes => self.protection.attributes_formatted);
+
+        self.close(s_tag);
+        self.style_xml := self.data;
+    
+    end to_xml;
+    
 end;
-/
-

@@ -8,7 +8,7 @@ is
     -- Purpose : writing trace and error log entries
   
     --global constant for unknown reference id
-    c_reference_id_unknown constant app#types.pk_id := -999999;
+    c_reference_id_unknown constant app#env_util.reference_id := -999999;
 
     --expose set/get methods for controlling ALL writes to the log table
     procedure set_global_environment
@@ -30,7 +30,7 @@ is
     --expose set/get methods for controlling specific package instrumentation
     procedure set_package_environment
     (
-        p_package       in app#types.key,
+        p_package       in app#env_util.environment_key,
         p_enable_errors in boolean default true,
         p_enable_traces in boolean default false,
         p_enable_audits in boolean default true,
@@ -39,7 +39,7 @@ is
 
     procedure get_package_environment
     (
-        p_package       in app#types.key,
+        p_package       in app#env_util.environment_key,
         p_enable_errors out boolean,
         p_enable_traces out boolean,
         p_enable_audits out boolean,
@@ -59,40 +59,40 @@ is
     --write an exception entry to the logs
     procedure write_exception
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     );
 
     --write a trace entry to the logs
     procedure write_trace
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     );
 
     --write an audit entry to the logs
     --(set the preserve on purge flag for all audits)
     procedure write_audit
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     );
 
     --write a timing entry to the logs
     procedure write_timing
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_start   in timestamp,
         p_stop    in timestamp,
         p_message in varchar2 default null,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     );
 
     --expose simple purge functionality

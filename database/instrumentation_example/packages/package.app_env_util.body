@@ -1,89 +1,88 @@
 create or replace package body app#env_util is
 
 
-    g_app_user app#types.osuser;
-    g_db_user varchar2(30);
-    g_os_user varchar2(100);
-    g_db_sid number;
+    g_app_user application_user;
+    g_db_user  application_user;
+    g_os_user  application_user;
+    g_db_sid   number;
 
     procedure initialize 
     is
     begin
-
         g_app_user := sys_context('USERENV', 'OS_USER');
-    
         g_db_user := user;
-        
         g_os_user := sys_context('userenv', 'os_user');
-        
         g_db_sid := sys_context('userenv','sid');
-  
     end initialize;
   
-    procedure set_app_user(p_user in app#types.osuser default user)
+    procedure set_app_user
+    (
+        p_user in application_user default user
+    )
     is
     begin
-  
         if p_user is not null then
             g_app_user := p_user;
         end if;
-  
     end set_app_user;
 
-    function app_user(p_override in app#types.osuser default null) return app#types.osuser
+    function app_user
+    (
+        p_override in application_user default null
+    ) return application_user
     is
     begin
-  
         if p_override is not null then
             set_app_user(p_override);
         end if;
-  
         return g_app_user;
-  
     end app_user;
 
-    function os_user return varchar2
+    function os_user 
+    return application_user
     is
     begin
         return g_os_user;
     end os_user;
   
-    function db_user return varchar2
+    function db_user 
+    return application_user
     is
     begin
         return g_db_user;
     end db_user;
     
-    function db_sid return number
+    function db_sid 
+    return number
     is
     begin
         return g_db_sid;
     end db_sid;
     
-    function value_exists(p_key in app#types.key) return boolean 
+    function value_exists
+    (
+        p_key in environment_key
+    ) return boolean 
     is
         i        number := 0;
     begin
-  
         select count(*)
         into   i
         from   app#environment e
         where  e.setting = p_key;
-    
         return (i = 1);
-  
     end value_exists;
 
     procedure set_value
     (
-        p_key     in app#types.key,
-        p_value   in varchar2,
-        p_purpose in app#types.description default null
+        p_key     in environment_key,
+        p_value   in environment_value,
+        p_purpose in environment_description default null
     ) 
     is
+        pragma autonomous_transaction;
         r app#environment%rowtype;
     begin
-  
         r.setting      := p_key;
         r.value        := p_value;
         r.purpose      := p_purpose;
@@ -91,54 +90,48 @@ create or replace package body app#env_util is
         r.created_by   := app#env_util.app_user;
         r.updated_date := sysdate;
         r.updated_by   := app#env_util.app_user;
-  
         if value_exists(p_key) = false then
-    
             insert into app#environment values r;
-    
         else
-    
             update app#environment e
             set    
                 e.value        = r.value,
                 e.updated_date = r.updated_date,
                 e.updated_by   = r.updated_by
             where e.setting = p_key;
-    
         end if;
-  
         commit;
-  
+    exception
+        when others then
+            rollback;
     end set_value;
 
-    function get_value(p_key in app#types.key) return varchar2 
+    function get_value
+    (
+        p_key in environment_key
+    ) return environment_value 
     is
-        l_value varchar2(100);
+        l_value environment_value;
     begin
-  
         if value_exists(p_key) then
-    
             select e.value
             into   l_value
             from   app#environment e
             where  e.setting = p_key;
-    
         else
             --environment setting has not been saved to table
             l_value := p_key || ' is not defined.';
         end if;
-  
         return l_value;
-  
     end get_value;
 
     --expose set/get methods for storing numeric flags in environment
     --numeric flags are used to store booleans in tables
     procedure set_flag
     (
-        p_key     in app#types.key,
-        p_flag    in number default 0,
-        p_purpose in app#types.description
+        p_key     in environment_key,
+        p_flag    in environment_flag default 0,
+        p_purpose in environment_description
     ) 
     is
     begin
@@ -146,7 +139,10 @@ create or replace package body app#env_util is
     end set_flag;
 
     --return default value of 0 for undefined flags
-    function get_flag(p_key in app#types.key) return number 
+    function get_flag
+    (
+        p_key in environment_key
+    ) return environment_flag 
     is
     begin
         return app#bool.val_to_flag(get_value(p_key));
@@ -156,9 +152,9 @@ create or replace package body app#env_util is
     --boolean switches are used to expose flags to plsql
     procedure set_switch
     (
-        p_key     in app#types.key,
-        p_switch  in boolean default false,
-        p_purpose in app#types.description
+        p_key     in environment_key,
+        p_switch  in environment_switch default false,
+        p_purpose in environment_description
     ) 
     is
     begin
@@ -166,23 +162,26 @@ create or replace package body app#env_util is
     end set_switch;
 
     --return default value of false for undefined switches
-    function get_switch(p_key in app#types.key) return boolean 
+    function get_switch
+    (
+        p_key in environment_key
+    ) return environment_switch 
     is
     begin
         return app#bool.val_to_switch(get_value(p_key));
     end get_switch;
 
-    procedure get_all(p_settings out sys_refcursor) 
+    procedure get_all
+    (
+        p_settings out sys_refcursor
+    ) 
     is
     begin
-  
         open p_settings for
             select *
             from app#environment a;
-  
     end get_all;
 
 begin
     initialize;
 end app#env_util;
-

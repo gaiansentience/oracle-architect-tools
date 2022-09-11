@@ -89,6 +89,11 @@ as object
     static function space
     (
         p_number_spaces in number default 1
+    ) return varchar2,
+
+    static function dash
+    (
+        p_number_dashes in number default 1
     ) return varchar2
 
 );

@@ -3,23 +3,16 @@ create or replace type body app#attrib is
     constructor function app#attrib return self as result 
     is
     begin
-
         self.initialize;
-
         return;
-
     end app#attrib;
 
     constructor function app#attrib(p_formatted_attribute in varchar2) return self as result 
     is
     begin
-
         self.initialize;
-
         self.parse(p_formatted_attribute);
-
         return;
-
     end app#attrib;
 
     constructor function app#attrib
@@ -29,22 +22,19 @@ create or replace type body app#attrib is
     ) return self as result 
     is
     begin
-
         self.initialize;
-        self.name  := p_name;
-        self.value := p_value;
+        self.attrib_name  := p_name;
+        self.attrib_value := p_value;
         self.build;
-
         return;
-
     end app#attrib;
 
     member procedure initialize 
     is
     begin
 
-        self.name      := null;
-        self.value     := null;
+        self.attrib_name      := null;
+        self.attrib_value     := null;
         self.attribute := null;
 
     end initialize;
@@ -53,7 +43,7 @@ create or replace type body app#attrib is
     is
     begin
 
-        self.attribute := self.name || app#fmt.equal || app#fmt.quote(self.value, true);
+        self.attribute := self.attrib_name || app#fmt.equal || app#fmt.quote(self.attrib_value, true);
 
     end build;
 
@@ -77,21 +67,18 @@ create or replace type body app#attrib is
         i := instr(p_attribute, app#fmt.equal, 1);
 
         --get the name
-        self.name := substr(p_attribute, 1, i - 1);
-        self.name := trim(self.name);
+        self.attrib_name := trim(substr(p_attribute, 1, i - 1));
 
         --get the value
-        self.value := substr(p_attribute, i + 1);
-        --trim spaces from the value
-        self.value := trim(both from self.value);
-        l_delimiter := substr(self.value, 1, 1);
+        self.attrib_value := trim(substr(p_attribute, i + 1));
+        l_delimiter := substr(self.attrib_value, 1, 1);
         case 
             when l_delimiter = app#fmt.dq then 
-                self.value := trim(both app#fmt.dq from self.value);
+                self.attrib_value := trim(both app#fmt.dq from self.attrib_value);
             when l_delimiter = app#fmt.sq then
-                self.value := trim(both app#fmt.sq from self.value);
+                self.attrib_value := trim(both app#fmt.sq from self.attrib_value);
                 --if attribute had internal double quotes with sq delimiter, convert to sq
-                self.value := replace(self.value, app#fmt.dq, app#fmt.sq);
+                self.attrib_value := replace(self.attrib_value, app#fmt.dq, app#fmt.sq);
             else
                 null;
         end case;

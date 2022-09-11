@@ -1,20 +1,20 @@
 create or replace package body app#log_util is
 
     c_max_table_varchar constant integer := 4000;
-    c_max_object_name   constant integer := 100;
+    c_max_object_name   constant integer := 128;
 
     --constants for environment variables
-    c_env_enable_pkg    constant app#types.key := 'ENABLE_PACKAGE_LOGS_FOR';
-    c_env_enable_global constant app#types.key := 'ENABLE_GLOBAL_LOGS_FOR';
+    c_env_enable_pkg    constant app#env_util.environment_key := 'ENABLE_PACKAGE_LOGS_FOR';
+    c_env_enable_global constant app#env_util.environment_key := 'ENABLE_GLOBAL_LOGS_FOR';
     
     --constants for log entry types
-    c_error constant app#types.key := 'EXCEPTION';
-    c_trace constant app#types.key := 'TRACE';
-    c_audit constant app#types.key := 'AUDIT';
-    c_timer constant app#types.key := 'TIMER';
+    c_error constant app#env_util.environment_key := 'EXCEPTION';
+    c_trace constant app#env_util.environment_key := 'TRACE';
+    c_audit constant app#env_util.environment_key := 'AUDIT';
+    c_timer constant app#env_util.environment_key := 'TIMER';
     
-    c_unspecified constant app#types.key := 'UNSPECIFIED';
-    c_underscore  constant app#types.key := '_';
+    c_unspecified constant app#env_util.environment_key := 'UNSPECIFIED';
+    c_underscore  constant app#env_util.environment_key := '_';
     
     --variables to control ALL log activity
     g_enable_exceptions boolean := true;
@@ -25,11 +25,11 @@ create or replace package body app#log_util is
     --private procedure to set environment switch value
     procedure set_env_switch
     (
-        p_env_variable in app#types.key,
+        p_env_variable in app#env_util.environment_key,
         p_enabled      in boolean
     ) 
     is
-        l_description app#types.description;
+        l_description app#env_util.environment_description;
     begin
         l_description := initcap(replace(p_env_variable, c_underscore, ' '));
         app#env_util.set_switch(p_env_variable, p_enabled, l_description);
@@ -57,12 +57,12 @@ create or replace package body app#log_util is
     --build a logging environment variable name
     function fmt_env_var
     (
-        p_variable_base in app#types.key,
-        p_log_type      in app#types.key,
-        p_package       in app#types.key default null
-    ) return app#types.key 
+        p_variable_base in app#env_util.environment_key,
+        p_log_type      in app#env_util.environment_key,
+        p_package       in app#env_util.environment_key default null
+    ) return app#env_util.environment_key 
     is
-        l_variable app#types.key;
+        l_variable app#env_util.environment_key;
     begin
         append(l_variable, p_variable_base);
         if p_package is not null then
@@ -82,12 +82,10 @@ create or replace package body app#log_util is
     ) 
     is
     begin
-
         set_env_switch(fmt_env_var(c_env_enable_global, c_error), p_enable_errors);
         set_env_switch(fmt_env_var(c_env_enable_global, c_trace), p_enable_traces);
         set_env_switch(fmt_env_var(c_env_enable_global, c_audit), p_enable_audits);
         set_env_switch(fmt_env_var(c_env_enable_global, c_timer), p_enable_timers);
-
     end set_global_environment;
 
     procedure get_global_environment
@@ -99,12 +97,10 @@ create or replace package body app#log_util is
     ) 
     is
     begin
-
         p_enable_errors := app#env_util.get_switch(fmt_env_var(c_env_enable_global, c_error));
         p_enable_traces := app#env_util.get_switch(fmt_env_var(c_env_enable_global, c_trace));
         p_enable_audits := app#env_util.get_switch(fmt_env_var(c_env_enable_global, c_audit));
         p_enable_timers := app#env_util.get_switch(fmt_env_var(c_env_enable_global, c_timer));
-
     end get_global_environment;
 
     procedure initialize is
@@ -115,9 +111,9 @@ create or replace package body app#log_util is
 
     function fmt_pkg_env_var
     (
-        p_package  in app#types.key,
-        p_log_type in app#types.key
-    ) return app#types.key 
+        p_package  in app#env_util.environment_key,
+        p_log_type in app#env_util.environment_key
+    ) return app#env_util.environment_key 
     is
     begin
         return fmt_env_var(c_env_enable_pkg, p_log_type, p_package);
@@ -126,7 +122,7 @@ create or replace package body app#log_util is
     --expose set/get methods for controlling specific package instrumentation
     procedure set_package_environment
     (
-        p_package       in app#types.key,
+        p_package       in app#env_util.environment_key,
         p_enable_errors in boolean default true,
         p_enable_traces in boolean default false,
         p_enable_audits in boolean default true,
@@ -134,17 +130,15 @@ create or replace package body app#log_util is
     ) 
     is
     begin
-
         set_env_switch(fmt_pkg_env_var(p_package, c_error), p_enable_errors);
         set_env_switch(fmt_pkg_env_var(p_package, c_trace), p_enable_traces);
         set_env_switch(fmt_pkg_env_var(p_package, c_audit), p_enable_audits);
         set_env_switch(fmt_pkg_env_var(p_package, c_timer), p_enable_timers);
-
     end set_package_environment;
 
     procedure get_package_environment
     (
-        p_package       in app#types.key,
+        p_package       in app#env_util.environment_key,
         p_enable_errors out boolean,
         p_enable_traces out boolean,
         p_enable_audits out boolean,
@@ -152,12 +146,10 @@ create or replace package body app#log_util is
     ) 
     is
     begin
-
         p_enable_errors := app#env_util.get_switch(fmt_pkg_env_var(p_package, c_error));
         p_enable_traces := app#env_util.get_switch(fmt_pkg_env_var(p_package, c_trace));
         p_enable_audits := app#env_util.get_switch(fmt_pkg_env_var(p_package, c_audit));
         p_enable_timers := app#env_util.get_switch(fmt_pkg_env_var(p_package, c_timer));
-
     end get_package_environment;
 
     --enable instrumentation for all packages
@@ -174,24 +166,17 @@ create or replace package body app#log_util is
         from user_objects
         where object_type = 'PACKAGE';
     begin
-
         for r in c loop
-    
             set_package_environment(r.object_name, p_enable_errors, p_enable_traces, p_enable_audits, p_enable_timers);
-    
         end loop;
-
     end set_all_package_environments;
 
     procedure remove_all_package_environments
     is
     begin
-  
         delete from app#environment e
         where e.setting like 'ENABLE_PACKAGE_LOGS_FOR%';
-    
         commit;
-    
     end remove_all_package_environments;
 
 
@@ -199,11 +184,8 @@ create or replace package body app#log_util is
     is
         pragma autonomous_transaction;
     begin
-
         insert into app#logs values r_entry;
-
         commit;
-
     exception
         when others then
             rollback;
@@ -213,11 +195,11 @@ create or replace package body app#log_util is
     procedure set_values
     (
         r_entry    in out app#logs%rowtype,
-        p_log_type in app#types.key,
-        p_object   in app#types.key,
-        p_method   in app#types.key,
+        p_log_type in app#env_util.environment_key,
+        p_object   in app#env_util.environment_key,
+        p_method   in app#env_util.environment_key,
         p_message  in varchar2,
-        p_ref_id   in app#types.pk_id
+        p_ref_id   in app#env_util.reference_id
     ) 
     is
         function cut
@@ -230,14 +212,12 @@ create or replace package body app#log_util is
             return substr(p_val, 1, p_maxlen);
         end cut;
     begin
-
         r_entry.log_type := p_log_type;
         if r_entry.log_type = c_audit then
             r_entry.preserve_on_purge := 1;
         else
             r_entry.preserve_on_purge := 0;
         end if;
-    
         r_entry.object_name   := nvl(cut(p_object, c_max_object_name), c_unspecified);
         r_entry.object_method := nvl(cut(p_method, c_max_object_name), c_unspecified);
         r_entry.reference_id  := nvl(p_ref_id, c_reference_id_unknown);
@@ -247,16 +227,15 @@ create or replace package body app#log_util is
         r_entry.db_user_name  := app#env_util.db_user;
         r_entry.db_session_id := app#env_util.db_sid;
         r_entry.created_date  := sysdate;
-
     end set_values;
 
     --write an exception entry to the logs
     procedure write_exception
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     ) 
     is
         r_entry app#logs%rowtype;
@@ -268,10 +247,10 @@ create or replace package body app#log_util is
     --write a trace entry to the logs
     procedure write_trace
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     ) 
     is
         r_entry app#logs%rowtype;
@@ -284,10 +263,10 @@ create or replace package body app#log_util is
     --(set the preserve on purge flag for all audits)
     procedure write_audit
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_message in varchar2,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     ) 
     is
         r_entry app#logs%rowtype;
@@ -326,12 +305,12 @@ create or replace package body app#log_util is
     --write a timing entry to the logs
     procedure write_timing
     (
-        p_object  in app#types.key,
-        p_method  in app#types.key,
+        p_object  in app#env_util.environment_key,
+        p_method  in app#env_util.environment_key,
         p_start   in timestamp,
         p_stop    in timestamp,
         p_message in varchar2 default null,
-        p_ref_id  in app#types.pk_id default c_reference_id_unknown
+        p_ref_id  in app#env_util.reference_id default c_reference_id_unknown
     ) 
     is
         r_entry app#logs%rowtype;

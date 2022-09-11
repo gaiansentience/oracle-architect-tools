@@ -4,13 +4,14 @@ as object
 (
     -- Author  : Anthony Harper, gaiansentience@gmail.com
     -- Created : 12/20/2009
-    -- Updated : 09/10/2022
+    -- Updated : 09/11/2022
     -- Purpose : string object for markup types
 
     data                varchar2(32767),
     data_length         number,
 
-    constructor function app#format_vc return self as result,
+    constructor function app#format_vc 
+    return self as result,
 
     member procedure initialize,
 
@@ -29,6 +30,6 @@ as object
   
     member function to_varchar return varchar2,
   
-    member function to_clob return clob
+    member function toclob return clob
 )
 not final;

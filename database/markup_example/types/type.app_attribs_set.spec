@@ -31,11 +31,12 @@ as object
     ),
 
     member procedure add_formatted_attribute(p_formatted_attribute in varchar2),
+    
+    member function attrib_count
+    return number,
 
     member procedure format_all,
 
     member procedure parse_all
 
 );
-
-

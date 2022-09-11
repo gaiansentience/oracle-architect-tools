@@ -93,19 +93,15 @@ create or replace type body app#fmt is
         v_return   varchar2(10);
         v_line_end varchar2(10);
     begin
-
         if p_lf_only then
             v_line_end := chr(10);
         else
             v_line_end := chr(13) || chr(10);
         end if;
-
         for i in 1 .. p_lines loop
             v_return := v_line_end;
         end loop;
-
         return v_return;
-
     end crlf;
 
     static function sq return varchar2 
@@ -128,15 +124,12 @@ create or replace type body app#fmt is
     is
         v_value varchar2(32000);
     begin
-
         if p_use_double_quote = true then
             v_value := app#fmt.dq || p_value || app#fmt.dq;
         else
             v_value := app#fmt.sq || p_value || app#fmt.sq;
         end if;
-
         return v_value;
-
     end quote;
 
     static function question return varchar2 
@@ -232,9 +225,17 @@ create or replace type body app#fmt is
     ) return varchar2 
     is
     begin
-        
         return lpad(chr(32), p_number_spaces, chr(32));
-
     end space;
+    
+    static function dash
+    (
+        p_number_dashes in number default 1
+    ) return varchar2
+    is
+    begin
+        return lpad(chr(45), p_number_dashes, chr(45));
+    end dash;
+
 
 end;

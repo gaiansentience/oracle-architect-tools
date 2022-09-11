@@ -51,20 +51,14 @@ create or replace type body app#attribs_set is
 
     member procedure add_attribute(p_attribute in app#attrib) 
     is
-        i number;
     begin
 
         if self.attributes is null then
             self.attributes := new app#attribs();
         end if;
-            --get the next item in the collection
-            i := self.attributes.count + 1;
-            --add an element to the collection
-            self.attributes.extend;
-            --assign the attribute to the new element
-            self.attributes(i) := p_attribute;
+        self.attributes.extend;
+        self.attributes(self.attributes.last) := p_attribute;
 
-        --since an attribute was added,
         --build the formatted collection so it can be used
         self.format_all;
 
@@ -76,13 +70,10 @@ create or replace type body app#attribs_set is
         p_value in varchar2
     ) 
     is
-        v_attribute app#attrib;
+        l_attribute app#attrib;
     begin
-
-        v_attribute := new app#attrib(p_name, p_value);
-
-        self.add_attribute(v_attribute);
-
+        l_attribute := new app#attrib(p_name, p_value);
+        self.add_attribute(l_attribute);
     end add_attribute;
 
     member procedure add_formatted_attribute(p_formatted_attribute in varchar2) 
@@ -91,8 +82,14 @@ create or replace type body app#attribs_set is
     begin
         l_attribute := new app#attrib(p_formatted_attribute);
         self.add_attribute(l_attribute);
-
     end add_formatted_attribute;
+
+    member function attrib_count
+    return number
+    is
+    begin
+        return self.attributes.count;
+    end attrib_count;
 
     member procedure format_all 
     is

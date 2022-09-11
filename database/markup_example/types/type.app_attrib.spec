@@ -7,8 +7,8 @@ as object
     -- Updated : 09/10/2022
     -- Purpose : attribute type to support markup languages
 
-    name      varchar2(4000),
-    value     varchar2(4000),
+    attrib_name      varchar2(4000),
+    attrib_value     varchar2(4000),
     attribute varchar2(4000),
 
     constructor function app#attrib return self as result,
