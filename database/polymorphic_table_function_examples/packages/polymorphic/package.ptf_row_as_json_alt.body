@@ -1,0 +1,87 @@
+create or replace package body ptf_row_as_json_alt as
+    
+    function describe
+    (
+        p_table in out dbms_tf.table_t,
+        p_cols in dbms_tf.columns_t default null,
+        p_show_unused in varchar2 default 'YES',
+        p_show_used in varchar2 default 'YES'
+    ) return dbms_tf.describe_t 
+    is
+        new_col dbms_tf.column_metadata_t;
+        out_cols dbms_tf.columns_new_t := dbms_tf.columns_new_t();
+    begin
+    
+        for i in 1..p_table.column.count loop
+    
+            --only read the column if it is in the included set
+            if p_cols is null or p_table.column(i).description.name member of p_cols then
+                --only need to validate supported types for read/new columns
+                if not dbms_tf.supported_type(p_table.column(i).description.type) then
+                    raise_application_error(-20100, 'Source contains unsupported datatype: ' || p_table.column(i).description.type);
+                end if;
+    
+                p_table.column(i).for_read := true;
+    
+                if p_show_used = 'YES' then
+                    p_table.column(i).pass_through := true;
+                else
+                    --by default hide the column if it is in the output json content
+                    p_table.column(i).pass_through := false;
+                end if;
+            else
+                if p_show_unused = 'YES' then
+                    p_table.column(i).pass_through := true;
+                else
+                    --hide unused columns and dont read them
+                    p_table.column(i).pass_through := false;
+                end if;
+                p_table.column(i).for_read := false;
+            end if;
+    
+        end loop;
+    
+        --define new column for document contents and add to out cols
+        new_col := dbms_tf.column_metadata_t(name => 'DOCUMENT', type => dbms_tf.type_varchar2);
+        out_cols(1) := new_col;
+    
+        return dbms_tf.describe_t(new_columns => out_cols);
+    
+    end describe;
+    
+    procedure open 
+    is
+    begin
+        null;
+    end open;
+    
+    procedure fetch_rows
+    (
+        p_show_unused in varchar2 default 'YES',
+        p_show_used in varchar2 default 'YES'  
+    )
+    is
+        all_rows dbms_tf.row_set_t;
+        new_col dbms_tf.tab_varchar2_t;
+        rows_fetched pls_integer;
+    begin
+    
+        --get the currently fetched rows
+        dbms_tf.get_row_set(all_rows, row_count => rows_fetched);
+        
+        for row_index in 1 .. rows_fetched loop 
+            --build the json string output for each row
+            new_col(row_index) := dbms_tf.row_to_char(all_rows, row_index, dbms_tf.format_json); 
+        end loop;
+    
+        dbms_tf.put_col(1, new_col);
+    
+    end fetch_rows;
+    
+    procedure close 
+    is
+    begin
+        null;
+    end close;
+
+end ptf_row_as_json_alt;

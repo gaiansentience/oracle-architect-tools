@@ -1,0 +1,1 @@
+drop view ptf_test_data_source_v;

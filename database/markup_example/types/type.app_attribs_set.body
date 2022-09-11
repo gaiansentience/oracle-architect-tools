@@ -1,0 +1,163 @@
+create or replace type body app#attribs_set is
+
+    constructor function app#attribs_set return self as result 
+    is
+    begin
+
+        self.initialize;
+        return;
+
+    end app#attribs_set;
+
+    constructor function app#attribs_set(p_formatted_attribute_set in varchar2) return self as result 
+    is
+    begin
+
+        self.initialize;
+        self.attributes_formatted := trim(p_formatted_attribute_set);
+        --need to parse all attributes into the attribute collection
+        self.parse_all;
+        return;
+
+    end app#attribs_set;
+
+    constructor function app#attribs_set
+    (
+        p_name  in varchar2,
+        p_value in varchar2
+    ) return self as result 
+    is
+        v_attribute app#attrib;
+    begin
+        v_attribute := new app#attrib(p_name, p_value);
+
+        self.initialize;
+        self.attributes := app#attribs(v_attribute);
+
+        return;
+
+    end app#attribs_set;
+
+    member procedure initialize 
+    is
+    begin
+
+        if self.attributes.exists(1) = true then
+            self.attributes.delete;
+        end if;
+        self.attributes_formatted := null;
+
+    end initialize;
+
+    member procedure add_attribute(p_attribute in app#attrib) 
+    is
+        i number;
+    begin
+
+        if self.attributes is null then
+            self.attributes := new app#attribs();
+        end if;
+            --get the next item in the collection
+            i := self.attributes.count + 1;
+            --add an element to the collection
+            self.attributes.extend;
+            --assign the attribute to the new element
+            self.attributes(i) := p_attribute;
+
+        --since an attribute was added,
+        --build the formatted collection so it can be used
+        self.format_all;
+
+    end add_attribute;
+
+    member procedure add_attribute
+    (
+        p_name  in varchar2,
+        p_value in varchar2
+    ) 
+    is
+        v_attribute app#attrib;
+    begin
+
+        v_attribute := new app#attrib(p_name, p_value);
+
+        self.add_attribute(v_attribute);
+
+    end add_attribute;
+
+    member procedure add_formatted_attribute(p_formatted_attribute in varchar2) 
+    is
+        l_attribute app#attrib;
+    begin
+        l_attribute := new app#attrib(p_formatted_attribute);
+        self.add_attribute(l_attribute);
+
+    end add_formatted_attribute;
+
+    member procedure format_all 
+    is
+        i               number;
+        v_formatted_set varchar2(4000);
+    begin
+
+        self.attributes_formatted := null;
+
+        if self.attributes.exists(1) = false then
+            self.attributes_formatted := null;
+        else
+
+            for i in 1 .. self.attributes.count loop
+
+                v_formatted_set := trim(v_formatted_set) || ' ' || self.attributes(i).attribute;
+
+            end loop;
+
+            self.attributes_formatted := v_formatted_set;
+
+        end if;
+
+    end format_all;
+
+    member procedure parse_all 
+    is
+        l_equals_position number;
+        l_end_position number;
+        l_delimiter varchar2(1);
+        l_temp     varchar2(32000);
+        l_attrib   varchar2(4000);
+    begin
+
+        /*  attribute examples
+        name="Henry Davidson"
+        name="Henry=Davidson" age="22" hair="brown and red"
+        ns1:name="Henry Davidson" ns1:age="22" ns1:hair="brown"
+        name='Henry Davidson'
+        name='Henry Davidson' age='22' hair='brown'
+        ns1:name='Henry Davidson' ns1:age='22' ns1:hair='brown'
+        regexp_substr(value, regex, 1) would give the attributes
+        */
+        --clear all current attributes
+        self.attributes := new app#attribs();
+        --with the full set of formatted attributes,
+        --parse into the attributes collection
+        l_temp := trim(self.attributes_formatted);
+        self.attributes_formatted := null;
+        
+        while l_temp is not null loop
+            --this should be a regular expression search
+            
+            l_equals_position := instr(l_temp, '=', 1);
+            l_delimiter := substr(l_temp, l_equals_position + 1, 1);
+            l_end_position := instr(l_temp, l_delimiter, 1, 2);
+            l_attrib := substr(l_temp, 1, l_end_position);
+
+            self.add_formatted_attribute(l_attrib);
+            
+            l_temp := trim(substr(l_temp, l_end_position + 1));
+            exit when l_temp is null or length(l_temp) < 4;
+            
+        end loop;
+
+    end parse_all;
+
+end;

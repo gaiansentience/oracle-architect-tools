@@ -1,0 +1,58 @@
+create or replace package body ptf_add_random as
+    
+    function describe
+    (
+        p_table in out dbms_tf.table_t,
+        p_rnd_cols in naturaln default 1,
+        p_low in number default null,
+        p_high in number default null
+    ) return dbms_tf.describe_t 
+    is
+        out_cols dbms_tf.columns_new_t := dbms_tf.columns_new_t();
+    begin
+    
+        --no read columns to validate for ptf supported datatypes
+    
+        --define new columns for random values and add to out cols
+        for i in 1..p_rnd_cols loop
+            out_cols(i) := dbms_tf.column_metadata_t(name => 'RANDOM_' || i, type => dbms_tf.type_number);
+        end loop;
+    
+        return dbms_tf.describe_t(new_columns => out_cols);
+    
+    end describe;
+    
+    procedure open 
+    is
+    begin
+        null;
+    end open;
+    
+    procedure fetch_rows
+    (
+        p_rnd_cols in naturaln default 1,
+        p_low in number default null,
+        p_high in number default null  
+    )
+    is
+        all_rows dbms_tf.row_set_t;
+        new_col dbms_tf.tab_number_t;
+        rows_fetched constant pls_integer := dbms_tf.get_env().row_count;
+    begin
+    
+        for c in 1..p_rnd_cols loop
+            for row_index in 1 .. rows_fetched loop 
+                new_col(row_index) := case when p_low is null or p_high is null then dbms_random.value else dbms_random.value(p_low, p_high) end;
+            end loop;
+            dbms_tf.put_col(c, new_col);
+        end loop;
+    
+    end fetch_rows;
+    
+    procedure close 
+    is
+    begin
+        null;
+    end close;
+
+end ptf_add_random;

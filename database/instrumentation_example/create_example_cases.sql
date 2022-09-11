@@ -1,0 +1,3 @@
+prompt installing implementation examples
+@packages/example_implementations/create_example_packages.sql;
+prompt created implementation examples

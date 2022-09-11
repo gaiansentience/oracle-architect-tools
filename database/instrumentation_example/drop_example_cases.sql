@@ -1,0 +1,3 @@
+prompt drop implementation examples
+@packages/example_implementations/drop_example_packages.sql;
+prompt dropped implementation examples

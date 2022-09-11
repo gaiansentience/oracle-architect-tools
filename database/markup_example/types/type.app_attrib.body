@@ -1,0 +1,103 @@
+create or replace type body app#attrib is
+
+    constructor function app#attrib return self as result 
+    is
+    begin
+
+        self.initialize;
+
+        return;
+
+    end app#attrib;
+
+    constructor function app#attrib(p_formatted_attribute in varchar2) return self as result 
+    is
+    begin
+
+        self.initialize;
+
+        self.parse(p_formatted_attribute);
+
+        return;
+
+    end app#attrib;
+
+    constructor function app#attrib
+    (
+        p_name  in varchar2,
+        p_value in varchar2
+    ) return self as result 
+    is
+    begin
+
+        self.initialize;
+        self.name  := p_name;
+        self.value := p_value;
+        self.build;
+
+        return;
+
+    end app#attrib;
+
+    member procedure initialize 
+    is
+    begin
+
+        self.name      := null;
+        self.value     := null;
+        self.attribute := null;
+
+    end initialize;
+
+    member procedure build 
+    is
+    begin
+
+        self.attribute := self.name || app#fmt.equal || app#fmt.quote(self.value, true);
+
+    end build;
+
+    member procedure parse(p_attribute in varchar2) 
+    is
+        i number;
+        l_delimiter varchar2(10);
+    begin
+        /*  attribute examples
+        name="Henry Davidson"
+        name="Henry=Davidson" age="22" hair="brown"
+        ns1:name="Henry Davidson" ns1:age="22" ns1:hair="brown"
+        name='Henry Davidson'
+        name='Henry Davidson' age='22' hair='brown'
+        ns1:name='Henry Davidson' ns1:age='22' ns1:hair='brown'
+        */
+
+        self.attribute := p_attribute;
+
+        --find the first = sign (name="value")
+        i := instr(p_attribute, app#fmt.equal, 1);
+
+        --get the name
+        self.name := substr(p_attribute, 1, i - 1);
+        self.name := trim(self.name);
+
+        --get the value
+        self.value := substr(p_attribute, i + 1);
+        --trim spaces from the value
+        self.value := trim(both from self.value);
+        l_delimiter := substr(self.value, 1, 1);
+        case 
+            when l_delimiter = app#fmt.dq then 
+                self.value := trim(both app#fmt.dq from self.value);
+            when l_delimiter = app#fmt.sq then
+                self.value := trim(both app#fmt.sq from self.value);
+                --if attribute had internal double quotes with sq delimiter, convert to sq
+                self.value := replace(self.value, app#fmt.dq, app#fmt.sq);
+            else
+                null;
+        end case;
+
+        self.build;
+
+    end parse;
+
+end;

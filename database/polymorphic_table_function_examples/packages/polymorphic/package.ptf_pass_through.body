@@ -1,0 +1,34 @@
+create or replace package body ptf_pass_through as
+
+    function describe(
+        p_table in out dbms_tf.table_t
+    ) return dbms_tf.describe_t 
+    is
+    begin
+        --simple passthrough sets no columns for read or pass
+        --even supposed to handle unsupported datatypes
+    
+        --no new columns to return
+        return null;    
+    
+    end describe;
+    
+    procedure open 
+    is
+    begin
+        null;
+    end open;
+    
+    procedure fetch_rows 
+    is
+    begin   
+        null;
+    end fetch_rows;
+    
+    procedure close 
+    is
+    begin
+        null;
+    end close;
+    
+end ptf_pass_through;

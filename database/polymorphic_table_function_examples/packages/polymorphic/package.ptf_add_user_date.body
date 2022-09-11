@@ -1,0 +1,51 @@
+create or replace package body ptf_add_user_date as
+
+    function describe
+    (
+        p_table in out dbms_tf.table_t
+    ) return dbms_tf.describe_t 
+    is
+        out_cols dbms_tf.columns_new_t := dbms_tf.columns_new_t();
+    begin
+
+        --no read columns to validate for ptf supported datatypes
+
+        --define new columns for user and date and add to out cols
+    
+        out_cols(1) := dbms_tf.column_metadata_t(name => 'QUERY_USER', type => dbms_tf.type_varchar2);
+        out_cols(2) := dbms_tf.column_metadata_t(name => 'QUERY_DATE', type => dbms_tf.type_date);
+
+        return dbms_tf.describe_t(new_columns => out_cols);
+
+    end describe;
+
+    procedure open 
+    is
+    begin
+        null;
+    end open;
+
+    procedure fetch_rows
+    is
+        all_rows dbms_tf.row_set_t;
+        user_col dbms_tf.tab_varchar2_t;
+        date_col dbms_tf.tab_date_t;
+        rows_fetched constant pls_integer := dbms_tf.get_env().row_count;
+    begin
+
+      for row_index in 1 .. rows_fetched loop 
+	       user_col(row_index) := user;
+           date_col(row_index) := sysdate;
+      end loop;
+      dbms_tf.put_col(1, user_col);
+      dbms_tf.put_col(2, date_col);
+    
+    end fetch_rows;
+
+    procedure close 
+    is
+    begin
+        null;
+    end close;
+
+end ptf_add_user_date;
