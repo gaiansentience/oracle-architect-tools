@@ -212,6 +212,7 @@ create or replace package body app#log_util is
             return substr(p_val, 1, p_maxlen);
         end cut;
     begin
+        r_entry.log_id := app#log_seq.nextval;
         r_entry.log_type := p_log_type;
         if r_entry.log_type = c_audit then
             r_entry.preserve_on_purge := 1;

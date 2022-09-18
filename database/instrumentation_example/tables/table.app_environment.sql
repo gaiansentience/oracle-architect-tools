@@ -1,20 +1,21 @@
-create sequence APP#ENVIRONMENT_SEQ
-minvalue 1
-maxvalue 999999999999
-start with 1
-increment by 1
-cache 100;
-
-
-create table APP#ENVIRONMENT
+create sequence app#environment_seq
+    minvalue 1
+    maxvalue 999999999999
+    start with 1
+    increment by 1
+    cache 100;
+    
+    
+create table app#environment
 (
-  ENV_ID       NUMBER default app#environment_seq.nextval,
-  SETTING      VARCHAR2(100),
-  VALUE        VARCHAR2(4000),
-  PURPOSE      VARCHAR2(100),
-  CREATED_DATE DATE default SYSDATE,
-  CREATED_BY   VARCHAR2(35),
-  UPDATED_DATE DATE,
-  UPDATED_BY   VARCHAR2(35)
+    env_id       number default app#environment_seq.nextval,
+    setting      varchar2(128) 
+    constraint app#environment_pk primary key
+    constraint app#environment_nn_setting not null,
+    value        varchar2(4000),
+    purpose      varchar2(1000),
+    created_date date default sysdate,
+    created_by   varchar2(128),
+    updated_date date,
+    updated_by   varchar2(128)
 );
-

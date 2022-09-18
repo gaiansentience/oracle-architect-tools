@@ -7,16 +7,17 @@ is
     -- Updated : 9/10/2022
     -- Purpose : Manage application environment settings
     
-    subtype application_user is varchar2(128);
-    subtype environment_key is varchar2(100);
-    subtype environment_description is varchar2(4000);    
-    subtype reference_id is number;
+    subtype application_user        is varchar2(128);
+    subtype environment_key         is app#environment.setting%type;
+    subtype environment_description is app#environment.purpose%type;    
+    subtype reference_id            is number;
     
 
-    --TRUE/FALSE T/F
-    subtype environment_value is varchar2(4000);
-    --0 (false) / 1 or -1 (true)
-    subtype environment_flag is number;
+    --TRUE/FALSE T/F value stored in environment table
+    subtype environment_value  is app#environment.value%type;
+    --number 0 (false) / 1 or -1 (true) used for type attributes
+    subtype environment_flag   is number;
+    --boolean used for calls in plsql
     subtype environment_switch is boolean;
     
     --set an override for the osuser reported by Oracle
