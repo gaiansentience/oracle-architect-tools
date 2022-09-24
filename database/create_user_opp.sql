@@ -1,9 +1,12 @@
 -- Create the user for the logging demonstration
 create user OPP
-  identified by "xe"
-  default tablespace USERS
-  temporary tablespace TEMP
-  profile DEFAULT;
+  identified by oracle;
+
+alter user OPP
+default tablespace users
+ quota unlimited on users
+container = current;
+
 -- Grant basic database privileges
 grant create session to OPP;
 -- Grant object creation privileges

@@ -5,6 +5,17 @@ as
     g_backup_tablespace varchar2(128) := null;
     g_use_parallel boolean := true;
     g_default_degree_of_parallel number := 4;
+    
+    procedure set_parallel_options
+    (
+        p_use_parallel in boolean default false,
+        p_default_degree_of_parallel in number default 4
+    )
+    is
+    begin
+        g_use_parallel := p_use_parallel;
+        g_default_degree_of_parallel := p_default_degree_of_parallel;
+    end set_parallel_options;
         
     procedure log_error
     (
@@ -1093,5 +1104,6 @@ q'[        )
 
 
 begin
-    null;
+    --set parallel support to default state (not used, dop 4)
+    set_parallel_options;
 end oa_dpc_etl;

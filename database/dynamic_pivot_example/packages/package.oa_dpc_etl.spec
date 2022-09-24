@@ -2,6 +2,12 @@ create or replace package oa_dpc_etl
 authid current_user
 as
 
+    procedure set_parallel_options
+    (
+        p_use_parallel in boolean default false,
+        p_default_degree_of_parallel in number default 4
+    );
+
     procedure create_table_pair_value_source
     (
         p_create_empty in boolean default false,
