@@ -2,13 +2,29 @@ create or replace package admin$schema
 authid current_user
 as
 
-    procedure run_ddl
+    procedure run_statement
     (
-        p_ddl in varchar2,
+        p_statement in varchar2,
         p_script in boolean default true,
         p_execute in boolean default false
     );
-
+    
+    procedure create_role
+    (
+        p_role in varchar2,
+        p_script in boolean default true, 
+        p_execute in boolean default false
+    );
+    
+    procedure grant_role
+    (
+        p_role in varchar2,
+        p_grantee in varchar2,
+        p_grant_option in boolean default false,
+        p_script in boolean default true, 
+        p_execute in boolean default false
+    );        
+    
     function get_synonym_ddl
     (
         p_synonym_name in varchar2, 

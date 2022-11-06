@@ -1,9 +1,9 @@
 create or replace package body admin$schema
 as
 
-    procedure run_ddl
+    procedure run_statement
     (
-        p_ddl in varchar2,
+        p_statement in varchar2,
         p_script in boolean default true,
         p_execute in boolean default false
     )
@@ -11,15 +11,50 @@ as
     begin
     
         if p_script then
-            dbms_output.put_line(p_ddl);
+            dbms_output.put_line(p_statement || ';');
         end if;
     
         if p_execute then
-            execute immediate p_ddl;
+            execute immediate p_statement;
         end if;
     
-    end run_ddl;
+    end run_statement;
+    
+    procedure create_role
+    (
+        p_role in varchar2,
+        p_script in boolean default true, 
+        p_execute in boolean default false
+    )
+    is
+        l_statement varchar2(1000);
+    begin
+        
+        l_statement := 'CREATE ROLE ' || p_role;
+        run_statement(l_statement, p_script, p_execute);
+        
+    end create_role;
+    
+    procedure grant_role
+    (
+        p_role in varchar2,
+        p_grantee in varchar2,
+        p_grant_option in boolean default false,
+        p_script in boolean default true, 
+        p_execute in boolean default false
+    )
+    is
+        l_grant varchar2(1000);
+    begin
+        
+        l_grant := 'GRANT ' || p_role || ' TO ' || p_grantee;
+        if p_grant_option then
+            l_grant := l_grant || ' WITH GRANT OPTION';
+        end if;
+        run_statement(l_grant, p_script, p_execute);
 
+    end grant_role;        
+    
     function get_synonym_ddl
     (
         p_synonym_name in varchar2, 
@@ -103,26 +138,26 @@ as
         if p_tables then
             for r in c_tables loop 
                 l_ddl := get_synonym_ddl(p_synonym_name => l_owner || '_' || r.object_name, p_object => r.object_name, p_owner => l_owner, p_public => true);    
-                run_ddl(l_ddl, p_script, p_execute);
+                run_statement(l_ddl, p_script, p_execute);
             end loop;
         end if;
     
         if p_views then
             for r in c_views loop 
                 l_ddl := get_synonym_ddl(p_synonym_name => l_owner || '_' || r.object_name, p_object => r.object_name, p_owner => l_owner, p_public => true);    
-                run_ddl(l_ddl, p_script, p_execute);
+                run_statement(l_ddl, p_script, p_execute);
             end loop;
         end if;
     
         if p_materialized_views then
             for r in c_mviews loop 
                 l_ddl := get_synonym_ddl(p_synonym_name => l_owner || '_' || r.object_name, p_object => r.object_name, p_owner => l_owner, p_public => true);    
-                run_ddl(l_ddl, p_script, p_execute);
+                run_statement(l_ddl, p_script, p_execute);
             end loop;
         end if;
     
     end create_public_synonyms;
-
+    
     procedure grant_privileges_on_object
     (
         p_privileges in varchar2,
@@ -136,7 +171,7 @@ as
         l_grant varchar2(1000);
     begin
         l_grant := 'GRANT ' || p_privileges || ' ON ' || p_owner || '.' || p_object || ' TO ' || p_user;
-        run_ddl(l_grant, p_script, p_execute);
+        run_statement(l_grant, p_script, p_execute);
     end grant_privileges_on_object;
     
     procedure grant_execute_on_object
@@ -308,7 +343,7 @@ as
         l_ddl := l_ddl || ' AS SELECT * FROM ' || p_owner || '.' || p_object_name;
         --dont create user views that duplicate public synonyms
         if not public_synonym_exists(p_view_name) then
-            run_ddl(l_ddl, p_script, p_execute);
+            run_statement(l_ddl, p_script, p_execute);
         end if;
     end create_view_as_select;
 
@@ -548,7 +583,7 @@ as
                 l_ddl := l_ddl || ' DISABLE VALIDATE';
         end case;
         l_ddl := l_ddl || ' CONSTRAINT ' || p_constraint;  
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
       
     end alter_table_foreign_key;
 
@@ -610,7 +645,7 @@ as
             l_ddl := l_ddl || ' ONLINE';
         end if;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end move_table;
 
@@ -660,7 +695,7 @@ as
             l_ddl := l_ddl || ' TABLESPACE ' || p_tablespace;
         end if;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end move_index;
 
@@ -716,7 +751,7 @@ as
         if not p_logging then
             l_ddl := l_ddl || ' NOLOGGING';  
         end if;
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end move_table_partition_single;
 
@@ -769,7 +804,7 @@ as
         if p_tablespace is not null then
             l_ddl := l_ddl || ' TABLESPACE ' || p_tablespace;
         end if;    
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end move_index_partition_single;
 
@@ -890,7 +925,7 @@ as
         --ALTER TABLE costs RENAME PARTITION COSTS_H2_1997 TO COSTS_1997;
         l_ddl := 'ALTER TABLE ' || p_table || ' RENAME PARTITION ' || p_partition_name || ' TO ' || p_new_partition_name;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end rename_table_partition;
 
@@ -909,7 +944,7 @@ as
         -- ALTER INDEX COSTS_TIME_BIX RENAME PARTITION COSTS_Q4_2003 TO COSTS_2003;
         l_ddl := 'ALTER INDEX ' || p_index || ' RENAME PARTITION ' || p_partition_name || ' TO ' || p_new_partition_name;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end rename_index_partition;
 
@@ -941,7 +976,7 @@ as
             l_ddl := l_ddl || ' ONLINE';
         end if;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end merge_range_partitions;
 
@@ -972,7 +1007,7 @@ as
         l_ddl := l_ddl || ' COMPRESS BASIC NOLOGGING';
         l_ddl := l_ddl || ' TABLESPACE ' || p_tablespace;
     
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
     
     end add_range_partition;
     
@@ -1054,8 +1089,10 @@ as
     is
         l_ddl varchar2(1000);
     begin
+    
         l_ddl := 'CREATE OR REPLACE DIRECTORY ' || p_ora_dir || ' AS ''' || p_path || '''';
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
+        
     end create_directory;
   
     procedure drop_directory
@@ -1067,8 +1104,10 @@ as
     is
         l_ddl varchar2(500);
     begin
-        l_ddl := 'drop directory ' || p_ora_dir;
-        run_ddl(l_ddl, p_script, p_execute);
+    
+        l_ddl := 'DROP DIRECTORY ' || p_ora_dir;
+        run_statement(l_ddl, p_script, p_execute);
+        
     end drop_directory;
   
     procedure revoke_directory_access
@@ -1081,8 +1120,10 @@ as
     is
         l_ddl varchar2(1000);
     begin
+    
         l_ddl := 'REVOKE ALL ON DIRECTORY ' || p_ora_dir || ' FROM ' || p_user;
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
+        
     end revoke_directory_access;
   
     procedure grant_directory_access
@@ -1096,12 +1137,14 @@ as
     is
         l_ddl varchar2(1000);
     begin
+    
         l_ddl := 'GRANT READ';
         if p_write then
             l_ddl := l_ddl || ', WRITE';
         end if;
         l_ddl := l_ddl || ' ON DIRECTORY ' || p_ora_dir || ' TO ' || p_user;
-        run_ddl(l_ddl, p_script, p_execute);
+        run_statement(l_ddl, p_script, p_execute);
+        
     end grant_directory_access;
 
 --package initialization
