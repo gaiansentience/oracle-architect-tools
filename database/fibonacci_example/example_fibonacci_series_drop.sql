@@ -1,2 +1,2 @@
-drop function fibonacci_series;
-drop function fibonacci;
+drop package fibonacci;
+drop function fibonacci_number;
