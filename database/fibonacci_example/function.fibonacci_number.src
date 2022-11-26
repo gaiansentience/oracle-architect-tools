@@ -1,0 +1,31 @@
+create or replace function fibonacci_number(
+        p_n in number
+        ) return number
+        result_cache
+    is
+        l_result number;
+    begin
+        if p_n > 300 then
+            raise_application_error(-20100, 'Fibonacci function should not be called for numbers > 300 even using result cache');
+        end if;
+    
+        if p_n < 0 then
+           raise_application_error(-20100, 'Fibonacci function is not defined for negative numbers');
+        end if;
+        
+        case
+            when p_n = 0 then
+                l_result := 0;
+            when p_n = 1 then
+                l_result := 1;
+            else
+                l_result := fibonacci_number(p_n - 1) + fibonacci_number(p_n - 2);
+        end case;
+        
+        return l_result;
+    
+    exception 
+        when others then
+            raise;
+end fibonacci_number;
+/
