@@ -1,6 +1,6 @@
 SourceCode Branches
 
-master - original branch migrated from SVN on SourceForge
+master - primary branch.  updated when a release is closed.
 
 release-2022 -closed branch
 feature-2022 -closed branch
