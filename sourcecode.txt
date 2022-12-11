@@ -1,0 +1,14 @@
+SourceCode Branches
+
+master - original branch migrated from SVN on SourceForge
+
+release-2022 -closed branch
+feature-2022 -closed branch
+
+release-2023 -open for pull requests from feature-2023
+feature-2023 -current working branch
+
+Future branches
+
+release-YYYY
+feature-YYYY 
