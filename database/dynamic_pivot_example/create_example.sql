@@ -39,9 +39,9 @@ prompt view for distinct pair value attributes and datatypes
 
 prompt default install script does not create test results table or comparison views
 prompt running testing framework will create oa_dpc_test_results table if it does not exist
---@tables\table.oa_dpc_test_results.sql;
+@tables\table.oa_dpc_test_results.sql;
 prompt create the oa_dpc_test_compare_codebase_v view to compare testing across different codebase versions
---@views\view.oa_dpc_test_compare_codebase_v.sql;
---@views\view.oa_dpc_test_compare_codebase_pivot_v.sql;
+@views\view.oa_dpc_test_compare_codebase_v.sql;
+@views\view.oa_dpc_test_compare_codebase_pivot_v.sql;
 
 prompt all example objects created
