@@ -7,7 +7,8 @@ release/2022 -closed branch
 release/2023 -open for pull requests from feature/2023
 feature/2023 -current working branch
 
-feature/2023-summer   -current working branch
+feature/2023-spring
+feature/2023-summer
 
 Future branches
 
