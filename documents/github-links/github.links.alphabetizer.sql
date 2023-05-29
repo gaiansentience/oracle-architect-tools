@@ -188,6 +188,10 @@ Trivadis PL/SQL & SQL Coding Guidelines
 https://trivadis.github.io/plsql-and-sql-coding-guidelines/v4.2/
 https://github.com/Trivadis/plsql-and-sql-coding-guidelines
 ##START-ENTRY##
+Source code for "Modern Oracle Database Programming" by Alex Nuijten and Patrick Barel
+https://github.com/Apress/modern-oracle-database-programming
+https://github.com/Apress/modern-oracle-database-programming
+##START-ENTRY##
 Title: (From Github About)
 Website: (From GitHub About: Use Github URL if not provided)
 GitUrl: (Github URL)
