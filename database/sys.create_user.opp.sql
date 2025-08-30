@@ -1,7 +1,7 @@
 create user opp identified by oracle;
 
 grant create session to opp;
-grant resource to opp option;
+grant resource to opp;
 
 alter user opp
 default tablespace users
